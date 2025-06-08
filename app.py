@@ -1,30 +1,13 @@
-import os
-import json
-from flask import Flask, render_template, request, jsonify
-from dotenv import load_dotenv
+from flask import Flask, render_template, request
 import openai
+import os
+from dotenv import load_dotenv
 
 load_dotenv()
+
 app = Flask(__name__)
 
-# Load API Key
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# Load data kampus
-with open("data_kampus.json", "r", encoding="utf-8") as f:
-    data_kampus = json.load(f)
-
-def buat_prompt(user_question):
-    info = "\n".join([f"- {key}: {val}" for key, val in data_kampus.items()])
-    prompt = f"""
-Kamu adalah chatbot STMK Trisakti. Jawablah dalam Bahasa Indonesia berdasarkan informasi berikut:
-
-{info}
-
-Pertanyaan: {user_question}
-Jawaban:
-"""
-    return prompt
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/")
 def index():
@@ -32,19 +15,21 @@ def index():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_msg = request.json["message"]
-    prompt = buat_prompt(user_msg)
+    user_message = request.form["message"]
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Gunakan "gpt-4" jika kamu punya akses
-            messages=[{"role": "user", "content": prompt}]
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Kamu adalah asisten untuk Chatbot STMK Trisakti."},
+                {"role": "user", "content": user_message}
+            ]
         )
-        reply = response["choices"][0]["message"]["content"].strip()
+        bot_reply = response.choices[0].message.content
     except Exception as e:
-        reply = f"Terjadi kesalahan: {str(e)}"
+        bot_reply = f"Terjadi kesalahan: {e}"
 
-    return jsonify({"reply": reply})
+    return render_template("index.html", user_message=user_message, bot_reply=bot_reply)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    app.run(debug=True)
