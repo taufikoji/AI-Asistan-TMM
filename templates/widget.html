@@ -2,103 +2,188 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>AI Widget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asisten AI STMK Trisakti</title>
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #111;
+    }
+
     .chatbot-widget {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 300px;
-      font-family: sans-serif;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      max-width: 420px;
+      height: 90vh;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      background-color: #1a1a1a;
+      display: flex;
+      flex-direction: column;
       z-index: 9999;
     }
 
     .chatbot-header {
-      background-color: maroon;
-      color: #fff;
-      padding: 10px;
-      cursor: pointer;
-      border-radius: 10px 10px 0 0;
-    }
-
-    .chatbot-body {
-      display: none;
-      flex-direction: column;
-      height: 400px;
-      background: #fff;
-      border: 1px solid maroon;
-      border-top: none;
-      border-radius: 0 0 10px 10px;
-      overflow: hidden;
-    }
-
-    .chatbot-body.active {
+      background-color: #800000;
+      color: white;
+      padding: 10px 15px;
+      font-size: 18px;
+      font-weight: bold;
       display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .chatbox {
+    .chatbot-header span {
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .chatbot-messages {
       flex: 1;
-      padding: 10px;
+      padding: 15px;
       overflow-y: auto;
-      max-height: 320px;
+      background-color: #222;
     }
 
-    #user-input {
+    .bot-message, .user-message {
+      max-width: 90%;
+      padding: 10px 15px;
+      margin: 10px 0;
+      border-radius: 12px;
+      line-height: 1.5;
+      word-wrap: break-word;
+      font-size: 15px;
+    }
+
+    .bot-message {
+      background-color: #333;
+      color: #fff;
+      align-self: flex-start;
+    }
+
+    .user-message {
+      background-color: #a00000;
+      color: #fff;
+      align-self: flex-end;
+    }
+
+    .chatbot-input {
+      display: flex;
+      border-top: 1px solid #444;
+      background-color: #111;
+    }
+
+    .chatbot-input input {
+      flex: 1;
+      padding: 12px;
       border: none;
-      border-top: 1px solid #ccc;
-      padding: 10px;
-      width: 100%;
-      box-sizing: border-box;
+      background-color: #222;
+      color: #fff;
+      font-size: 14px;
     }
 
-    .user {
-      text-align: right;
-      margin: 5px;
-      color: maroon;
+    .chatbot-input button {
+      padding: 12px 18px;
+      background-color: #800000;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
     }
 
-    .bot {
-      text-align: left;
-      margin: 5px;
-      color: black;
+    .chatbot-input button:hover {
+      background-color: #a00000;
+    }
+
+    .chatbot-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chatbot-messages::-webkit-scrollbar-thumb {
+      background-color: #444;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 480px) {
+      .chatbot-widget {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+      }
+
+      .chatbot-header {
+        font-size: 16px;
+        padding: 8px 12px;
+      }
+
+      .chatbot-input input {
+        font-size: 13px;
+      }
+
+      .chatbot-input button {
+        font-size: 13px;
+        padding: 10px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="chatbot-widget">
-    <div class="chatbot-header" onclick="toggleChat()">
-      <span>Asisten Virtual</span>
-    </div>
-    <div class="chatbot-body" id="chat-body">
-      <div class="chatbox" id="chatbox"></div>
-      <input type="text" id="user-input" placeholder="Tulis pertanyaan..." onkeydown="if(event.key==='Enter') sendMessage()" />
-    </div>
+
+<div class="chatbot-widget" id="chatbot">
+  <div class="chatbot-header">
+    Asisten AI
+    <span onclick="closeChatbot()">✖️</span>
   </div>
+  <div id="chat-messages" class="chatbot-messages"></div>
+  <div class="chatbot-input">
+    <input type="text" id="user-input" placeholder="Tulis pertanyaan kamu..." />
+    <button onclick="sendMessage()">Kirim</button>
+  </div>
+</div>
 
-  <script>
-    async function sendMessage() {
-      const input = document.getElementById("user-input");
-      const msg = input.value.trim();
-      if (!msg) return;
+<script>
+  function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+    if (!message) return;
 
-      const chatbox = document.getElementById("chatbox");
-      chatbox.innerHTML += `<div class="user">${msg}</div>`;
-      input.value = "";
+    addMessage(message, "user");
+    input.value = "";
 
-      const response = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg })
-      });
+    fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    })
+    .then(res => res.json())
+    .then(data => {
+      addMessage(data.reply, "bot");
+    })
+    .catch(() => {
+      addMessage("Maaf, terjadi kesalahan.", "bot");
+    });
+  }
 
-      const data = await response.json();
-      chatbox.innerHTML += `<div class="bot">${data.reply}</div>`;
-      chatbox.scrollTop = chatbox.scrollHeight;
-    }
+  function addMessage(text, sender) {
+    const chat = document.getElementById("chat-messages");
+    const msg = document.createElement("div");
+    msg.className = sender + "-message";
+    msg.innerText = text;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  }
 
-    function toggleChat() {
-      document.getElementById("chat-body").classList.toggle("active");
-    }
-  </script>
+  function closeChatbot() {
+    document.getElementById("chatbot").style.display = "none";
+  }
+</script>
+
 </body>
 </html>
