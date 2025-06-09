@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify
-from dotenv import load_dotenv
 import requests
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -13,10 +13,6 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 def index():
     return render_template("index.html")
 
-@app.route("/widget")
-def widget():
-    return render_template("widget.html")
-
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
@@ -25,12 +21,12 @@ def chat():
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://stmk-trisakti-chatbot.com",  # Ganti jika perlu
+            "HTTP-Referer": "https://stmk-trisakti-chatbot.com",  # ganti dengan domain kamu
             "X-Title": "STMK Chatbot"
         }
 
         data = {
-            "model": "openai/gpt-3.5-turbo",  # ✅ MODEL VALID DAN TERSEDIA
+            "model": "deepseek/deepseek-r1-0528:free",  # Model DeepSeek R1 yang gratis
             "messages": [
                 {"role": "system", "content": "Kamu adalah asisten AI kampus STMK Trisakti. Jawab dalam bahasa Indonesia."},
                 {"role": "user", "content": user_msg}
