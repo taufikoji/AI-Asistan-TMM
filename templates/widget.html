@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Widget</title>
+  <style>
+    .chatbot-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      font-family: sans-serif;
+      z-index: 9999;
+    }
+
+    .chatbot-header {
+      background-color: maroon;
+      color: #fff;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .chatbot-body {
+      display: none;
+      flex-direction: column;
+      height: 400px;
+      background: #fff;
+      border: 1px solid maroon;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      overflow: hidden;
+    }
+
+    .chatbot-body.active {
+      display: flex;
+    }
+
+    .chatbox {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      max-height: 320px;
+    }
+
+    #user-input {
+      border: none;
+      border-top: 1px solid #ccc;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .user {
+      text-align: right;
+      margin: 5px;
+      color: maroon;
+    }
+
+    .bot {
+      text-align: left;
+      margin: 5px;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="chatbot-widget">
+    <div class="chatbot-header" onclick="toggleChat()">
+      <span>Asisten Virtual</span>
+    </div>
+    <div class="chatbot-body" id="chat-body">
+      <div class="chatbox" id="chatbox"></div>
+      <input type="text" id="user-input" placeholder="Tulis pertanyaan..." onkeydown="if(event.key==='Enter') sendMessage()" />
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chatbox = document.getElementById("chatbox");
+      chatbox.innerHTML += `<div class="user">${msg}</div>`;
+      input.value = "";
+
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+      });
+
+      const data = await response.json();
+      chatbox.innerHTML += `<div class="bot">${data.reply}</div>`;
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function toggleChat() {
+      document.getElementById("chat-body").classList.toggle("active");
+    }
+  </script>
+</body>
+</html>
