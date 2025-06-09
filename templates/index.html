@@ -1,110 +1,165 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot STMK Trisakti</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f4f4f4;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatbot STMK Trisakti</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
 
-        .card {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            padding: 2rem;
-        }
+    .chatbox {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+    }
 
-        h1 {
-            text-align: center;
-            color: #333;
-        }
+    .chat {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
 
-        .chat-box {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background: #fafafa;
-        }
+    .message {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      animation: fadeIn 0.5s ease;
+    }
 
-        .chat-message {
-            margin-bottom: 0.75rem;
-        }
+    .avatar {
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
 
-        .chat-message strong {
-            display: block;
-            margin-bottom: 0.25rem;
-        }
+    .text {
+      background: #f0f0f0;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      max-width: 80%;
+    }
 
-        form {
-            display: flex;
-            flex-direction: column;
-        }
+    .user .text {
+      background: #d0e8ff;
+      margin-left: auto;
+    }
 
-        input[type="text"] {
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-        }
+    .user {
+      flex-direction: row-reverse;
+      text-align: right;
+    }
 
-        button {
-            padding: 0.75rem;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
+    form {
+      display: flex;
+      gap: 0.5rem;
+    }
 
-        button:hover {
-            background: #0056b3;
-        }
+    input[type="text"] {
+      flex: 1;
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
 
-        @media (max-width: 600px) {
-            .card {
-                padding: 1rem;
-            }
+    button {
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
 
-            input[type="text"], button {
-                font-size: 0.9rem;
-                padding: 0.6rem;
-            }
-        }
-    </style>
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .typing {
+      font-style: italic;
+      color: #888;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+
+    @media (max-width: 600px) {
+      input, button {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <h1>Chatbot STMK Trisakti</h1>
-            <div class="chat-box">
-                {% for chat in chats %}
-                    <div class="chat-message">
-                        <strong>Anda:</strong> {{ chat.user }}<br>
-                        <strong>Chatbot:</strong> {{ chat.bot }}
-                    </div>
-                {% endfor %}
-            </div>
-            <form method="post">
-                <input type="text" name="user_input" placeholder="Tanyakan sesuatu..." required>
-                <button type="submit">Kirim</button>
-            </form>
-        </div>
+  <div class="container">
+    <div class="chatbox">
+      <div id="chat" class="chat"></div>
+      <form id="chat-form">
+        <input type="text" id="message" placeholder="Tanyakan sesuatu..." required />
+        <button type="submit">Kirim</button>
+      </form>
     </div>
+  </div>
+
+  <script>
+    const chatForm = document.getElementById("chat-form");
+    const chatDiv = document.getElementById("chat");
+    const messageInput = document.getElementById("message");
+
+    chatForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      // Tampilkan pesan user
+      chatDiv.innerHTML += `
+        <div class="message user">
+          <div class="avatar">👤</div>
+          <div class="text">${message}</div>
+        </div>`;
+      messageInput.value = "";
+
+      // Tampilkan indikator mengetik
+      const typingDiv = document.createElement("div");
+      typingDiv.className = "message bot";
+      typingDiv.innerHTML = `<div class="avatar">🤖</div><div class="text typing">Chatbot sedang mengetik...</div>`;
+      chatDiv.appendChild(typingDiv);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+
+      // Kirim ke server
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+      const data = await response.json();
+
+      // Ganti indikator dengan balasan
+      typingDiv.innerHTML = `
+        <div class="avatar">🤖</div>
+        <div class="text">${data.reply}</div>`;
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    });
+  </script>
 </body>
 </html>
