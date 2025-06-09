@@ -1,163 +1,160 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Asisten Interaktif</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: url('https://i.ibb.co/5xhNsRz/aquarium-bg.jpg') no-repeat center center fixed;
-      background-size: cover;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Asisten Interaktif</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #0f0f0f, #1a1a1a);
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+        }
 
-    /* Chatbot Container */
-    .chat-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 350px;
-      max-height: 90vh;
-      background-color: rgba(255, 255, 255, 0.95);
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 10;
-    }
+        header {
+            background: linear-gradient(90deg, #6e0f1f, #9c1427);
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8rem;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+        }
 
-    .chat-header {
-      background-color: maroon;
-      color: white;
-      padding: 12px;
-      font-weight: bold;
-      text-align: center;
-    }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
 
-    .chat-body {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-    }
+        .chat-box {
+            min-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #888;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+        }
 
-    .chat-input {
-      display: flex;
-      border-top: 1px solid #ccc;
-    }
+        .input-section {
+            margin-top: 20px;
+            display: flex;
+        }
 
-    .chat-input input {
-      flex: 1;
-      border: none;
-      padding: 10px;
-      font-size: 14px;
-    }
+        .input-section input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px 0 0 8px;
+            border: none;
+            outline: none;
+        }
 
-    .chat-input button {
-      background-color: maroon;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-    }
+        .input-section button {
+            padding: 10px 20px;
+            background-color: #9c1427;
+            color: #fff;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+        }
 
-    .bubble {
-      max-width: 80%;
-      margin: 5px 0;
-      padding: 10px;
-      border-radius: 10px;
-      line-height: 1.4;
-    }
+        .bubble {
+            background-color: #222;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 10px;
+            max-width: 70%;
+        }
 
-    .user {
-      background-color: #d1ecf1;
-      align-self: flex-end;
-    }
+        .user {
+            text-align: right;
+            color: #9cf;
+        }
 
-    .bot {
-      background-color: #f8d7da;
-      align-self: flex-start;
-    }
+        .bot {
+            text-align: left;
+            color: #fff;
+        }
 
-    /* Ikan berenang */
-    .fish {
-      position: absolute;
-      width: 100px;
-      z-index: 1;
-      animation: swim 25s linear infinite;
-    }
-
-    .fish2 {
-      animation: swim2 30s linear infinite;
-      top: 50%;
-    }
-
-    @keyframes swim {
-      0%   { left: -120px; top: 30%; transform: scaleX(1); }
-      50%  { top: 20%; }
-      100% { left: 110%; top: 35%; transform: scaleX(-1); }
-    }
-
-    @keyframes swim2 {
-      0%   { left: -150px; transform: scaleX(1); }
-      50%  { top: 60%; }
-      100% { left: 110%; transform: scaleX(-1); }
-    }
-  </style>
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Ikan -->
-  <img src="https://i.ibb.co/gj3n1yx/fish1.gif" class="fish" />
-  <img src="https://i.ibb.co/59D5Wx2/fish2.gif" class="fish fish2" />
+    <header>
+        AI Asisten Interaktif
+    </header>
 
-  <!-- Chatbot -->
-  <div class="chat-container">
-    <div class="chat-header">AI Asisten Interaktif</div>
-    <div class="chat-body" id="chat-body"></div>
-    <div class="chat-input">
-      <input type="text" id="user-input" placeholder="Tulis pertanyaan..." />
-      <button onclick="sendMessage()">Kirim</button>
+    <div class="container">
+        <div class="chat-box" id="chat-box">
+            <div class="bubble bot">Halo! Saya adalah asisten AI. Silakan ajukan pertanyaan.</div>
+        </div>
+
+        <div class="input-section">
+            <input type="text" id="user-input" placeholder="Tulis pertanyaan kamu...">
+            <button onclick="sendMessage()">Kirim</button>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const chatBody = document.getElementById("chat-body");
-    const userInput = document.getElementById("user-input");
+    <footer>
+        &copy; 2025 AI Interaktif | Powered by OpenAI API
+    </footer>
 
-    function appendMessage(sender, message) {
-      const bubble = document.createElement("div");
-      bubble.classList.add("bubble", sender);
-      bubble.textContent = message;
-      chatBody.appendChild(bubble);
-      chatBody.scrollTop = chatBody.scrollHeight;
-    }
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("user-input");
+            const msg = input.value.trim();
+            if (msg === "") return;
 
-    async function sendMessage() {
-      const message = userInput.value.trim();
-      if (!message) return;
-      appendMessage("user", message);
-      userInput.value = "";
+            const chatBox = document.getElementById("chat-box");
 
-      try {
-        const response = await fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message })
-        });
-        const data = await response.json();
-        appendMessage("bot", data.reply);
-      } catch (err) {
-        appendMessage("bot", "Terjadi kesalahan saat menghubungi server.");
-      }
-    }
+            // Tambahkan pesan user
+            const userDiv = document.createElement("div");
+            userDiv.className = "bubble user";
+            userDiv.textContent = msg;
+            chatBox.appendChild(userDiv);
 
-    userInput.addEventListener("keydown", function(e) {
-      if (e.key === "Enter") sendMessage();
-    });
-  </script>
+            input.value = "";
+
+            // Scroll ke bawah
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: msg })
+                });
+
+                const data = await response.json();
+
+                const botDiv = document.createElement("div");
+                botDiv.className = "bubble bot";
+                botDiv.textContent = data.reply;
+                chatBox.appendChild(botDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (err) {
+                const botDiv = document.createElement("div");
+                botDiv.className = "bubble bot";
+                botDiv.textContent = "Maaf, terjadi kesalahan. Coba lagi.";
+                chatBox.appendChild(botDiv);
+            }
+        }
+    </script>
 
 </body>
 </html>
