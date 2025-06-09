@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
-
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+app = Flask(__name__)
 
 @app.route("/")
 def index():
@@ -21,7 +21,7 @@ def chat():
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Kamu adalah asisten untuk Chatbot STMK Trisakti."},
+                {"role": "system", "content": "Kamu adalah asisten chatbot STMK Trisakti."},
                 {"role": "user", "content": user_message}
             ]
         )
@@ -32,4 +32,5 @@ def chat():
     return render_template("index.html", user_message=user_message, bot_reply=bot_reply)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)
