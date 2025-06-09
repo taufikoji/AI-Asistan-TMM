@@ -1,271 +1,163 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Asisten </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Asisten Interaktif</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #fff8f8;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background: url('https://i.ibb.co/5xhNsRz/aquarium-bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
     }
 
-    header {
-      width: 100%;
-      background-color: #800000;
+    /* Chatbot Container */
+    .chat-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 350px;
+      max-height: 90vh;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .chat-header {
+      background-color: maroon;
       color: white;
-      padding: 1rem;
+      padding: 12px;
+      font-weight: bold;
       text-align: center;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 1.6rem;
-    }
-
-    .guide {
-      width: 90%;
-      max-width: 600px;
-      margin: 1.5rem 0;
-    }
-
-    .collapsible {
-      background-color: #800000;
-      color: white;
-      cursor: pointer;
-      padding: 14px;
-      width: 100%;
-      border: none;
-      text-align: left;
-      outline: none;
-      font-size: 1rem;
-      border-radius: 5px;
-      margin-bottom: 5px;
-    }
-
-    .collapsible:after {
-      content: ' ▼';
-      float: right;
-    }
-
-    .active:after {
-      content: " ▲";
-    }
-
-    .content {
-      padding: 0 15px;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-      background-color: #fff3f3;
-      border-left: 4px solid #b03d3d;
-      margin-bottom: 10px;
-      border-radius: 5px;
-    }
-
-    .content ul {
-      margin: 10px 0;
-      padding-left: 1.2rem;
-    }
-
-    .chat-container {
-      width: 90%;
-      max-width: 600px;
-      background-color: white;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 2rem;
-    }
-
-    .chat-box {
-      max-height: 400px;
+    .chat-body {
+      flex: 1;
+      padding: 10px;
       overflow-y: auto;
-      margin-bottom: 1rem;
-    }
-
-    .chat-bubble {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 1rem;
-    }
-
-    .chat-bubble.user {
-      flex-direction: row-reverse;
-    }
-
-    .avatar {
-      width: 40px;
-      height: 40px;
-      background-color: #800000;
-      border-radius: 50%;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      margin: 0 10px;
-      flex-shrink: 0;
-    }
-
-    .bubble {
-      background-color: #f0f0f0;
-      padding: 10px 15px;
-      border-radius: 15px;
-      max-width: 80%;
-    }
-
-    .chat-bubble.user .bubble {
-      background-color: #d8d8ff;
     }
 
     .chat-input {
       display: flex;
-      gap: 10px;
+      border-top: 1px solid #ccc;
     }
 
-    input[type="text"] {
+    .chat-input input {
       flex: 1;
+      border: none;
       padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      font-size: 14px;
     }
 
-    button {
-      padding: 10px 15px;
-      background-color: #800000;
+    .chat-input button {
+      background-color: maroon;
       color: white;
       border: none;
-      border-radius: 8px;
+      padding: 10px 15px;
       cursor: pointer;
     }
 
-    button:hover {
-      background-color: #a00000;
+    .bubble {
+      max-width: 80%;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 10px;
+      line-height: 1.4;
+    }
+
+    .user {
+      background-color: #d1ecf1;
+      align-self: flex-end;
+    }
+
+    .bot {
+      background-color: #f8d7da;
+      align-self: flex-start;
+    }
+
+    /* Ikan berenang */
+    .fish {
+      position: absolute;
+      width: 100px;
+      z-index: 1;
+      animation: swim 25s linear infinite;
+    }
+
+    .fish2 {
+      animation: swim2 30s linear infinite;
+      top: 50%;
+    }
+
+    @keyframes swim {
+      0%   { left: -120px; top: 30%; transform: scaleX(1); }
+      50%  { top: 20%; }
+      100% { left: 110%; top: 35%; transform: scaleX(-1); }
+    }
+
+    @keyframes swim2 {
+      0%   { left: -150px; transform: scaleX(1); }
+      50%  { top: 60%; }
+      100% { left: 110%; transform: scaleX(-1); }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>AI Asisten Interaktif</h1>
-    
-  </header>
 
-  <section class="guide">
-    <h3>Apa yang bisa kamu tanyakan?</h3>
+  <!-- Ikan -->
+  <img src="https://i.ibb.co/gj3n1yx/fish1.gif" class="fish" />
+  <img src="https://i.ibb.co/59D5Wx2/fish2.gif" class="fish fish2" />
 
-    <button class="collapsible">🎓 Program Studi & Akademik</button>
-    <div class="content">
-      <ul>
-        <li>Apa saja program studi di STMK Trisakti?</li>
-        <li>Apakah tersedia kelas malam atau karyawan?</li>
-      </ul>
-    </div>
-
-    <button class="collapsible">🏫 Fasilitas Kampus</button>
-    <div class="content">
-      <ul>
-        <li>Apa saja fasilitas di kampus?</li>
-        <li>Spesifikasi komputer di laboratorium seperti apa?</li>
-      </ul>
-    </div>
-
-    <button class="collapsible">📝 Pendaftaran & Biaya</button>
-    <div class="content">
-      <ul>
-        <li>Bagaimana cara mendaftar?</li>
-        <li>Berapa biaya kuliah per semester?</li>
-      </ul>
-    </div>
-
-    <button class="collapsible">🗓️ Jadwal Akademik</button>
-    <div class="content">
-      <ul>
-        <li>Kapan tahun ajaran baru dimulai?</li>
-        <li>Kapan libur semester?</li>
-      </ul>
-    </div>
-
-    <button class="collapsible">📍 Lokasi & Kontak</button>
-    <div class="content">
-      <ul>
-        <li>Di mana lokasi kampus STMK Trisakti?</li>
-        <li>Bagaimana cara menghubungi admin kampus?</li>
-      </ul>
-    </div>
-  </section>
-
+  <!-- Chatbot -->
   <div class="chat-container">
-    <div class="chat-box" id="chat-box"></div>
+    <div class="chat-header">AI Asisten Interaktif</div>
+    <div class="chat-body" id="chat-body"></div>
     <div class="chat-input">
-      <input type="text" id="user-input" placeholder="Tulis pertanyaanmu di sini..." />
+      <input type="text" id="user-input" placeholder="Tulis pertanyaan..." />
       <button onclick="sendMessage()">Kirim</button>
     </div>
   </div>
 
   <script>
-    const collapsibles = document.getElementsByClassName("collapsible");
-    for (let i = 0; i < collapsibles.length; i++) {
-      collapsibles[i].addEventListener("click", function () {
-        this.classList.toggle("active");
-        const content = this.nextElementSibling;
-        if (content.style.maxHeight) {
-          content.style.maxHeight = null;
-        } else {
-          content.style.maxHeight = content.scrollHeight + "px";
-        }
-      });
+    const chatBody = document.getElementById("chat-body");
+    const userInput = document.getElementById("user-input");
+
+    function appendMessage(sender, message) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble", sender);
+      bubble.textContent = message;
+      chatBody.appendChild(bubble);
+      chatBody.scrollTop = chatBody.scrollHeight;
     }
 
     async function sendMessage() {
-      const input = document.getElementById("user-input");
-      const message = input.value.trim();
+      const message = userInput.value.trim();
       if (!message) return;
-
-      appendMessage("Kamu", message, true);
-      input.value = "";
+      appendMessage("user", message);
+      userInput.value = "";
 
       try {
         const response = await fetch("/chat", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ message }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
         });
-
         const data = await response.json();
-        appendMessage("AI", data.reply, false);
+        appendMessage("bot", data.reply);
       } catch (err) {
-        appendMessage("AI", "Maaf, terjadi kesalahan pada server.", false);
+        appendMessage("bot", "Terjadi kesalahan saat menghubungi server.");
       }
     }
 
-    function appendMessage(sender, message, isUser) {
-      const chatBox = document.getElementById("chat-box");
-      const bubble = document.createElement("div");
-      bubble.className = "chat-bubble" + (isUser ? " user" : "");
-
-      const avatar = document.createElement("div");
-      avatar.className = "avatar";
-      avatar.textContent = isUser ? "K" : "AI";
-
-      const text = document.createElement("div");
-      text.className = "bubble";
-      text.textContent = message;
-
-      bubble.appendChild(avatar);
-      bubble.appendChild(text);
-      chatBox.appendChild(bubble);
-
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    userInput.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
   </script>
+
 </body>
 </html>
