@@ -25,12 +25,12 @@ def chat():
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://stmk-trisakti-chatbot.com",  # Ganti dengan domainmu kalau punya
+            "HTTP-Referer": "https://stmk-trisakti-chatbot.com",  # Ganti jika perlu
             "X-Title": "STMK Chatbot"
         }
 
         data = {
-            "model": "openchat/openchat-3.5-0106",  # Bisa diganti model lain
+            "model": "openai/gpt-3.5-turbo",  # ✅ MODEL VALID DAN TERSEDIA
             "messages": [
                 {"role": "system", "content": "Kamu adalah asisten AI kampus STMK Trisakti. Jawab dalam bahasa Indonesia."},
                 {"role": "user", "content": user_msg}
