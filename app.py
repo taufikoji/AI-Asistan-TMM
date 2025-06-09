@@ -7,8 +7,8 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Inisialisasi client baru OpenAI
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Inisialisasi client
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 
 @app.route("/")
 def index():
@@ -21,23 +21,31 @@ def widget():
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        user_msg = request.json["message"]
+        user_msg = request.json.get("message")
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "Kamu adalah asisten chatbot kampus STMK Trisakti. Jawablah dalam Bahasa Indonesia."},
+        headers = {
+            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        data = {
+            "model": "deepseek-chat",  # gunakan deepseek-coder jika untuk coding
+            "messages": [
+                {"role": "system", "content": "Kamu adalah asisten AI yang ramah dan membantu. Jawab dengan jelas dan dalam bahasa Indonesia."},
                 {"role": "user", "content": user_msg}
-            ],
-            max_tokens=1000,
-            temperature=0.7,
-        )
+            ]
+        }
 
-        reply = response.choices[0].message.content.strip()
-        return jsonify({"reply": reply})
+        response = requests.post("https://api.deepseek.com/v1/chat/completions", headers=headers, json=data)
+
+        if response.status_code == 200:
+            reply = response.json()["choices"][0]["message"]["content"]
+            return jsonify({"reply": reply})
+        else:
+            return jsonify({"reply": "Terjadi kesalahan pada server DeepSeek."}), 500
 
     except Exception as e:
-        return jsonify({"reply": f"Terjadi kesalahan: {str(e)}"})
+        return jsonify({"reply": f"Terjadi kesalahan internal: {str(e)}"}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
