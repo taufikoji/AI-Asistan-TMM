@@ -1,15 +1,17 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-import requests
+from openai import OpenAI
 
-# Load variabel lingkungan
 load_dotenv()
 
 app = Flask(__name__)
 
-# Ambil API key dari .env
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+# Inisialisasi client DeepSeek
+client = OpenAI(
+    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com"
+)
 
 @app.route("/")
 def index():
@@ -24,41 +26,21 @@ def chat():
     try:
         user_msg = request.json.get("message")
 
-        if not user_msg:
-            return jsonify({"reply": "Pesan tidak boleh kosong."}), 400
+        # Siapkan pesan
+        messages = [
+            {"role": "system", "content": "Kamu adalah asisten AI yang ramah dan membantu. Jawab dalam bahasa Indonesia."},
+            {"role": "user", "content": user_msg}
+        ]
 
-        headers = {
-            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-            "Content-Type": "application/json"
-        }
+        # Kirim ke DeepSeek Reasoner
+        response = client.chat.completions.create(
+            model="deepseek-reasoner",
+            messages=messages
+        )
 
-        data = {
-            "model": "deepseek-chat",  # bisa diganti ke "deepseek-coder" untuk coding
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "Kamu adalah asisten AI kampus STMK Trisakti yang ramah. Jawab dalam bahasa Indonesia."
-                },
-                {
-                    "role": "user",
-                    "content": user_msg
-                }
-            ]
-        }
-
-        response = requests.post("https://api.deepseek.com/v1/chat/completions", headers=headers, json=data)
-
-        if response.status_code == 200:
-            reply = response.json()["choices"][0]["message"]["content"]
-            return jsonify({"reply": reply})
-        else:
-            # Log detail error ke console (bisa dilihat di Railway log)
-            print("DeepSeek Error:", response.text)
-            return jsonify({
-                "reply": "Terjadi kesalahan pada server DeepSeek.",
-                "status": response.status_code,
-                "error": response.text
-            }), 500
+        # Ambil hasil
+        reply = response.choices[0].message.content
+        return jsonify({"reply": reply})
 
     except Exception as e:
         return jsonify({"reply": f"Terjadi kesalahan internal: {str(e)}"}), 500
