@@ -1,12 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import openai
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Memuat file .env
-
-# Inisialisasi client OpenAI
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Load environment variables
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
@@ -16,22 +15,28 @@ def index():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_message = request.form["message"]
-
     try:
-        response = client.chat.completions.create(
+        user_input = request.json.get("message")
+        if not user_input:
+            return jsonify({"reply": "Pesan tidak boleh kosong."}), 400
+
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Kamu adalah chatbot STMK Trisakti. Jawablah dengan jelas dan ringkas dalam Bahasa Indonesia."},
-                {"role": "user", "content": user_message}
+                {"role": "system", "content": "Kamu adalah asisten chatbot kampus STMK Trisakti."},
+                {"role": "user", "content": user_input}
             ]
         )
-        bot_reply = response.choices[0].message.content
+
+        reply = response.choices[0].message.content.strip()
+        return jsonify({"reply": reply})
+
+    except openai.error.OpenAIError as e:
+        return jsonify({"reply": f"Terjadi kesalahan dari OpenAI: {str(e)}"}), 500
     except Exception as e:
-        bot_reply = f"Terjadi kesalahan: {e}"
+        return jsonify({"reply": f"Terjadi kesalahan server: {str(e)}"}), 500
 
-    return render_template("index.html", user_message=user_message, bot_reply=bot_reply)
-
+# ✅ Ini sangat penting untuk Railway
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Railway akan isi PORT
+    port = int(os.environ.get("PORT", 5000))  # Railway injects PORT
     app.run(debug=False, host="0.0.0.0", port=port)
