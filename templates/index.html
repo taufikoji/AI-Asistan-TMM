@@ -2,151 +2,140 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Asisten AI TMM</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
       margin: 0;
       padding: 0;
-      background-color: #f4f7fa;
     }
-
     header {
-      background-color: #002147;
+      background-color: #800000;
       color: white;
-      text-align: center;
-      padding: 1.5rem;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-    }
-
-    .chat-container {
-      max-width: 800px;
-      margin: 20px auto;
       padding: 2rem;
+      text-align: center;
+    }
+    .chat-container {
+      max-width: 700px;
+      margin: auto;
       background-color: white;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      margin-top: 2rem;
+      padding: 1rem;
     }
-
-    .chat-box {
+    .message {
       display: flex;
-      flex-direction: column;
-      gap: 1rem;
       margin-bottom: 1rem;
+      align-items: flex-start;
     }
-
-    .bubble {
-      padding: 0.8rem 1.2rem;
-      border-radius: 20px;
-      max-width: 75%;
-      word-wrap: break-word;
-      display: inline-block;
-      animation: fadeIn 0.4s ease-in-out;
-    }
-
-    .user-bubble {
-      background-color: #dff9fb;
-      align-self: flex-end;
-    }
-
-    .bot-bubble {
-      background-color: #ecf0f1;
-      align-self: flex-start;
-    }
-
-    .input-box {
+    .avatar {
+      width: 40px;
+      height: 40px;
+      background-color: #800000;
+      color: white;
+      border-radius: 50%;
       display: flex;
-      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      margin-right: 1rem;
+      font-weight: bold;
     }
-
+    .bubble {
+      background-color: #f0f0f0;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      max-width: 80%;
+    }
+    .user .avatar {
+      background-color: #555;
+    }
+    .user .bubble {
+      background-color: #e0e0e0;
+      margin-left: auto;
+    }
+    form {
+      display: flex;
+      margin-top: 1rem;
+    }
     input[type="text"] {
-      flex-grow: 1;
+      flex: 1;
       padding: 0.8rem;
-      font-size: 1rem;
       border-radius: 8px;
       border: 1px solid #ccc;
     }
-
     button {
-      background-color: #002147;
+      background-color: #800000;
       color: white;
       border: none;
       border-radius: 8px;
-      padding: 0.8rem 1.2rem;
+      padding: 0 1.2rem;
+      margin-left: 0.5rem;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-
     button:hover {
-      background-color: #004080;
-    }
-
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      background-color: #a10000;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Asisten AI STMK Trisakti</h1>
-    <p>Membantu Anda mendapatkan informasi kampus dengan cepat</p>
+    <h1>Asisten AI TMM</h1>
+    <p>Dapatkan jawaban cepat seputar kampus Anda</p>
   </header>
-
-  <div class="chat-container">
-    <div id="chat-box" class="chat-box"></div>
-    <div class="input-box">
-      <input type="text" id="user-input" placeholder="Tanyakan sesuatu..." />
-      <button onclick="sendMessage()">Kirim</button>
-    </div>
+  <div class="chat-container" id="chatBox">
+    <!-- Pesan-pesan akan muncul di sini -->
   </div>
+  <form id="chatForm">
+    <input type="text" id="userInput" placeholder="Ketik pertanyaan Anda..." autocomplete="off" required />
+    <button type="submit">Kirim</button>
+  </form>
 
   <script>
-    async function sendMessage() {
-      const userInput = document.getElementById("user-input");
-      const chatBox = document.getElementById("chat-box");
-      const message = userInput.value.trim();
-      if (!message) return;
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('userInput');
+    const chatBox = document.getElementById('chatBox');
 
-      // Tampilkan pesan user
-      const userBubble = document.createElement("div");
-      userBubble.className = "bubble user-bubble";
-      userBubble.innerHTML = `<img src="https://i.imgur.com/jQ9Y6cM.png" class="avatar" />${message}`;
-      chatBox.appendChild(userBubble);
+    function addMessage(text, sender = 'bot') {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', sender);
 
-      userInput.value = "";
+      const avatar = document.createElement('div');
+      avatar.classList.add('avatar');
+      avatar.innerText = sender === 'bot' ? 'AI' : 'Me';
 
-      // Kirim ke backend
-      const res = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      bubble.innerText = text;
 
-      const data = await res.json();
-
-      // Tampilkan balasan
-      const botBubble = document.createElement("div");
-      botBubble.className = "bubble bot-bubble";
-      botBubble.innerHTML = `<img src="https://i.imgur.com/M5fMiqk.png" class="avatar" />${data.reply}`;
-      chatBox.appendChild(botBubble);
-
+      msgDiv.appendChild(avatar);
+      msgDiv.appendChild(bubble);
+      chatBox.appendChild(msgDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const message = input.value.trim();
+      if (!message) return;
+      addMessage(message, 'user');
+      input.value = '';
+
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+        addMessage(data.reply, 'bot');
+      } catch (err) {
+        addMessage("Maaf, terjadi kesalahan.", 'bot');
+      }
+    };
   </script>
 </body>
 </html>
