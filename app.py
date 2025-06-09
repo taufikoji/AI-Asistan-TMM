@@ -1,17 +1,13 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-from openai import OpenAI
+import requests
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# Inisialisasi client DeepSeek
-client = OpenAI(
-    api_key=os.getenv("DEEPSEEK_API_KEY"),
-    base_url="https://api.deepseek.com"
-)
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 @app.route("/")
 def index():
@@ -26,25 +22,32 @@ def chat():
     try:
         user_msg = request.json.get("message")
 
-        # Siapkan pesan
-        messages = [
-            {"role": "system", "content": "Kamu adalah asisten AI yang ramah dan membantu. Jawab dalam bahasa Indonesia."},
-            {"role": "user", "content": user_msg}
-        ]
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://stmk-trisakti-chatbot.com",  # Ganti dengan domainmu kalau punya
+            "X-Title": "STMK Chatbot"
+        }
 
-        # Kirim ke DeepSeek Reasoner
-        response = client.chat.completions.create(
-            model="deepseek-reasoner",
-            messages=messages
-        )
+        data = {
+            "model": "openchat/openchat-3.5-0106",  # Bisa diganti model lain
+            "messages": [
+                {"role": "system", "content": "Kamu adalah asisten AI kampus STMK Trisakti. Jawab dalam bahasa Indonesia."},
+                {"role": "user", "content": user_msg}
+            ]
+        }
 
-        # Ambil hasil
-        reply = response.choices[0].message.content
-        return jsonify({"reply": reply})
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+
+        if response.status_code == 200:
+            reply = response.json()["choices"][0]["message"]["content"]
+            return jsonify({"reply": reply})
+        else:
+            return jsonify({"reply": f"Gagal dari OpenRouter: {response.text}"}), 500
 
     except Exception as e:
-        return jsonify({"reply": f"Terjadi kesalahan internal: {str(e)}"}), 500
+        return jsonify({"reply": f"Terjadi kesalahan: {str(e)}"}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=port)
