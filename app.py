@@ -108,7 +108,7 @@ def ai_jawab(pesan):
                 "content": (
                     "Kamu adalah asisten AI resmi dari STMK Trisakti. "
                     "Jika topiknya tidak tersedia di data lokal kampus, bantu pengguna dengan pengetahuan akademik umum. "
-                    "Gunakan bahasa Indonesia yang sopan dan jelas. Jangan berasumsi tentang isi internal kampus jika tidak disebutkan di website resmi."
+                    "Gunakan bahasa Indonesia yang sopan dan jelas. gunakan website resmi yaitu www.trisaktimultimedia.ac.id dan Jangan berasumsi tentang isi internal kampus jika tidak disebutkan di website resmi."
                 )
             },
             {"role": "user", "content": pesan}
