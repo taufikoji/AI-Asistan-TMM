@@ -1,5 +1,6 @@
 import os
 import json
+import random
 from flask import Flask, render_template, request, jsonify
 import requests
 from dotenv import load_dotenv
@@ -13,6 +14,14 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 # Muat data kampus dari file JSON
 with open("data_kampus.json", "r", encoding="utf-8") as f:
     data_kampus = json.load(f)
+
+# Kumpulan pantun ajakan mendaftar
+pantun_daftar = [
+    "Jalan-jalan ke Kota Bekasi,\nJangan lupa beli roti.\nKalau mau jadi insan kreatif dan berprestasi,\nYuk daftar di STMK Trisakti! 🎓✨",
+    "Ke pasar beli tomat dan cabai,\nPulang bawa sepiring nasi.\nKalau kamu ingin masa depan cerah dan gemilang,\nSTMK Trisakti pilihan pasti! 💡🎓",
+    "Burung nuri hinggap di dahan,\nBerkicau riang di pagi hari.\nKalau kamu cari kampus kekinian,\nSTMK Trisakti tempatnya berseri! 🔥🖥️",
+    "Naik sepeda keliling taman,\nSambil minum es kelapa muda.\nYuk kuliah di kampus multimedia zaman sekarang,\nSTMK Trisakti tempat ilmu dan budaya! 🎬🎨"
+]
 
 @app.route("/")
 def index():
@@ -56,8 +65,18 @@ def chat():
         return jsonify({"reply": f"Terjadi kesalahan: {str(e)}"}), 500
 
 def cek_data_kampus(pesan):
-    """Mencocokkan pertanyaan dengan data JSON kampus"""
-    pesan = pesan.lower()
+    """Mencocokkan pertanyaan dengan data JSON kampus atau merespons sapaan/ucapan terima kasih."""
+    pesan = pesan.lower().strip()
+
+    # Respon jika hanya sapaan
+    sapaan = ["halo", "hai", "hi", "assalamualaikum", "selamat pagi", "selamat siang", "selamat sore", "selamat malam"]
+    if pesan in sapaan:
+        return "Halo! Saya adalah asisten AI dari STMK Trisakti. Ada yang bisa saya bantu? 😊"
+
+    # Respon jika pengunjung berterima kasih
+    if any(kata in pesan for kata in ["terima kasih", "makasih", "thanks", "thank you"]):
+        pantun = random.choice(pantun_daftar)
+        return f"Sama-sama! Senang bisa membantu kamu! 🙌\n\n{pantun}"
 
     if "alamat" in pesan:
         return data_kampus.get("address", "Alamat belum tersedia.")
@@ -83,6 +102,7 @@ def cek_data_kampus(pesan):
         return "Nilai kampus: " + ", ".join(data_kampus.get("values", []))
     elif "sejarah" in pesan or "berdiri" in pesan:
         return data_kampus.get("history", "Data sejarah tidak tersedia.")
+
     return None
 
 if __name__ == "__main__":
