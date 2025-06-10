@@ -48,7 +48,16 @@ def chat():
         data = {
             "model": "deepseek/deepseek-r1-0528:free",
             "messages": [
-                {"role": "system", "content": "Kamu adalah asisten AI kampus Trisakti School of Multimedia (STMKT). Tugas utama kamu wajib menjawab dengan prioritas data dari situs website trisaktimultimedia.ac.id. kamu juga di larang menulis kepanjangan dari sekolah tinggi media komunikasi trisakti dengan singkatan selain STMKT. Jawablah dalam bahasa Indonesia."},
+                {
+                    "role": "system",
+                    "content": (
+                        "Kamu adalah asisten AI resmi kampus Trisakti School of Multimedia (STMKT). "
+                        "Jawabanmu harus mengutamakan dan memprioritaskan informasi dari situs resmi https://trisaktimultimedia.ac.id. "
+                        "Jika tidak yakin, katakan 'Silakan cek langsung ke situs resmi'. "
+                        "Jangan gunakan singkatan lain selain STMKT untuk nama kampus. "
+                        "Jawablah dalam bahasa Indonesia yang ramah dan sopan."
+                    )
+                },
                 {"role": "user", "content": user_msg}
             ]
         }
@@ -68,38 +77,60 @@ def cek_data_kampus(pesan):
     """Mencocokkan pertanyaan dengan data JSON kampus atau merespons sapaan/ucapan terima kasih."""
     pesan = pesan.lower().strip()
 
-    # Respon jika hanya sapaan
+    # Respon sapaan
     sapaan = ["halo", "hai", "hi", "assalamualaikum", "selamat pagi", "selamat siang", "selamat sore", "selamat malam"]
     if pesan in sapaan:
         return "Halo! Saya adalah asisten AI dari STMK Trisakti. Ada yang bisa saya bantu? 😊"
 
-    # Respon jika pengunjung berterima kasih
+    # Respon ucapan terima kasih
     if any(kata in pesan for kata in ["terima kasih", "makasih", "thanks", "thank you"]):
         pantun = random.choice(pantun_daftar)
         return f"Sama-sama! Senang bisa membantu kamu! 🙌\n\n{pantun}"
 
+    # Jawaban dari data JSON
     if "alamat" in pesan:
-        return data_kampus.get("address", "Alamat belum tersedia.")
+        alamat = data_kampus.get("address")
+        if isinstance(alamat, dict):
+            return f"{alamat['value']}\n📍 Sumber: {alamat.get('source', '')}"
+        return alamat or "Alamat belum tersedia."
+
     elif "nomor" in pesan or "telepon" in pesan:
-        return f"Nomor telepon: {', '.join(data_kampus.get('phone', []))}"
+        telepon = data_kampus.get("phone", [])
+        return f"Nomor telepon: {', '.join(telepon)}" if telepon else "Nomor telepon belum tersedia."
+
     elif "whatsapp" in pesan or "wa" in pesan:
-        return f"WhatsApp kampus: {data_kampus['contact']['whatsapp']}"
+        wa = data_kampus["contact"]["whatsapp"]
+        if isinstance(wa, dict):
+            return f"WhatsApp: {wa['value']}\n📍 Sumber: {wa.get('source', '')}"
+        return f"WhatsApp: {wa}"
+
     elif "email" in pesan:
-        return f"Email kampus: {data_kampus['contact']['email']}"
+        email = data_kampus["contact"]["email"]
+        if isinstance(email, dict):
+            return f"Email: {email['value']}\n📍 Sumber: {email.get('source', '')}"
+        return f"Email: {email}"
+
     elif "visi" in pesan:
-        return data_kampus["vision"]
+        return data_kampus.get("vision", "Visi belum tersedia.")
+
     elif "misi" in pesan:
-        return "\n".join(data_kampus["mission"])
+        return "\n".join(data_kampus.get("mission", []))
+
     elif any(k in pesan for k in ["program studi", "jurusan", "prodi"]):
-        return "Program studi yang tersedia:\n" + "\n".join(data_kampus["programs"])
+        return "Program studi yang tersedia:\n" + "\n".join(data_kampus.get("programs", []))
+
     elif "fasilitas" in pesan:
-        return "Fasilitas kampus:\n" + "\n".join(data_kampus["facilities"])
+        return "Fasilitas kampus:\n" + "\n".join(data_kampus.get("facilities", []))
+
     elif "akreditasi" in pesan:
-        akreditasi = data_kampus["accreditation"]
-        prodi = "\n".join([f"- {k}: {v}" for k, v in akreditasi["programs"].items()])
-        return f"Akreditasi keseluruhan: {akreditasi['overall']}\n{prodi}"
+        akreditasi = data_kampus.get("accreditation", {})
+        prodi = akreditasi.get("programs", {})
+        prodi_list = "\n".join([f"- {k}: {v}" for k, v in prodi.items()])
+        return f"Akreditasi keseluruhan: {akreditasi.get('overall', 'Belum tersedia')}\n{prodi_list}"
+
     elif "nilai" in pesan or "value" in pesan:
         return "Nilai kampus: " + ", ".join(data_kampus.get("values", []))
+
     elif "sejarah" in pesan or "berdiri" in pesan:
         return data_kampus.get("history", "Data sejarah tidak tersedia.")
 
