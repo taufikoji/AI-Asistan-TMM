@@ -48,7 +48,7 @@ def chat():
         data = {
             "model": "deepseek/deepseek-r1-0528:free",
             "messages": [
-                {"role": "system", "content": "Kamu adalah asisten AI kampus Trisakti School of Multimedia (STMKT) yang beralamat di situs trisaktimultimedia.ac.id. Jawablah dalam bahasa Indonesia."},
+                {"role": "system", "content": "Kamu adalah asisten AI kampus Trisakti School of Multimedia (STMKT). Tugas utama kamu wajib menjawab dengan prioritas data dari situs website trisaktimultimedia.ac.id. Jawablah dalam bahasa Indonesia."},
                 {"role": "user", "content": user_msg}
             ]
         }
