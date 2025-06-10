@@ -51,15 +51,17 @@ def chat():
                 {
                     "role": "system",
                     "content": (
-                        "Kamu adalah asisten AI resmi kampus Trisakti School of Multimedia (STMKT). "
-                        "Jawabanmu harus mengutamakan dan memprioritaskan informasi dari situs resmi https://trisaktimultimedia.ac.id. "
-                        "Jika tidak yakin, katakan 'Silakan cek langsung ke situs resmi'. "
-                        "Jangan gunakan singkatan lain selain STMKT untuk nama kampus. "
-                        "Jawablah dalam bahasa Indonesia yang ramah dan sopan."
+                        "Kamu adalah asisten AI resmi dari STMK Trisakti (Trisakti School of Multimedia). "
+                        "Jawabanmu harus mengacu pada informasi dari situs resmi kampus: https://trisaktimultimedia.ac.id. "
+                        "Jika informasi tidak tersedia di situs tersebut, katakan dengan sopan: "
+                        "'Silakan cek langsung ke situs resmi kami di https://trisaktimultimedia.ac.id untuk informasi lebih lengkap.' "
+                        "Dilarang mengarang, berasumsi, atau menebak-nebak. "
+                        "Gunakan bahasa Indonesia yang sopan dan ramah. "
+                        "Jangan gunakan singkatan selain STMKT untuk nama kampus."
                     )
                 },
                 {"role": "user", "content": user_msg}
-            ]
+]
         }
 
         response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
@@ -93,6 +95,11 @@ def cek_data_kampus(pesan):
         if isinstance(alamat, dict):
             return f"{alamat['value']}\n📍 Sumber: {alamat.get('source', '')}"
         return alamat or "Alamat belum tersedia."
+
+    elif "informasi kampus" in pesan or "tentang kampus" in pesan:
+        return (
+        "STMK Trisakti adalah kampus multimedia modern yang fokus pada bidang teknologi, desain, dan komunikasi. "
+        "Informasi resmi lengkap dapat kamu lihat di situs kami: https://trisaktimultimedia.ac.id")
 
     elif "nomor" in pesan or "telepon" in pesan:
         telepon = data_kampus.get("phone", [])
