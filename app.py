@@ -32,7 +32,7 @@ def chat():
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://stmk-trisakti-chatbot.com",
+            "HTTP-Referer": "https://trisaktimultimedia.ac.id",
             "X-Title": "STMK Chatbot"
         }
 
