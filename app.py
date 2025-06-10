@@ -35,17 +35,24 @@ def chat():
         if jawaban_lokal:
             return jsonify({"reply": jawaban_lokal})
 
-        # Jika pertanyaan ringan atau akademik umum, izinkan AI menjawab
-        if is_ringan(user_msg) or is_akademik(user_msg):
-            ai_reply = ai_jawab(user_msg)
-            return jsonify({"reply": ai_reply})
+        # Cek apakah sapaan ringan
+        if is_ringan(user_msg):
+            return jsonify({"reply": "Halo! Apa kabar? Yuk, tanyakan tentang STMK Trisakti atau dunia akademik! 😊"})
 
-        # Jika tidak relevan sama sekali
+        # Cek apakah pertanyaan akademik
+        if is_akademik(user_msg):
+            ai_reply = ai_jawab(user_msg)
+            # Validasi jawaban AI
+            if is_jawaban_relevan(ai_reply, user_msg):
+                return jsonify({"reply": ai_reply})
+            else:
+                return jsonify({"reply": "Maaf, saya tidak bisa menjawab itu. Tanyakan tentang STMK Trisakti atau topik akademik lainnya! 😊"})
+
+        # Jika tidak relevan
         return jsonify({"reply": "Maaf, saya hanya bisa membantu seputar kampus STMK Trisakti atau pertanyaan akademik. 😊"})
 
     except Exception as e:
         return jsonify({"reply": f"Terjadi kesalahan: {str(e)}"}), 500
-
 
 def cek_data_kampus(pesan):
     if "alamat" in pesan:
@@ -55,9 +62,9 @@ def cek_data_kampus(pesan):
             "STMK Trisakti (Trisakti School of Multimedia) adalah perguruan tinggi di bidang media dan teknologi kreatif.\n"
             "📌 Website resmi: https://trisaktimultimedia.ac.id"
         )
-    elif "nomor" in pesan or "telepon" in pesan:
+    elif any(k in pesan for k in ["nomor telepon", "telepon", "kontak telepon"]):  # Lebih spesifik untuk telepon
         return f"Nomor telepon: {', '.join(data_kampus.get('phone', []))}"
-    elif "whatsapp" in pesan or "wa" in pesan:
+    elif any(k in pesan for k in ["whatsapp", "wa"]):  # Hanya berikan WA jika eksplisit diminta
         return f"WhatsApp kampus: {data_kampus['contact']['whatsapp']}"
     elif "email" in pesan:
         return f"Email kampus: {data_kampus['contact']['email']}"
@@ -77,20 +84,34 @@ def cek_data_kampus(pesan):
         return "Nilai kampus: " + ", ".join(data_kampus.get("values", []))
     elif "sejarah" in pesan or "berdiri" in pesan:
         return data_kampus.get("history", "Data sejarah tidak tersedia.")
+    elif any(k in pesan for k in ["mahasiswa", "siswa"]):  # Penanganan khusus untuk mahasiswa/siswa
+        return (
+            "Ingin tahu tentang kehidupan mahasiswa di STMK Trisakti? Kami menawarkan lingkungan kreatif dengan program studi seperti multimedia dan desain. "
+            "Untuk info lebih lanjut, tanyakan tentang program studi, fasilitas, atau kunjungi https://trisaktimultimedia.ac.id!"
+        )
     return None
-
 
 def is_ringan(pesan):
     sapaan = ["halo", "hai", "hi", "assalamualaikum", "selamat pagi", "selamat siang", "selamat sore", "selamat malam"]
     ucapan_terima_kasih = ["terima kasih", "makasih", "thanks", "thank you"]
     return pesan in sapaan or any(kata in pesan for kata in ucapan_terima_kasih)
 
-
 def is_akademik(pesan):
-    # Kata kunci umum seputar topik pendidikan/akademik
-    kata_kunci = ["apa itu", "perbedaan", "contoh", "penjelasan", "skripsi", "kuliah", "dosen", "kampus", "pendidikan", "akademik", "belajar"]
+    kata_kunci = [
+        "apa itu", "perbedaan", "contoh", "penjelasan", "skripsi", "kuliah", 
+        "dosen", "kampus", "pendidikan", "akademik", "belajar", "kurikulum", 
+        "matakuliah", "desain", "multimedia", "teknologi", "digital", "branding", 
+        "kreatif", "internet of things", "artificial intelligence", "media"
+    ]
     return any(k in pesan for k in kata_kunci)
 
+def is_jawaban_relevan(jawaban, pesan):
+    kata_kunci_relevan = [
+        "trisakti", "stmk", "multimedia", "kampus", "pendidikan", "akademik", 
+        "kuliah", "desain", "teknologi", "digital", "branding", "kreatif"
+    ]
+    jawaban_lower = jawaban.lower()
+    return any(kata in jawaban_lower for kata in kata_kunci_relevan) or any(kata in pesan for kata in kata_kunci_relevan)
 
 def ai_jawab(pesan):
     headers = {
@@ -106,9 +127,10 @@ def ai_jawab(pesan):
             {
                 "role": "system",
                 "content": (
-                    "Kamu adalah asisten AI resmi dari STMK Trisakti. "
-                    "Jika topiknya tidak tersedia di data lokal kampus, bantu pengguna dengan pengetahuan akademik umum. "
-                    "Gunakan bahasa Indonesia yang sopan dan jelas. gunakan website resmi yaitu www.trisaktimultimedia.ac.id dan Jangan berasumsi tentang isi internal kampus jika tidak disebutkan di website resmi."
+                    "Kamu adalah asisten AI resmi dari STMK Trisakti. Hanya jawab pertanyaan terkait kampus STMK Trisakti atau topik akademik seperti multimedia, desain, teknologi kreatif, atau pendidikan tinggi. "
+                    "Gunakan informasi dari website resmi www.trisaktimultimedia.ac.id sebagai acuan utama. "
+                    "Jika informasi tidak tersedia, katakan bahwa kamu tidak bisa menjawab dan arahkan ke website resmi. "
+                    "Gunakan bahasa Indonesia yang sopan, jelas, dan profesional. Jangan berikan jawaban spekulatif atau di luar topik."
                 )
             },
             {"role": "user", "content": pesan}
@@ -119,8 +141,7 @@ def ai_jawab(pesan):
 
     if response.status_code == 200:
         return response.json()["choices"][0]["message"]["content"]
-    return "Mohon maaf, saya sedang tidak bisa menjawab. Silakan coba beberapa saat lagi."
-
+    return "Mohon maaf, saya sedang tidak bisa menjawab. Silakan coba beberapa saat lagi atau kunjungi www.trisaktimultimedia.ac.id."
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
