@@ -33,11 +33,14 @@ def chat():
         # Cek apakah pertanyaan cocok dengan data kampus
         jawaban_lokal = cek_data_kampus(user_msg)
         if jawaban_lokal:
+            # Tambahkan pantun secara acak untuk respons lokal (20% kemungkinan)
+            if random.random() < 0.2:
+                jawaban_lokal += f"\n\n{random.choice(pantun_daftar)}"
             return jsonify({"reply": jawaban_lokal})
 
         # Cek apakah sapaan ringan
         if is_ringan(user_msg):
-            return jsonify({"reply": "Halo! Apa kabar? Yuk, tanyakan tentang STMK Trisakti atau dunia akademik! 😊"})
+            return jsonify({"reply": f"Halo! Selamat datang di chatbot STMK Trisakti! 😊 Mau tahu tentang jurusan, fasilitas, atau ada pertanyaan lain? \n\n{random.choice(pantun_daftar)}"})
 
         # Cek apakah pertanyaan akademik
         if is_akademik(user_msg):
@@ -46,48 +49,57 @@ def chat():
             if is_jawaban_relevan(ai_reply, user_msg):
                 return jsonify({"reply": ai_reply})
             else:
-                return jsonify({"reply": "Maaf, saya tidak bisa menjawab itu. Tanyakan tentang STMK Trisakti atau topik akademik lainnya! 😊"})
+                return jsonify({"reply": "Maaf, sepertinya pertanyaanmu kurang relevan. Coba tanyakan tentang STMK Trisakti, multimedia, atau topik akademik lainnya! 😊"})
 
         # Jika tidak relevan
-        return jsonify({"reply": "Maaf, saya hanya bisa membantu seputar kampus STMK Trisakti atau pertanyaan akademik. 😊"})
+        return jsonify({"reply": f"Maaf, saya hanya bisa membantu seputar STMK Trisakti atau topik akademik. Coba tanyakan tentang jurusan, fasilitas, atau kunjungi https://trisaktimultimedia.ac.id! 😊 \n\n{random.choice(pantun_daftar)}"})
 
     except Exception as e:
-        return jsonify({"reply": f"Terjadi kesalahan: {str(e)}"}), 500
+        return jsonify({"reply": f"Ups, ada masalah teknis: {str(e)}. Coba lagi nanti atau kunjungi https://trisaktimultimedia.ac.id untuk info lebih lanjut! 😊"}), 500
 
 def cek_data_kampus(pesan):
+    # Prioritaskan kata kunci yang lebih spesifik
     if "alamat" in pesan:
-        return f"{data_kampus['address']}\n📍 Sumber: {data_kampus['website']}"
-    elif "tentang kampus" in pesan or "informasi kampus" in pesan or "kampus" in pesan:
+        return f"Alamat STMK Trisakti: {data_kampus['address']}\n📍 Sumber: {data_kampus['website']}"
+    elif any(k in pesan for k in ["tentang kampus", "informasi kampus", "apa itu stmk"]):
         return (
-            "STMK Trisakti (Trisakti School of Multimedia) adalah perguruan tinggi di bidang media dan teknologi kreatif.\n"
-            "📌 Website resmi: https://trisaktimultimedia.ac.id"
+            "STMK Trisakti (Trisakti School of Multimedia) adalah perguruan tinggi yang fokus pada media dan teknologi kreatif, mempersiapkan lulusan untuk industri digital.\n"
+            f"📌 Jurusan: {', '.join(data_kampus['programs'])}\n"
+            f"📌 Fasilitas: {', '.join(data_kampus['facilities'][:2])} (dan lainnya, tanyakan untuk detail!)\n"
+            "📌 Website resmi: https://trisaktimultimedia.ac.id\n"
+            "Mau tahu lebih banyak? Tanya tentang visi, misi, atau jurusan ya! 😊"
         )
-    elif any(k in pesan for k in ["nomor telepon", "telepon", "kontak telepon"]):  # Lebih spesifik untuk telepon
+    elif any(k in pesan for k in ["nomor telepon", "telepon", "kontak telepon"]):
         return f"Nomor telepon: {', '.join(data_kampus.get('phone', []))}"
-    elif any(k in pesan for k in ["whatsapp", "wa"]):  # Hanya berikan WA jika eksplisit diminta
-        return f"WhatsApp kampus: {data_kampus['contact']['whatsapp']}"
+    elif any(k in pesan for k in ["whatsapp", "wa"]):
+        return f"WhatsApp kampus: {data_kampus['contact']['whatsapp']}\nSilakan hubungi untuk info pendaftaran atau pertanyaan lainnya!"
     elif "email" in pesan:
         return f"Email kampus: {data_kampus['contact']['email']}"
     elif "visi" in pesan:
-        return data_kampus["vision"]
+        return f"Visi STMK Trisakti: {data_kampus['vision']}"
     elif "misi" in pesan:
-        return "\n".join(data_kampus["mission"])
+        return "Misi STMK Trisakti:\n" + "\n".join(data_kampus["mission"])
     elif any(k in pesan for k in ["program studi", "jurusan", "prodi"]):
-        return "Program studi yang tersedia:\n" + "\n".join(data_kampus["programs"])
+        return "Program studi di STMK Trisakti:\n" + "\n".join(data_kampus["programs"])
     elif "fasilitas" in pesan:
-        return "Fasilitas kampus:\n" + "\n".join(data_kampus["facilities"])
+        return "Fasilitas kampus STMK Trisakti:\n" + "\n".join(data_kampus["facilities"])
     elif "akreditasi" in pesan:
         akreditasi = data_kampus["accreditation"]
         prodi = "\n".join([f"- {k}: {v}" for k, v in akreditasi["programs"].items()])
-        return f"Akreditasi keseluruhan: {akreditasi['overall']}\n{prodi}"
+        return f"Akreditasi keseluruhan: {akreditasi['overall']}\nProgram studi:\n{prodi}"
     elif "nilai" in pesan or "value" in pesan:
-        return "Nilai kampus: " + ", ".join(data_kampus.get("values", []))
+        return "Nilai-nilai STMK Trisakti: " + ", ".join(data_kampus.get("values", []))
     elif "sejarah" in pesan or "berdiri" in pesan:
-        return data_kampus.get("history", "Data sejarah tidak tersedia.")
-    elif any(k in pesan for k in ["mahasiswa", "siswa"]):  # Penanganan khusus untuk mahasiswa/siswa
+        return data_kampus.get("history", "Informasi sejarah tidak tersedia. Kunjungi https://trisaktimultimedia.ac.id untuk detail lebih lanjut.")
+    elif any(k in pesan for k in ["mahasiswa", "siswa"]):
         return (
-            "Ingin tahu tentang kehidupan mahasiswa di STMK Trisakti? Kami menawarkan lingkungan kreatif dengan program studi seperti multimedia dan desain. "
-            "Untuk info lebih lanjut, tanyakan tentang program studi, fasilitas, atau kunjungi https://trisaktimultimedia.ac.id!"
+            "Mahasiswa STMK Trisakti belajar di lingkungan kreatif dengan fokus pada multimedia, desain, dan teknologi digital. "
+            "Mau tahu lebih banyak tentang program studi, kegiatan mahasiswa, atau cara daftar? Tanya saya atau cek https://trisaktimultimedia.ac.id!"
+        )
+    elif any(k in pesan for k in ["lebih lengkap", "detail", "info lebih"]):
+        return (
+            "Tentu! Kamu bisa tanyakan lebih detail tentang:\n- Jurusan/Program Studi\n- Fasilitas Kampus\n- Visi dan Misi\n- Kontak (telepon, WhatsApp, email)\n"
+            "Coba tanyakan salah satunya, ya! 😊\n\n{random.choice(pantun_daftar)}"
         )
     return None
 
@@ -130,18 +142,20 @@ def ai_jawab(pesan):
                     "Kamu adalah asisten AI resmi dari STMK Trisakti. Hanya jawab pertanyaan terkait kampus STMK Trisakti atau topik akademik seperti multimedia, desain, teknologi kreatif, atau pendidikan tinggi. "
                     "Gunakan informasi dari website resmi www.trisaktimultimedia.ac.id sebagai acuan utama. "
                     "Jika informasi tidak tersedia, katakan bahwa kamu tidak bisa menjawab dan arahkan ke website resmi. "
-                    "Gunakan bahasa Indonesia yang sopan, jelas, dan profesional. Jangan berikan jawaban spekulatif atau di luar topik."
+                    "Gunakan bahasa Indonesia yang sopan, jelas, ramah, dan profesional. Jangan berikan jawaban spekulatif atau di luar topik. "
+                    "Sertakan nada interaktif dan kreatif, misalnya dengan mengajak pengguna untuk bertanya lebih lanjut."
                 )
             },
             {"role": "user", "content": pesan}
         ]
     }
 
-    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-
-    if response.status_code == 200:
+    try:
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+        response.raise_for_status()  # Raise an error for bad status codes
         return response.json()["choices"][0]["message"]["content"]
-    return "Mohon maaf, saya sedang tidak bisa menjawab. Silakan coba beberapa saat lagi atau kunjungi www.trisaktimultimedia.ac.id."
+    except requests.RequestException:
+        return "Mohon maaf, saya sedang kesulitan menghubungi server. Silakan coba lagi nanti atau kunjungi https://trisaktimultimedia.ac.id untuk info lebih lanjut! 😊"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
