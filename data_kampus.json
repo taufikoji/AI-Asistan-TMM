@@ -2,8 +2,8 @@
   "name": "Trisakti School of Multimedia",
   "foundation_year": 1985,
   "history": "Awalnya bernama Akademi Teknologi Grafika Trisakti (ATGT); sejak 2008 berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti di bawah Yayasan Trisakti.",
-  "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
 
+  "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
   "mission": [
     "Penyebarluasan ilmu pengetahuan, teknologi, dan/atau seni khususnya di bidang media komunikasi.",
     "Menghasilkan lulusan profesional dan berdaya saing di industri kreatif.",
@@ -33,8 +33,13 @@
 
   "contact": {
     "whatsapp": "+62 877 4299 7808",
-    "email": "info@trisaktimultimedia.ac.id"
+    "email": "info@trisaktimultimedia.ac.id",
+    "phone": ["+62-21-4895787", "+62-21-4701842"]
   },
+
+  "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
+
+  "website": "https://trisaktimultimedia.ac.id",
 
   "values": [
     "Kreativitas",
