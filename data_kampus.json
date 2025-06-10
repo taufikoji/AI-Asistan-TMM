@@ -2,51 +2,42 @@
   "name": "Trisakti School of Multimedia",
   "foundation_year": 1985,
   "history": "Awalnya bernama Akademi Teknologi Grafika Trisakti (ATGT); sejak 2008 berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti di bawah Yayasan Trisakti. Pada 26 Mei 2025, menjalin kerja sama dengan Politeknik Harapan Bersama (Poltek HarBer) untuk program D3 ke S1 dan kuliah umum strategi digital branding.",
-
   "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
   "mission": [
     "Penyebarluasan ilmu pengetahuan, teknologi, dan/atau seni khususnya di bidang media komunikasi.",
     "Menghasilkan lulusan profesional dan berdaya saing di industri kreatif.",
     "Mengembangkan penelitian serta inovasi di bidang multimedia dengan fokus pada teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI)."
   ],
-
   "programs": [
     "Desain Komunikasi Visual – Animasi dan Games",
     "Desain Komunikasi Visual – Multimedia Penyiaran",
     "Desain Komunikasi Visual – Multimedia Periklanan",
     "Teknologi Grafika – Desain Produk Kemasan"
   ],
-
   "facilities": [
     "Perpustakaan (SLiMS & Digilib)",
     "Laboratorium",
     "Podcast Studio"
   ],
-
   "accreditation": {
-    "overall": "A",  // Diperbarui dari "Baik" ke skala yang lebih standar
+    "overall": "A",
     "programs": {
       "Desain Komunikasi Visual": "A",
       "Teknologi Grafika": "A"
     }
   },
-
   "contact": {
     "whatsapp": "+62 877 4299 7808",
     "email": "info@trisaktimultimedia.ac.id",
     "phone": ["+62-21-4895787", "+62-21-4701842"]
   },
-
   "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
-
   "website": "https://trisaktimultimedia.ac.id",
-
   "values": [
     "Kreativitas",
     "Teknologi",
     "Budaya"
   ],
-
   "collaborations": [
     {
       "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
@@ -54,7 +45,6 @@
       "description": "Kerja sama untuk program kuliah ahli jenjang D3 ke S1 dan kuliah umum tentang strategi digital branding."
     }
   ],
-
   "focus_areas": [
     "Internet of Things (IoT)",
     "Artificial Intelligence (AI)"
