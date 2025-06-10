@@ -40,7 +40,8 @@ def chat():
 
         # Cek apakah sapaan ringan
         if is_ringan(user_msg):
-            return jsonify({"reply": f"Halo! Selamat datang di chatbot STMK Trisakti! 😊 Mau tahu tentang jurusan, fasilitas, atau ada pertanyaan lain? \n\n{random.choice(pantun_daftar)}"})
+            keywords = "Kata kunci yang bisa dicoba: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, lebih lengkap."
+            return jsonify({"reply": f"Halo! Selamat datang di chatbot STMK Trisakti! 😊 Mau tahu tentang jurusan, fasilitas, atau ada pertanyaan lain? {keywords} \n\n{random.choice(pantun_daftar)}"})
 
         # Cek apakah pertanyaan akademik
         if is_akademik(user_msg):
@@ -49,10 +50,12 @@ def chat():
             if is_jawaban_relevan(ai_reply, user_msg):
                 return jsonify({"reply": ai_reply})
             else:
-                return jsonify({"reply": "Maaf, sepertinya pertanyaanmu kurang relevan. Coba tanyakan tentang STMK Trisakti, multimedia, atau topik akademik lainnya! 😊"})
+                keywords = "Coba kata kunci seperti: jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, atau fokus teknologi."
+                return jsonify({"reply": f"Maaf, sepertinya pertanyaanmu kurang relevan. {keywords} Tanyakan tentang STMK Trisakti atau topik akademik lainnya! 😊"})
 
         # Jika tidak relevan
-        return jsonify({"reply": f"Maaf, saya hanya bisa membantu seputar STMK Trisakti atau topik akademik. Coba tanyakan tentang jurusan, fasilitas, atau kunjungi https://trisaktimultimedia.ac.id! 😊 \n\n{random.choice(pantun_daftar)}"})
+        keywords = "Coba kata kunci seperti: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, atau ketik 'lebih lengkap'."
+        return jsonify({"reply": f"Maaf, saya hanya bisa membantu seputar STMK Trisakti atau topik akademik. {keywords} Kunjungi https://trisaktimultimedia.ac.id! 😊 \n\n{random.choice(pantun_daftar)}"})
 
     except Exception as e:
         return jsonify({"reply": f"Ups, ada masalah teknis: {str(e)}. Coba lagi nanti atau kunjungi https://trisaktimultimedia.ac.id untuk info lebih lanjut! 😊"}), 500
@@ -60,49 +63,49 @@ def chat():
 def cek_data_kampus(pesan):
     # Prioritaskan kata kunci yang lebih spesifik
     if "alamat" in pesan:
-        return f"Alamat STMK Trisakti: {data_kampus['address']}\n📍 Sumber: {data_kampus['website']}"
+        return f"Alamat STMK Trisakti: {data_kampus['address']}\n📍 Sumber: {data_kampus['website']} (Kata kunci lain: jurusan, fasilitas, whatsapp)"
     elif any(k in pesan for k in ["tentang kampus", "informasi kampus", "apa itu stmk"]):
         return (
             "STMK Trisakti (Trisakti School of Multimedia) adalah perguruan tinggi yang fokus pada media dan teknologi kreatif, mempersiapkan lulusan untuk industri digital.\n"
             f"📌 Jurusan: {', '.join(data_kampus['programs'])}\n"
-            f"📌 Fasilitas: {', '.join(data_kampus['facilities'][:2])} (dan lainnya, tanyakan untuk detail!)\n"
+            f"📌 Fasilitas: {', '.join(data_kampus['facilities'][:2])} (dan lainnya, gunakan kata kunci 'fasilitas' untuk detail!)\n"
             "📌 Website resmi: https://trisaktimultimedia.ac.id\n"
-            "Mau tahu lebih banyak? Tanya tentang visi, misi, atau jurusan ya! 😊"
+            "Mau tahu lebih banyak? Coba kata kunci: visi, misi, atau jurusan! 😊"
         )
     elif any(k in pesan for k in ["nomor telepon", "telepon", "kontak telepon"]):
-        return f"Nomor telepon: {', '.join(data_kampus.get('phone', []))}"
+        return f"Nomor telepon: {', '.join(data_kampus.get('phone', []))} (Kata kunci lain: whatsapp, email)"
     elif any(k in pesan for k in ["whatsapp", "wa"]):
-        return f"WhatsApp kampus: {data_kampus['contact']['whatsapp']}\nSilakan hubungi untuk info pendaftaran atau pertanyaan lainnya!"
+        return f"WhatsApp kampus: {data_kampus['contact']['whatsapp']}\nSilakan hubungi untuk info pendaftaran atau pertanyaan lainnya! (Kata kunci lain: telepon, email)"
     elif "email" in pesan:
-        return f"Email kampus: {data_kampus['contact']['email']}"
+        return f"Email kampus: {data_kampus['contact']['email']} (Kata kunci lain: whatsapp, telepon)"
     elif "visi" in pesan:
-        return f"Visi STMK Trisakti: {data_kampus['vision']}"
+        return f"Visi STMK Trisakti: {data_kampus['vision']} (Kata kunci lain: misi, jurusan)"
     elif "misi" in pesan:
-        return "Misi STMK Trisakti:\n" + "\n".join(data_kampus["mission"])
+        return "Misi STMK Trisakti:\n" + "\n".join(data_kampus["mission"]) + " (Kata kunci lain: visi, fasilitas)"
     elif any(k in pesan for k in ["program studi", "jurusan", "prodi"]):
-        return "Program studi di STMK Trisakti:\n" + "\n".join(data_kampus["programs"])
+        return "Program studi di STMK Trisakti:\n" + "\n".join(data_kampus["programs"]) + " (Kata kunci lain: fasilitas, akreditasi)"
     elif "fasilitas" in pesan:
-        return "Fasilitas kampus STMK Trisakti:\n" + "\n".join(data_kampus["facilities"])
+        return "Fasilitas kampus STMK Trisakti:\n" + "\n".join(data_kampus["facilities"]) + " (Kata kunci lain: jurusan, laboratorium)"
     elif "akreditasi" in pesan:
         akreditasi = data_kampus["accreditation"]
         prodi = "\n".join([f"- {k}: {v}" for k, v in akreditasi["programs"].items()])
-        return f"Akreditasi keseluruhan: {akreditasi['overall']}\nProgram studi:\n{prodi}"
+        return f"Akreditasi keseluruhan: {akreditasi['overall']}\nProgram studi:\n{prodi} (Kata kunci lain: jurusan, visi)"
     elif "nilai" in pesan or "value" in pesan:
-        return "Nilai-nilai STMK Trisakti: " + ", ".join(data_kampus.get("values", []))
+        return "Nilai-nilai STMK Trisakti: " + ", ".join(data_kampus.get("values", [])) + " (Kata kunci lain: visi, misi)"
     elif "sejarah" in pesan or "berdiri" in pesan:
-        return data_kampus.get("history", "Informasi sejarah tidak tersedia. Kunjungi https://trisaktimultimedia.ac.id untuk detail lebih lanjut.")
+        return data_kampus.get("history", "Informasi sejarah tidak tersedia. Kunjungi https://trisaktimultimedia.ac.id untuk detail lebih lanjut.") + " (Kata kunci lain: visi, jurusan)"
     elif any(k in pesan for k in ["mahasiswa", "siswa"]):
         return (
             "Mahasiswa STMK Trisakti belajar di lingkungan kreatif dengan fokus pada multimedia, desain, dan teknologi digital. "
-            "Mau tahu lebih banyak tentang program studi, kegiatan mahasiswa, atau cara daftar? Tanya saya atau cek https://trisaktimultimedia.ac.id!"
+            "Mau tahu lebih banyak? Coba kata kunci: program studi, fasilitas, atau fokus teknologi! Tanya saya atau cek https://trisaktimultimedia.ac.id!"
         )
     elif any(k in pesan for k in ["kerja sama", "kolaborasi"]):
-        return "\n".join([f"- {c['partner']}: {c['description']} (Tanggal: {c['date']})" for c in data_kampus.get("collaborations", [])])
+        return "\n".join([f"- {c['partner']}: {c['description']} (Tanggal: {c['date']})" for c in data_kampus.get("collaborations", [])]) + " (Kata kunci lain: jurusan, fasilitas)"
     elif any(k in pesan for k in ["fokus teknologi", "teknologi fokus"]):
-        return "Fokus teknologi STMK Trisakti: " + ", ".join(data_kampus.get("focus_areas", []))
+        return "Fokus teknologi STMK Trisakti: " + ", ".join(data_kampus.get("focus_areas", [])) + " (Kata kunci lain: jurusan, misi)"
     elif any(k in pesan for k in ["lebih lengkap", "detail", "info lebih"]):
         return (
-            "Tentu! Kamu bisa tanyakan lebih detail tentang:\n- Jurusan/Program Studi\n- Fasilitas Kampus\n- Visi dan Misi\n- Kontak (telepon, WhatsApp, email)\n- Kerja Sama\n"
+            "Tentu! Kamu bisa tanyakan lebih detail tentang:\n- Jurusan/Program Studi (gunakan: jurusan)\n- Fasilitas Kampus (gunakan: fasilitas)\n- Visi dan Misi (gunakan: visi, misi)\n- Kontak (gunakan: whatsapp, telepon, email)\n- Kerja Sama (gunakan: kerja sama)\n- Fokus Teknologi (gunakan: fokus teknologi)\n"
             "Coba tanyakan salah satunya, ya! 😊\n\n{random.choice(pantun_daftar)}"
         )
     return None
@@ -147,7 +150,7 @@ def ai_jawab(pesan):
                     "Gunakan informasi dari website resmi www.trisaktimultimedia.ac.id sebagai acuan utama. "
                     "Jika informasi tidak tersedia, katakan bahwa kamu tidak bisa menjawab dan arahkan ke website resmi. "
                     "Gunakan bahasa Indonesia yang sopan, jelas, ramah, dan profesional. Jangan berikan jawaban spekulatif atau di luar topik. "
-                    "Sertakan nada interaktif dan kreatif, misalnya dengan mengajak pengguna untuk bertanya lebih lanjut."
+                    "Sertakan nada interaktif dan kreatif, misalnya dengan mengajak pengguna untuk bertanya lebih lanjut menggunakan kata kunci seperti: jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, atau fokus teknologi."
                 )
             },
             {"role": "user", "content": pesan}
