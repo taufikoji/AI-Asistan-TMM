@@ -10,8 +10,8 @@ app = Flask(__name__)
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-# Muat data kampus dari JSON
-with open("data_kampus.json", "r") as f:
+# Muat data kampus dari file JSON
+with open("data_kampus.json", "r", encoding="utf-8") as f:
     data_kampus = json.load(f)
 
 @app.route("/")
@@ -23,12 +23,12 @@ def chat():
     try:
         user_msg = request.json.get("message")
 
-        # Coba cek apakah pertanyaan berkaitan dengan data kampus lokal
+        # Cek apakah jawaban tersedia di data lokal JSON
         jawaban_lokal = cek_data_kampus(user_msg)
         if jawaban_lokal:
             return jsonify({"reply": jawaban_lokal})
 
-        # Jika tidak ditemukan di JSON, lanjut ke AI
+        # Jika tidak ditemukan, lanjut ke model AI (DeepSeek R1)
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
@@ -39,7 +39,7 @@ def chat():
         data = {
             "model": "deepseek/deepseek-r1-0528:free",
             "messages": [
-                {"role": "system", "content": "Kamu adalah asisten AI kampus di trisakti school of multimedia atau sekolah tinggi media komunikasi trisakti (STMKT) atau (TMM) yang memiliki domain website trisaktimultimedia.ac.id. Jawab dalam bahasa Indonesia."},
+                {"role": "system", "content": "Kamu adalah asisten AI kampus Trisakti School of Multimedia (STMKT) yang beralamat di situs trisaktimultimedia.ac.id. Jawablah dalam bahasa Indonesia."},
                 {"role": "user", "content": user_msg}
             ]
         }
@@ -55,29 +55,35 @@ def chat():
     except Exception as e:
         return jsonify({"reply": f"Terjadi kesalahan: {str(e)}"}), 500
 
-
 def cek_data_kampus(pesan):
-    """Cari apakah pertanyaan cocok dengan info lokal JSON kampus"""
+    """Mencocokkan pertanyaan dengan data JSON kampus"""
     pesan = pesan.lower()
+
     if "alamat" in pesan:
-        return f"Alamat kampus: {data_kampus['address']}"
+        return data_kampus.get("address", "Alamat belum tersedia.")
     elif "nomor" in pesan or "telepon" in pesan:
-        return f"Nomor telepon: {', '.join(data_kampus['phone'])}"
-    elif "whatsapp" in pesan:
-        return f"WhatsApp kampus: {data_kampus['whatsapp']}"
+        return f"Nomor telepon: {', '.join(data_kampus.get('phone', []))}"
+    elif "whatsapp" in pesan or "wa" in pesan:
+        return f"WhatsApp kampus: {data_kampus['contact']['whatsapp']}"
     elif "email" in pesan:
-        return f"Email kampus: {data_kampus['email']}"
-    elif "program studi" in pesan or "jurusan" in pesan:
-        jurusan = []
-        for jur, konsen in data_kampus["programs"].items():
-            jurusan.append(f"{jur} ({', '.join(konsen)})")
-        return "Program studi yang tersedia:\n" + "\n".join(jurusan)
+        return f"Email kampus: {data_kampus['contact']['email']}"
+    elif "visi" in pesan:
+        return data_kampus["vision"]
+    elif "misi" in pesan:
+        return "\n".join(data_kampus["mission"])
+    elif any(k in pesan for k in ["program studi", "jurusan", "prodi"]):
+        return "Program studi yang tersedia:\n" + "\n".join(data_kampus["programs"])
     elif "fasilitas" in pesan:
         return "Fasilitas kampus:\n" + "\n".join(data_kampus["facilities"])
     elif "akreditasi" in pesan:
-        return data_kampus["accreditation"]
+        akreditasi = data_kampus["accreditation"]
+        prodi = "\n".join([f"- {k}: {v}" for k, v in akreditasi["programs"].items()])
+        return f"Akreditasi keseluruhan: {akreditasi['overall']}\n{prodi}"
+    elif "nilai" in pesan or "value" in pesan:
+        return "Nilai kampus: " + ", ".join(data_kampus.get("values", []))
+    elif "sejarah" in pesan or "berdiri" in pesan:
+        return data_kampus.get("history", "Data sejarah tidak tersedia.")
     return None
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
