@@ -47,7 +47,11 @@ def chat():
         # Jika dalam mode AI, semua pertanyaan langsung ke AI
         if session["ai_mode"]:
             ai_reply = ai_jawab(user_msg)
-            # Validasi alamat jika pertanyaan terkait lokasi
+            # Validasi situs resmi dan kontak WhatsApp
+            if "website" in data_kampus and data_kampus["website"] not in ai_reply:
+                ai_reply = ai_reply.replace("https://stmktriakti.ac.id", data_kampus["website"])
+            if "contact" in data_kampus and "whatsapp" in data_kampus["contact"] and data_kampus["contact"]["whatsapp"] not in ai_reply:
+                ai_reply = ai_reply.replace("+62 821-1859-9320", data_kampus["contact"]["whatsapp"])
             if "lokasi" in user_msg or "alamat" in user_msg:
                 if data_kampus["address"] not in ai_reply:
                     ai_reply = f"Alamat resmi STMK Trisakti: {data_kampus['address']}\n📍 Sumber: {data_kampus['website']}\nMaaf jika ada info lain yang kurang tepat, AI mungkin salah menebak. Coba tanyakan lagi atau ketik 'keluar dari ai'!"
@@ -72,7 +76,11 @@ def chat():
         # Cek apakah pertanyaan akademik
         if is_akademik(user_msg):
             ai_reply = ai_jawab(user_msg)
-            # Validasi alamat jika pertanyaan terkait lokasi
+            # Validasi situs resmi dan kontak WhatsApp
+            if "website" in data_kampus and data_kampus["website"] not in ai_reply:
+                ai_reply = ai_reply.replace("https://stmktriakti.ac.id", data_kampus["website"])
+            if "contact" in data_kampus and "whatsapp" in data_kampus["contact"] and data_kampus["contact"]["whatsapp"] not in ai_reply:
+                ai_reply = ai_reply.replace("+62 821-1859-9320", data_kampus["contact"]["whatsapp"])
             if "lokasi" in user_msg or "alamat" in user_msg:
                 if data_kampus["address"] not in ai_reply:
                     ai_reply = f"Alamat resmi STMK Trisakti: {data_kampus['address']}\n📍 Sumber: {data_kampus['website']}\nMaaf jika ada info lain yang kurang tepat, AI mungkin salah menebak. Coba tanyakan lagi atau ketik 'bicara dengan ai'!"
@@ -176,7 +184,8 @@ def ai_jawab(pesan):
                 "role": "system",
                 "content": (
                     "Kamu adalah asisten AI resmi dari STMK Trisakti. Hanya jawab pertanyaan terkait kampus STMK Trisakti atau topik akademik seperti multimedia, desain, teknologi kreatif, atau pendidikan tinggi. "
-                    "Gunakan data dari file data_kampus.json sebagai acuan utama untuk informasi seperti alamat, jurusan, dan fasilitas. Jika informasi tidak tersedia di data_kampus.json, katakan bahwa kamu tidak bisa menjawab dan arahkan ke website resmi. "
+                    "Gunakan data dari file data_kampus.json sebagai acuan utama untuk informasi seperti alamat (Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210), website (https://trisaktimultimedia.ac.id), dan kontak WhatsApp (+62 877 4299 7808). "
+                    "Jika informasi tidak tersedia di data_kampus.json atau tidak sesuai, katakan bahwa kamu tidak bisa menjawab dengan pasti dan arahkan ke website resmi atau kontak resmi. "
                     "Gunakan bahasa Indonesia yang sopan, jelas, ramah, dan profesional. Jangan berikan jawaban spekulatif atau di luar topik. "
                     "Sertakan nada interaktif dan kreatif, misalnya dengan mengajak pengguna untuk bertanya lebih lanjut menggunakan kata kunci seperti: jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, atau fokus teknologi. Jika pengguna ingin keluar, sarankan 'keluar dari ai'."
                 )
