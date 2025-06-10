@@ -1,31 +1,44 @@
 {
   "name": "Trisakti School of Multimedia",
-  "address": "Jl. Jend. Ahmad Yani Kav. 85, Rawasari, Jakarta Timur, DKI Jakarta, Indonesia",
-  "phone": ["021-4895787", "021-4701842"],
-  "whatsapp": "+62 877 4299 7808",
-  "email": "info@trisaktimultimedia.ac.id",
-  "programs": {
-    "Desain Komunikasi Visual": [
-      "Animasi dan Games",
-      "Multimedia Penyiaran",
-      "Multimedia Periklanan"
-    ],
-    "Teknologi Grafika": [
-      "Desain Produk Kemasan"
-    ]
-  },
-  "facilities": [
-    "Perpustakaan (SLiMS, Digilib)",
-    "Laboratorium",
-    "Podcast"
+  "foundation_year": 1985,
+  "history": "Awalnya bernama Akademi Teknologi Grafika Trisakti (ATGT); sejak 2008 berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti di bawah Yayasan Trisakti.",
+  "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
+
+  "mission": [
+    "Penyebarluasan ilmu pengetahuan, teknologi, dan/atau seni khususnya di bidang media komunikasi.",
+    "Menghasilkan lulusan profesional dan berdaya saing di industri kreatif.",
+    "Mengembangkan penelitian serta inovasi di bidang multimedia."
   ],
-  "accreditation": "Lihat menu Akreditasi di website resmi",
-  "vision": "Silakan ambil dari menu Visi & Misi di situs resmi",
-  "mission": "Silakan ambil dari menu Visi & Misi di situs resmi",
-  "social_media": {
-    "instagram": "trisaktimultimedia.ac.id", 
-    "facebook": "Trisakti School of Multimedia",
-    "twitter": "trisaktimtmedia",
-    "youtube": "Trisakti Multimedia TV"
-  }
+
+  "programs": [
+    "Desain Komunikasi Visual – Animasi dan Games",
+    "Desain Komunikasi Visual – Multimedia Penyiaran",
+    "Desain Komunikasi Visual – Multimedia Periklanan",
+    "Teknologi Grafika – Desain Produk Kemasan"
+  ],
+
+  "facilities": [
+    "Perpustakaan (SLiMS & Digilib)",
+    "Laboratorium",
+    "Podcast Studio"
+  ],
+
+  "accreditation": {
+    "overall": "Baik",
+    "programs": {
+      "Desain Komunikasi Visual": "Baik",
+      "Teknologi Grafika": "Baik"
+    }
+  },
+
+  "contact": {
+    "whatsapp": "+62 877 4299 7808",
+    "email": "info@trisaktimultimedia.ac.id"
+  },
+
+  "values": [
+    "Kreativitas",
+    "Teknologi",
+    "Budaya"
+  ]
 }
