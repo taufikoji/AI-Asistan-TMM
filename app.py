@@ -96,9 +96,13 @@ def cek_data_kampus(pesan):
             "Mahasiswa STMK Trisakti belajar di lingkungan kreatif dengan fokus pada multimedia, desain, dan teknologi digital. "
             "Mau tahu lebih banyak tentang program studi, kegiatan mahasiswa, atau cara daftar? Tanya saya atau cek https://trisaktimultimedia.ac.id!"
         )
+    elif any(k in pesan for k in ["kerja sama", "kolaborasi"]):
+        return "\n".join([f"- {c['partner']}: {c['description']} (Tanggal: {c['date']})" for c in data_kampus.get("collaborations", [])])
+    elif any(k in pesan for k in ["fokus teknologi", "teknologi fokus"]):
+        return "Fokus teknologi STMK Trisakti: " + ", ".join(data_kampus.get("focus_areas", []))
     elif any(k in pesan for k in ["lebih lengkap", "detail", "info lebih"]):
         return (
-            "Tentu! Kamu bisa tanyakan lebih detail tentang:\n- Jurusan/Program Studi\n- Fasilitas Kampus\n- Visi dan Misi\n- Kontak (telepon, WhatsApp, email)\n"
+            "Tentu! Kamu bisa tanyakan lebih detail tentang:\n- Jurusan/Program Studi\n- Fasilitas Kampus\n- Visi dan Misi\n- Kontak (telepon, WhatsApp, email)\n- Kerja Sama\n"
             "Coba tanyakan salah satunya, ya! 😊\n\n{random.choice(pantun_daftar)}"
         )
     return None
