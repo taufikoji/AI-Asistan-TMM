@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-# Load data kampus dari JSON
+# Muat data kampus dari file JSON
 with open("data_kampus.json", "r", encoding="utf-8") as f:
     data_kampus = json.load(f)
 
@@ -30,32 +30,31 @@ def chat():
     try:
         user_msg = request.json.get("message").strip().lower()
 
-        # Cek jawaban dari data lokal (kampus)
+        # Cek apakah pertanyaan cocok dengan data kampus
         jawaban_lokal = cek_data_kampus(user_msg)
         if jawaban_lokal:
             return jsonify({"reply": jawaban_lokal})
 
-        # Pertanyaan ringan → AI
-        if is_ringan(user_msg):
-            return jsonify({"reply": ai_respon_ringan(user_msg)})
+        # Jika pertanyaan ringan atau akademik umum, izinkan AI menjawab
+        if is_ringan(user_msg) or is_akademik(user_msg):
+            ai_reply = ai_jawab(user_msg)
+            return jsonify({"reply": ai_reply})
 
-        # Pertanyaan akademik → AI
-        if is_akademik(user_msg):
-            ai_jawaban = tanya_ai(user_msg)
-            return jsonify({"reply": ai_jawaban})
-
-        # Pertanyaan lain → tolak dengan sopan
-        return jsonify({
-            "reply": "Maaf, saya hanya dapat menjawab pertanyaan seputar STMK Trisakti dan pendidikan. "
-                     "Silakan kunjungi situs resmi kami di https://trisaktimultimedia.ac.id 😊"
-        })
+        # Jika tidak relevan sama sekali
+        return jsonify({"reply": "Maaf, saya hanya bisa membantu seputar kampus STMK Trisakti atau pertanyaan akademik. 😊"})
 
     except Exception as e:
         return jsonify({"reply": f"Terjadi kesalahan: {str(e)}"}), 500
 
+
 def cek_data_kampus(pesan):
     if "alamat" in pesan:
-        return data_kampus.get("address", "Alamat belum tersedia.")
+        return f"{data_kampus['address']}\n📍 Sumber: {data_kampus['website']}"
+    elif "tentang kampus" in pesan or "informasi kampus" in pesan or "kampus" in pesan:
+        return (
+            "STMK Trisakti (Trisakti School of Multimedia) adalah perguruan tinggi di bidang media dan teknologi kreatif.\n"
+            "📌 Website resmi: https://trisaktimultimedia.ac.id"
+        )
     elif "nomor" in pesan or "telepon" in pesan:
         return f"Nomor telepon: {', '.join(data_kampus.get('phone', []))}"
     elif "whatsapp" in pesan or "wa" in pesan:
@@ -63,46 +62,37 @@ def cek_data_kampus(pesan):
     elif "email" in pesan:
         return f"Email kampus: {data_kampus['contact']['email']}"
     elif "visi" in pesan:
-        return data_kampus.get("vision", "Visi belum tersedia.")
+        return data_kampus["vision"]
     elif "misi" in pesan:
-        return "\n".join(data_kampus.get("mission", []))
+        return "\n".join(data_kampus["mission"])
     elif any(k in pesan for k in ["program studi", "jurusan", "prodi"]):
-        return "Program studi:\n" + "\n".join(data_kampus.get("programs", []))
+        return "Program studi yang tersedia:\n" + "\n".join(data_kampus["programs"])
     elif "fasilitas" in pesan:
-        return "Fasilitas kampus:\n" + "\n".join(data_kampus.get("facilities", []))
+        return "Fasilitas kampus:\n" + "\n".join(data_kampus["facilities"])
     elif "akreditasi" in pesan:
-        akreditasi = data_kampus.get("accreditation", {})
-        prodi = akreditasi.get("programs", {})
-        prodi_list = "\n".join([f"- {k}: {v}" for k, v in prodi.items()])
-        return f"Akreditasi keseluruhan: {akreditasi.get('overall', 'Belum tersedia')}\n{prodi_list}"
+        akreditasi = data_kampus["accreditation"]
+        prodi = "\n".join([f"- {k}: {v}" for k, v in akreditasi["programs"].items()])
+        return f"Akreditasi keseluruhan: {akreditasi['overall']}\n{prodi}"
     elif "nilai" in pesan or "value" in pesan:
         return "Nilai kampus: " + ", ".join(data_kampus.get("values", []))
     elif "sejarah" in pesan or "berdiri" in pesan:
-        return data_kampus.get("history", "Sejarah belum tersedia.")
-    elif "tentang kampus" in pesan:
-        return (
-            "STMK Trisakti adalah kampus multimedia modern dengan fokus pada teknologi, desain, dan komunikasi. "
-            "Kunjungi situs resmi kami untuk informasi lengkap: https://trisaktimultimedia.ac.id"
-        )
+        return data_kampus.get("history", "Data sejarah tidak tersedia.")
     return None
+
 
 def is_ringan(pesan):
     sapaan = ["halo", "hai", "hi", "assalamualaikum", "selamat pagi", "selamat siang", "selamat sore", "selamat malam"]
     ucapan_terima_kasih = ["terima kasih", "makasih", "thanks", "thank you"]
     return pesan in sapaan or any(kata in pesan for kata in ucapan_terima_kasih)
 
-def ai_respon_ringan(pesan):
-    if any(kata in pesan for kata in ["terima kasih", "makasih", "thanks", "thank you"]):
-        pantun = random.choice(pantun_daftar)
-        return f"Sama-sama! Semoga harimu menyenangkan! 🙌\n\n{pantun}"
-    return "Halo! Saya asisten AI dari STMK Trisakti. Silakan tanya apa pun tentang kampus atau pendidikan 😊"
 
 def is_akademik(pesan):
-    # Deteksi kata kunci terkait pendidikan umum
-    topik = ["apa itu", "bagaimana cara", "pengertian", "fungsi", "contoh", "manfaat", "tujuan", "perbedaan", "kuliah", "skripsi", "dosen", "mata kuliah", "belajar"]
-    return any(k in pesan for k in topik)
+    # Kata kunci umum seputar topik pendidikan/akademik
+    kata_kunci = ["apa itu", "perbedaan", "contoh", "penjelasan", "skripsi", "kuliah", "dosen", "kampus", "pendidikan", "akademik", "belajar"]
+    return any(k in pesan for k in kata_kunci)
 
-def tanya_ai(pesan):
+
+def ai_jawab(pesan):
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
@@ -116,8 +106,9 @@ def tanya_ai(pesan):
             {
                 "role": "system",
                 "content": (
-                    "Kamu adalah asisten AI ramah yang menjawab pertanyaan umum seputar dunia pendidikan dan akademik. "
-                    "Jawaban harus informatif, akurat, dan mudah dimengerti oleh pelajar atau calon mahasiswa."
+                    "Kamu adalah asisten AI resmi dari STMK Trisakti. "
+                    "Jika topiknya tidak tersedia di data lokal kampus, bantu pengguna dengan pengetahuan akademik umum. "
+                    "Gunakan bahasa Indonesia yang sopan dan jelas. Jangan berasumsi tentang isi internal kampus jika tidak disebutkan di website resmi."
                 )
             },
             {"role": "user", "content": pesan}
@@ -125,10 +116,11 @@ def tanya_ai(pesan):
     }
 
     response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+
     if response.status_code == 200:
         return response.json()["choices"][0]["message"]["content"]
-    else:
-        return f"Maaf, terjadi kesalahan saat menghubungi AI. ({response.status_code})"
+    return "Mohon maaf, saya sedang tidak bisa menjawab. Silakan coba beberapa saat lagi."
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
