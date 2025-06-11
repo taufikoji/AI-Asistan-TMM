@@ -1,246 +1,151 @@
-import os
 import json
-import random
+import os
 import time
-from flask import Flask, render_template, request, jsonify, session
+import difflib
 import requests
+from flask import Flask, render_template, request, jsonify, session
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "your_secret_key_here")  # Ganti dengan kunci rahasia yang aman
+CORS(app)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_secret_key")
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-if not OPENROUTER_API_KEY:
-    print("Warning: OPENROUTER_API_KEY not found in .env. AI mode may not work!")
+# Load data dari JSON lokal
+def load_data():
+    with open("data_kampus.json", "r", encoding="utf-8") as file:
+        return json.load(file)
 
-# Muat data kampus dari file JSON
-try:
-    with open("data_kampus.json", "r", encoding="utf-8") as f:
-        data_kampus = json.load(f)
-except FileNotFoundError:
-    print("Error: data_kampus.json not found!")
-    data_kampus = {}  # Fallback kosong jika file hilang
+data_kampus = load_data()
 
-pantun_daftar = [
-    "Naik kereta ke Pasar Minggu,\nJangan lupa beli mangga.\nYuk daftar di STMK Trisakti,\nKampusnya anak kreatif semua! 🎨🎓",
-    "Burung camar terbang ke barat,\nDi pantai bersinar cahaya mentari.\nSTMK Trisakti pilihan tepat,\nMasa depan cerah menanti! 🌟📚",
-    "Ke pasar beli pepaya,\nPulangnya mampir ke warung mie.\nSTMK Trisakti kampus budaya,\nAyo daftar sekarang juga, jangan nanti! ✨📹"
-]
-
-@app.route("/")
-def index():
-    return render_template("index.html")  # Rute default untuk index.html
-
-@app.route("/widget")
-def widget():
-    return render_template("widget.html")  # Rute untuk widget.html
-
-@app.route("/chat", methods=["POST"])
-def chat():
-    # Inisialisasi sesi jika belum ada
-    if "ai_mode" not in session:
-        session["ai_mode"] = False
-    if "discussion_mode" not in session:
-        session["discussion_mode"] = False
-
-    try:
-        user_msg = request.json.get("message").strip().lower()
-
-        # Debug: Cetak pesan untuk memastikan diterima
-        print(f"Received message: '{user_msg}' | AI Mode: {session['ai_mode']} | Discussion Mode: {session['discussion_mode']}")
-
-        # Mode chatbot biasa (tanpa AI)
-        if not session["ai_mode"]:
-            jawaban_lokal = cek_data_kampus(user_msg)
-            if jawaban_lokal:
-                if random.random() < 0.2:
-                    jawaban_lokal += f"\n\n{random.choice(pantun_daftar)}"
-                print(f"Local response: {jawaban_lokal}")
-                return jsonify({"reply": jawaban_lokal, "typing": False})
-
-        # Cek apakah pengguna ingin masuk/keluar dari mode AI atau diskusi
-        if any(k in user_msg for k in ["bicara dengan ai", "ai bantu saya", "ai jawab"]) and not session["ai_mode"]:
-            session["ai_mode"] = True
-            return jsonify({"reply": "Halo bro! Sekarang kamu ngobrol sama AI cerdas ala Grok dari STMK Trisakti! 😄 Aku bisa jawab apa aja, dari kampus sampe hal random. Ketik 'keluar dari ai' kalau mau istirahat, atau 'ayo diskusi' buat ngobrol bebas! Apa yang pengen kamu tanyain?", "typing": False})
-        elif "keluar dari ai" in user_msg:
-            session["ai_mode"] = False
-            session["discussion_mode"] = False
-            keywords = "Kata kunci seru: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, lebih lengkap."
-            return jsonify({"reply": f"Okedeh, kamu udah keluar dari mode AI! Kembali ke mode biasa. 😊 {keywords} \n\n{random.choice(pantun_daftar)}", "typing": False})
-        elif "ayo diskusi" in user_msg and session["ai_mode"]:
-            session["discussion_mode"] = True
-            return jsonify({"reply": "Yeay, kita mulai diskusi bebas nih! 😄 Aku siap jawab apa aja, dari STMK Trisakti sampe hal random. Bebas ngobrol, bro! Ketik 'selesai diskusi' kalau udah puas. Apa yang mau dibahas?", "typing": False})
-        elif "selesai diskusi" in user_msg and session["discussion_mode"]:
-            session["discussion_mode"] = False
-            return jsonify({"reply": "Seru banget diskusinya! 😊 Kembali ke mode AI biasa. Mau tanya lagi tentang STMK? Coba kata kunci seperti jurusan atau ketik 'keluar dari ai' kalau mau selesai total! \n\n{random.choice(pantun_daftar)}", "typing": False})
-
-        # Jika dalam mode diskusi, AI bebas menjawab
-        if session["discussion_mode"] and session["ai_mode"]:
-            return jsonify({"typing": True})
-            time.sleep(1)  # Simulasi waktu pemrosesan
-            ai_reply = ai_jawab(user_msg)
-            if not ai_reply:
-                ai_reply = "Hmm, sepertinya aku lagi bingung nih! 😅 Coba tanyakan lagi ya atau cek koneksi API."
-            ai_reply = clean_and_validate_response(ai_reply, user_msg)
-            print(f"AI response (Discussion): {ai_reply}")
-            return jsonify({"reply": ai_reply, "typing": False})
-
-        # Jika dalam mode AI (tanpa diskusi), prioritaskan topik STMK
-        if session["ai_mode"] and not session["discussion_mode"]:
-            return jsonify({"typing": True})
-            time.sleep(1)  # Simulasi waktu pemrosesan
-            ai_reply = ai_jawab(user_msg)
-            if not ai_reply:
-                ai_reply = "Oops, aku nggak bisa jawab sekarang! 😅 Coba lagi atau ketik 'keluar dari ai' ya."
-            ai_reply = clean_and_validate_response(ai_reply, user_msg)
-            if is_jawaban_relevan(ai_reply, user_msg):
-                print(f"AI response (Relevant): {ai_reply}")
-                return jsonify({"reply": ai_reply, "typing": False})
-            else:
-                ai_reply = f"Wah, topik seru nih! 😄 Tapi aku lebih jago soal STMK Trisakti. Coba tanyain tentang jurusan atau fasilitas, atau aku coba jawab apa adanya: {ai_reply}\nPenasaran lagi? Ketik 'ayo diskusi' buat ngobrol bebas atau 'keluar dari ai' kalau mau selesai!"
-                print(f"AI response (Non-relevant): {ai_reply}")
-                return jsonify({"reply": ai_reply, "typing": False})
-
-        # Cek apakah sapaan ringan
-        if is_ringan(user_msg):
-            keywords = "Kata kunci seru: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, lebih lengkap. Atau ketik 'bicara dengan ai' buat ngobrol langsung sama AI!"
-            return jsonify({"reply": f"Hai! Selamat datang di chatbot STMK Trisakti! 😊 Kayaknya kamu penasaran, ya? {keywords} \n\n{random.choice(pantun_daftar)}", "typing": False})
-
-        # Jika tidak relevan
-        keywords = "Coba kata kunci seperti: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, atau ketik 'lebih lengkap' atau 'bicara dengan ai'."
-        return jsonify({"reply": f"Hmm, aku rada bingung sama pertanyaanmu! 😅 Saya cuma bisa bantu seputar STMK Trisakti atau topik akademik. {keywords} Cek https://trisaktimultimedia.ac.id kalau penasaran! \n\n{random.choice(pantun_daftar)}", "typing": False})
-
-    except Exception as e:
-        print(f"Error: {e}")  # Debug error
-        return jsonify({"reply": f"Ups, ada sedikit masalah teknis: {str(e)}. Sabar ya, coba lagi nanti atau cek https://trisaktimultimedia.ac.id! 😊", "typing": False}), 500
-
-def cek_data_kampus(pesan):
-    if not data_kampus:
-        return "Maaf, data kampus nggak tersedia. Cek file data_kampus.json ya! 😅"
-    # Prioritaskan kata kunci yang lebih spesifik
-    if "alamat" in pesan and "address" in data_kampus:
-        return f"Alamat STMK Trisakti: {data_kampus['address']}\n📍 Sumber: {data_kampus.get('website', 'https://trisaktimultimedia.ac.id')} (Kata kunci lain: jurusan, fasilitas, whatsapp, atau ketik 'bicara dengan ai' buat ngobrol sama AI!)"
-    elif any(k in pesan for k in ["tentang kampus", "informasi kampus", "apa itu stmk"]) and all(k in data_kampus for k in ['programs', 'facilities']):
-        return (
-            "STMK Trisakti (Trisakti School of Multimedia) adalah perguruan tinggi kece yang fokus pada media dan teknologi kreatif, bikin lulusan siap industri digital!\n"
-            f"- Jurusan: {', '.join(data_kampus['programs'])}\n"
-            f"- Fasilitas: {', '.join(data_kampus['facilities'][:2])} (sisanya? Coba kata kunci 'fasilitas' ya!)\n"
-            f"📌 Website resmi: {data_kampus.get('website', 'https://trisaktimultimedia.ac.id')}\n"
-            "Penasaran lagi? Coba kata kunci: visi, misi, atau jurusan, atau ketik 'bicara dengan ai'! 😄"
-        )
-    elif any(k in pesan for k in ["nomor telepon", "telepon", "kontak telepon"]) and "phone" in data_kampus:
-        return f"Nomor telepon: {', '.join(data_kampus.get('phone', []))} (Kata kunci lain: whatsapp, email, atau 'bicara dengan ai')"
-    elif any(k in pesan for k in ["whatsapp", "wa"]) and "contact" in data_kampus and "whatsapp" in data_kampus["contact"]:
-        return f"WhatsApp kampus: {data_kampus['contact']['whatsapp']}\nChat aja buat info pendaftaran atau tanya-tanya! (Kata kunci lain: telepon, email, atau 'bicara dengan ai')"
-    elif "email" in pesan and "contact" in data_kampus and "email" in data_kampus["contact"]:
-        return f"Email kampus: {data_kampus['contact']['email']} (Kata kunci lain: whatsapp, telepon, atau 'bicara dengan ai')"
-    elif "visi" in pesan and "vision" in data_kampus:
-        return f"Visi STMK Trisakti: {data_kampus['vision']} (Kata kunci lain: misi, jurusan, atau 'bicara dengan ai')"
-    elif "misi" in pesan and "mission" in data_kampus:
-        return "Misi STMK Trisakti:\n" + "\n".join(f"- {misi}" for misi in data_kampus["mission"]) + " (Kata kunci lain: visi, fasilitas, atau 'bicara dengan ai')"
-    elif any(k in pesan for k in ["program studi", "jurusan", "prodi"]) and "programs" in data_kampus:
-        return "Program studi di STMK Trisakti:\n" + "\n".join(f"- {program}" for program in data_kampus["programs"]) + " (Kata kunci lain: fasilitas, akreditasi, atau 'bicara dengan ai')"
-    elif "fasilitas" in pesan and "facilities" in data_kampus:
-        return "Fasilitas kampus STMK Trisakti:\n" + "\n".join(f"- {fasilitas}" for fasilitas in data_kampus["facilities"]) + " (Kata kunci lain: jurusan, laboratorium, atau 'bicara dengan ai')"
-    elif "akreditasi" in pesan and "accreditation" in data_kampus:
-        akreditasi = data_kampus["accreditation"]
-        prodi = "\n".join([f"- {k}: {v}" for k, v in akreditasi.get("programs", {}).items()])
-        return f"Akreditasi keseluruhan: {akreditasi.get('overall', 'Tidak tersedia')}\nProgram studi:\n{prodi} (Kata kunci lain: jurusan, visi, atau 'bicara dengan ai')"
-    elif "nilai" in pesan or "value" in pesan and "values" in data_kampus:
-        return "Nilai-nilai STMK Trisakti: " + ", ".join(data_kampus.get("values", [])) + " (Kata kunci lain: visi, misi, atau 'bicara dengan ai')"
-    elif "sejarah" in pesan or "berdiri" in pesan and "history" in data_kampus:
-        return data_kampus.get("history", "Informasi sejarah belum aku ketahui. Cek https://trisaktimultimedia.ac.id untuk detail! 😄") + " (Kata kunci lain: visi, jurusan, atau 'bicara dengan ai')"
-    elif any(k in pesan for k in ["mahasiswa", "siswa"]):
-        return (
-            "Mahasiswa STMK Trisakti hidup di dunia kreatif penuh inspirasi dengan fokus multimedia, desain, dan teknologi digital. "
-            "Penasaran? Coba kata kunci: program studi, fasilitas, atau fokus teknologi, atau ketik 'bicara dengan ai'! Cek juga https://trisaktimultimedia.ac.id ya!"
-        )
-    elif any(k in pesan for k in ["kerja sama", "kolaborasi"]) and "collaborations" in data_kampus:
-        return "\n".join([f"- {c['partner']}: {c['description']} (Tanggal: {c['date']})" for c in data_kampus.get("collaborations", [])]) + " (Kata kunci lain: jurusan, fasilitas, atau 'bicara dengan ai')"
-    elif any(k in pesan for k in ["fokus teknologi", "teknologi fokus"]) and "focus_areas" in data_kampus:
-        return "Fokus teknologi STMK Trisakti:\n" + "\n".join(f"- {area}" for area in data_kampus.get("focus_areas", [])) + " (Kata kunci lain: jurusan, misi, atau 'bicara dengan ai')"
-    elif any(k in pesan for k in ["lebih lengkap", "detail", "info lebih"]):
-        return (
-            "Tentu, aku siap bantu lebih dalam! Coba tanyakan:\n- Jurusan/Program Studi (gunakan: jurusan)\n- Fasilitas Kampus (gunakan: fasilitas)\n- Visi dan Misi (gunakan: visi, misi)\n- Kontak (gunakan: whatsapp, telepon, email)\n- Kerja Sama (gunakan: kerja sama)\n- Fokus Teknologi (gunakan: fokus teknologi)\n"
-            "Atau ketik 'bicara dengan ai' buat ngobrol langsung sama aku! 😄 Pilih salah satu, yuk! \n\n{random.choice(pantun_daftar)}"
-        )
+# Fungsi mencari jawaban lokal
+def find_answer_from_json(pesan):
+    for item in data_kampus:
+        if item["pertanyaan"].lower() in pesan.lower():
+            return item["jawaban"]
     return None
 
-def is_ringan(pesan):
-    sapaan = ["halo", "hai", "hi", "assalamualaikum", "selamat pagi", "selamat siang", "selamat sore", "selamat malam", "saya ingin bertanya", "ucanda", "saya ingin bicara"]
-    ucapan_terima_kasih = ["terima kasih", "makasih", "thanks", "thank you"]
-    return pesan in sapaan or any(kata in pesan for kata in ucapan_terima_kasih)
+# Fungsi fallback: mencari kemiripan pertanyaan
+def find_closest_question(pesan):
+    pertanyaan_list = [item["pertanyaan"] for item in data_kampus]
+    closest = difflib.get_close_matches(pesan, pertanyaan_list, n=1, cutoff=0.6)
+    if closest:
+        for item in data_kampus:
+            if item["pertanyaan"] == closest[0]:
+                return item["jawaban"]
+    return None
 
-def is_akademik(pesan):
-    kata_kunci = [
-        "apa itu", "perbedaan", "contoh", "penjelasan", "skripsi", "kuliah", 
-        "dosen", "kampus", "pendidikan", "akademik", "belajar", "kurikulum", 
-        "matakuliah", "desain", "multimedia", "teknologi", "digital", "branding", 
-        "kreatif", "internet of things", "artificial intelligence", "media"
-    ]
-    return any(k in pesan for k in kata_kunci)
-
-def is_jawaban_relevan(jawaban, pesan):
-    kata_kunci_relevan = [
-        "trisakti", "stmk", "multimedia", "kampus", "pendidikan", "akademik", 
-        "kuliah", "desain", "teknologi", "digital", "branding", "kreatif"
-    ]
-    jawaban_lower = jawaban.lower()
-    return any(kata in jawaban_lower for kata in kata_kunci_relevan) or any(kata in pesan for kata in kata_kunci_relevan)
-
+# Fungsi untuk memanggil AI dari OpenRouter (DeepSeek)
 def ai_jawab(pesan):
+    api_key = os.getenv("OPENROUTER_API_KEY")
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://trisaktimultimedia.ac.id",
-        "X-Title": "STMK Chatbot"
+        "HTTP-Referer": "https://stmk.trisakti.ac.id",
+        "X-Title": "Chatbot STMK Trisakti"
     }
-
-    data = {
-        "model": "deepseek/deepseek-r1-0528:free",
+    payload = {
+        "model": "deepseek-chat",
         "messages": [
             {
                 "role": "system",
-                "content": (
-                    "Kamu adalah asisten AI resmi dari STMK Trisakti, dengan gaya seperti Grok dari xAI—ramah, sedikit humoris, dan interaktif. Kamu bisa menjawab PERTANYAAN APA PUN, tapi prioritaskan topik terkait STMK Trisakti atau akademik seperti multimedia, desain, teknologi kreatif, atau pendidikan tinggi. "
-                    "Gunakan data dari file data_kampus.json sebagai acuan utama untuk informasi seperti alamat (Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210), website (https://trisaktimultimedia.ac.id), dan kontak WhatsApp (+62 877 4299 7808). "
-                    "Jika pertanyaan di luar konteks STMK, jawab dengan santai dan tambahkan saran untuk kembali ke topik, misalnya: 'Wah, seru banget topiknya! Tapi aku lebih jago soal STMK, mau coba tanya jurusan?' "
-                    "Jika informasi tidak tersedia di data_kampus.json, katakan 'Hmm, aku kurang yakin nih!' dan arahkan ke website resmi atau kontak resmi dengan nada ceria. "
-                    "Gunakan bahasa Indonesia yang santai, jelas, dan profesional. Format teks rapi dengan daftar menggunakan tanda '-' dan hindari tanda bintang (*) atau spasi berlebih. "
-                    "Untuk pertanyaan ambigu, minta klarifikasi dengan ramah, misalnya: 'Eh, aku bingung nih, maksudnya apa ya? Coba pakai kata kunci seperti jurusan atau fasilitas!' "
-                    "Tambahkan sentuhan kreatif seperti emoji (😄, 😊) atau ajakan seperti 'Penasaran lagi? Ayo diskusi lebih lanjut!' dengan kata kunci: jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, atau fokus teknologi. Sarankan 'selesai diskusi' atau 'keluar dari ai' jika pengguna ingin berhenti."
-                )
+                "content": "Kamu adalah asisten ramah STMK Trisakti. Jika kamu tidak tahu jawabannya, katakan tidak tahu."
             },
-            {"role": "user", "content": pesan}
+            {
+                "role": "user",
+                "content": pesan
+            }
         ]
     }
-
     try:
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=10)
-        response.raise_for_status()
-        reply = response.json()["choices"][0]["message"]["content"]
-        print(f"API response: {reply}")  # Debug API response
-        reply = reply.replace("*", "").strip()
-        reply = "\n".join(line.strip() for line in reply.split("\n") if line.strip())
-        return reply
-    except requests.RequestException as e:
-        print(f"API Error: {e}")
-        return "Ups, serverku lagi rewel nih! 😅 Coba lagi nanti atau pastikan API key valid di .env."
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+        result = response.json()
+        ai_reply = result["choices"][0]["message"]["content"]
+        return ai_reply
+    except Exception as e:
+        print("Error saat memanggil AI:", e)
+        return "Maaf, terjadi kesalahan saat memanggil AI."
 
-def clean_and_validate_response(ai_reply, user_msg):
-    if "website" in data_kampus and data_kampus["website"] not in ai_reply:
-        ai_reply = ai_reply.replace("https://stmktriakti.ac.id", data_kampus["website"])
-    if "contact" in data_kampus and "whatsapp" in data_kampus["contact"] and data_kampus["contact"]["whatsapp"] not in ai_reply:
-        ai_reply = ai_reply.replace("+62 821-1859-9320", data_kampus["contact"]["whatsapp"])
-    if "lokasi" in user_msg or "alamat" in user_msg:
-        if "address" in data_kampus and data_kampus["address"] not in ai_reply:
-            ai_reply = f"Alamat resmi STMK Trisakti: {data_kampus['address']}\n📍 Sumber: {data_kampus.get('website', 'https://trisaktimultimedia.ac.id')}\nHmm, aku kurang yakin nih dengan info lain, coba tanyakan lagi ya!"
-    ai_reply = ai_reply.replace("*", "").strip()
-    ai_reply = "\n".join(line.strip() for line in ai_reply.split("\n") if line.strip())
-    return ai_reply
+# Fungsi validasi apakah AI jawabannya nyambung
+def is_jawaban_relevan(jawaban, pesan):
+    # Sederhana: cocokkan kata kunci penting dari pesan dengan jawaban
+    kata_kunci = pesan.lower().split()
+    cocok = sum(1 for kata in kata_kunci if kata in jawaban.lower())
+    return cocok >= 2  # minimal 2 kata kunci cocok
+
+# Fungsi membersihkan dan validasi isi jawaban
+def clean_and_validate_response(jawaban, pesan):
+    jawaban = jawaban.strip()
+
+    if len(jawaban) < 10:
+        return "Hmm, jawabannya agak singkat. Coba ulangi pertanyaanmu dengan lebih detail ya! 😅"
+
+    if "maaf" in jawaban.lower() and "tidak tahu" in jawaban.lower():
+        return "Wah, aku belum tahu pasti jawabannya. Tapi kamu bisa cek ke https://trisaktimultimedia.ac.id atau tanya admin STMK langsung ya! 😊"
+
+    if jawaban.endswith(("...", "..", ".")):
+        jawaban += " Kalau masih penasaran, ketik 'ayo diskusi' atau tanya dengan kata kunci yang lebih spesifik ya!"
+
+    if "bisa jelaskan lebih lanjut" in jawaban.lower():
+        return "Boleh dong! Tapi kamu bisa mulai dengan kata kunci seperti: jurusan, fasilitas, atau akreditasi. 😊"
+
+    return jawaban
+
+# ROUTE UTAMA
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+# ROUTE CHATBOT
+@app.route("/chat", methods=["POST"])
+def chat():
+    user_msg = request.json.get("message", "").strip()
+
+    if "keluar dari ai" in user_msg.lower():
+        session["ai_mode"] = False
+        session["discussion_mode"] = False
+        return jsonify({"reply": "Oke, kita kembali ke mode biasa. Silakan tanya apa pun tentang STMK Trisakti ya! 😊", "typing": False})
+
+    if "ayo diskusi" in user_msg.lower():
+        session["discussion_mode"] = True
+        session["ai_mode"] = True
+        return jsonify({"reply": "Siap! Kita masuk mode diskusi bebas. Kamu bisa ngobrol apa saja sekarang. 😄", "typing": False})
+
+    # Langkah 1: Coba jawab dari JSON
+    jawaban = find_answer_from_json(user_msg)
+    if jawaban:
+        return jsonify({"reply": jawaban, "typing": False})
+
+    # Langkah 2: Coba cari pertanyaan mirip
+    jawaban_mirip = find_closest_question(user_msg)
+    if jawaban_mirip:
+        return jsonify({"reply": f"Aku nggak nemu yang persis, tapi ini mungkin membantu: {jawaban_mirip}", "typing": False})
+
+    # Langkah 3: Jika diskusi aktif, AI bebas menjawab
+    if session.get("discussion_mode") and session.get("ai_mode"):
+        ai_reply = ai_jawab(user_msg)
+        if not ai_reply:
+            ai_reply = "Hmm, sepertinya aku lagi bingung nih! 😅 Coba tanyakan lagi ya atau cek koneksi AI."
+        ai_reply = clean_and_validate_response(ai_reply, user_msg)
+        return jsonify({"reply": ai_reply, "typing": False})
+
+    # Langkah 4: Jika tidak ditemukan, aktifkan AI tetapi tetap fokus kampus
+    if session.get("ai_mode", True):
+        ai_reply = ai_jawab(user_msg)
+        if not ai_reply:
+            ai_reply = "Oops, aku nggak bisa jawab sekarang! 😅 Coba lagi atau ketik 'keluar dari ai' ya."
+
+        ai_reply = clean_and_validate_response(ai_reply, user_msg)
+
+        if is_jawaban_relevan(ai_reply, user_msg):
+            return jsonify({"reply": ai_reply, "typing": False})
+        else:
+            ai_reply = f"Wah, topik seru nih! 😄 Tapi aku lebih jago soal STMK Trisakti. Coba tanyain tentang jurusan atau fasilitas, atau aku coba jawab apa adanya: {ai_reply}\n\nPenasaran lagi? Ketik 'ayo diskusi' buat ngobrol bebas atau 'keluar dari ai' kalau mau selesai!"
+            return jsonify({"reply": ai_reply, "typing": False})
+
+    return jsonify({"reply": "Maaf, aku belum tahu jawaban itu. Coba tanya yang lain atau ketik 'ayo diskusi' kalau mau ngobrol bebas. 😊", "typing": False})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(debug=True)
