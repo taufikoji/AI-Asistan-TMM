@@ -25,7 +25,11 @@ pantun_daftar = [
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html")  # Rute default untuk index.html
+
+@app.route("/widget")
+def widget():
+    return render_template("widget.html")  # Rute untuk widget.html
 
 @app.route("/chat", methods=["POST"])
 def chat():
