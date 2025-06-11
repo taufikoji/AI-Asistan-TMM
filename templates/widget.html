@@ -74,6 +74,45 @@
       align-self: flex-end;
     }
 
+    .guide-message {
+      background-color: #444;
+      color: #fff;
+      align-self: center;
+      font-style: italic;
+      max-width: 95%;
+      margin: 10px 0;
+    }
+
+    .typing-indicator {
+      display: none;
+      margin-left: 0;
+      margin-bottom: 10px;
+      align-self: flex-start;
+    }
+
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 0 2px;
+      animation: blink 1.4s infinite both;
+    }
+
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0; }
+      40% { opacity: 1; }
+    }
+
     .chatbot-input {
       display: flex;
       border-top: 1px solid #444;
@@ -141,7 +180,21 @@
     Asisten AI
     <span onclick="closeChatbot()">✖️</span>
   </div>
-  <div id="chat-messages" class="chatbot-messages"></div>
+  <div id="chat-messages" class="chatbot-messages">
+    <div class="bot-message guide-message">
+      Halo! Selamat datang di Asisten AI STMK Trisakti. Berikut panduan penggunaan:<br>
+      - <strong>Masuk Mode AI:</strong> Ketik 'bicara dengan ai', 'ai bantu saya', atau 'ai jawab' untuk ngobrol langsung sama AI cerdas ala Grok. AI bisa jawab apa aja!<br>
+      - <strong>Mode Diskusi Bebas:</strong> Setelah mode AI, ketik 'ayo diskusi' buat ngobrol bebas tanpa batas.<br>
+      - <strong>Keluar dari Mode:</strong> Ketik 'selesai diskusi' buat keluar dari diskusi, atau 'keluar dari ai' buat kembali ke mode biasa.<br>
+      - <strong>Kata Kunci:</strong> Coba 'alamat', 'jurusan', 'whatsapp', atau 'lebih lengkap' di mode biasa. Di mode AI, bebas tanya apa aja! 😊
+    </div>
+    <div class="bot-message">
+      Halo! Saya adalah asisten AI. Silakan ajukan pertanyaan kamu.
+    </div>
+    <div class="typing-indicator" id="typing-indicator">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
   <div class="chatbot-input">
     <input type="text" id="user-input" placeholder="Tulis pertanyaan kamu..." />
     <button onclick="sendMessage()">Kirim</button>
@@ -149,13 +202,35 @@
 </div>
 
 <script>
+  const chatbot = document.getElementById("chatbot");
+  const chatMessages = document.getElementById("chat-messages");
+  const userInput = document.getElementById("user-input");
+  const typingIndicator = document.getElementById("typing-indicator");
+
+  function closeChatbot() {
+    chatbot.style.display = "none";
+  }
+
+  function showTyping(show) {
+    typingIndicator.style.display = show ? "flex" : "none";
+  }
+
+  function addMessage(text, sender) {
+    const msg = document.createElement("div");
+    msg.className = sender === "bot" ? "bot-message" : "user-message";
+    msg.innerText = text;
+    chatMessages.insertBefore(msg, typingIndicator); // Masukkan sebelum typing-indicator
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
   function sendMessage() {
-    const input = document.getElementById("user-input");
-    const message = input.value.trim();
+    const message = userInput.value.trim();
     if (!message) return;
 
     addMessage(message, "user");
-    input.value = "";
+    userInput.value = "";
+    showTyping(true);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 
     fetch("/chat", {
       method: "POST",
@@ -164,25 +239,27 @@
     })
     .then(res => res.json())
     .then(data => {
-      addMessage(data.reply, "bot");
+      showTyping(false);
+      if (data.reply) {
+        addMessage(data.reply, "bot");
+      }
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     })
-    .catch(() => {
+    .catch(err => {
+      showTyping(false);
       addMessage("Maaf, terjadi kesalahan.", "bot");
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     });
   }
 
-  function addMessage(text, sender) {
-    const chat = document.getElementById("chat-messages");
-    const msg = document.createElement("div");
-    msg.className = sender + "-message";
-    msg.innerText = text;
-    chat.appendChild(msg);
-    chat.scrollTop = chat.scrollHeight;
-  }
+  userInput.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+  });
 
-  function closeChatbot() {
-    document.getElementById("chatbot").style.display = "none";
-  }
+  // Tampilkan widget secara default saat halaman dimuat
+  window.onload = function() {
+    chatbot.style.display = "flex";
+  };
 </script>
 
 </body>
