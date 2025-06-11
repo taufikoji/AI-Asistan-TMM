@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - STMK Trisakti</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    .actions button {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Admin Panel Chatbot</h1>
+    <form id="add-form">
+      <input type="text" id="pertanyaan" placeholder="Pertanyaan baru" required>
+      <input type="text" id="jawaban" placeholder="Jawaban baru" required>
+      <button type="submit">Tambah</button>
+    </form>
+
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>Pertanyaan</th>
+          <th>Jawaban</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="data-body">
+        <!-- Baris data akan dimuat dengan JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadData() {
+      const res = await fetch("/admin/data");
+      const data = await res.json();
+      const body = document.getElementById("data-body");
+      body.innerHTML = "";
+      data.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="text" value="${item.pertanyaan}" data-index="${index}" class="edit-pertanyaan"></td>
+          <td><input type="text" value="${item.jawaban}" data-index="${index}" class="edit-jawaban"></td>
+          <td class="actions">
+            <button onclick="updateData(${index})">Simpan</button>
+            <button onclick="deleteData(${index})">Hapus</button>
+          </td>
+        `;
+        body.appendChild(row);
+      });
+    }
+
+    async function updateData(index) {
+      const pertanyaan = document.querySelector(`.edit-pertanyaan[data-index='${index}']`).value;
+      const jawaban = document.querySelector(`.edit-jawaban[data-index='${index}']`).value;
+
+      await fetch("/admin/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index, pertanyaan, jawaban })
+      });
+
+      loadData();
+    }
+
+    async function deleteData(index) {
+      await fetch("/admin/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index })
+      });
+
+      loadData();
+    }
+
+    document.getElementById("add-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pertanyaan = document.getElementById("pertanyaan").value;
+      const jawaban = document.getElementById("jawaban").value;
+
+      await fetch("/admin/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pertanyaan, jawaban })
+      });
+
+      document.getElementById("pertanyaan").value = "";
+      document.getElementById("jawaban").value = "";
+      loadData();
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
