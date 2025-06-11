@@ -1,266 +1,116 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asisten AI STMK Trisakti</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #111;
-    }
+    <meta charset="UTF-8">
+    <title>Widget Chatbot STMK Trisakti</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Gaya khusus untuk widget */
+        #chatbot-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+        }
 
-    .chatbot-widget {
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      width: 100%;
-      max-width: 420px;
-      height: 90vh;
-      border-top-left-radius: 15px;
-      border-top-right-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      background-color: #1a1a1a;
-      display: flex;
-      flex-direction: column;
-      z-index: 9999;
-    }
+        #chatbot-header {
+            background-color: #800000;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+        }
 
-    .chatbot-header {
-      background-color: #800000;
-      color: white;
-      padding: 10px 15px;
-      font-size: 18px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+        #chatbot-body {
+            display: none;
+            background-color: white;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
 
-    .chatbot-header span {
-      cursor: pointer;
-      font-size: 20px;
-    }
+        .chatbox {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
 
-    .chatbot-messages {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-      background-color: #222;
-    }
+        .chat-input {
+            display: flex;
+        }
 
-    .bot-message, .user-message {
-      max-width: 90%;
-      padding: 10px 15px;
-      margin: 10px 0;
-      border-radius: 12px;
-      line-height: 1.5;
-      word-wrap: break-word;
-      font-size: 15px;
-    }
+        .chat-input input {
+            flex: 1;
+            padding: 8px;
+        }
 
-    .bot-message {
-      background-color: #333;
-      color: #fff;
-      align-self: flex-start;
-    }
+        .chat-input button {
+            background-color: #800000;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
 
-    .user-message {
-      background-color: #a00000;
-      color: #fff;
-      align-self: flex-end;
-    }
-
-    .guide-message {
-      background-color: #444;
-      color: #fff;
-      align-self: center;
-      font-style: italic;
-      max-width: 95%;
-      margin: 10px 0;
-    }
-
-    .typing-indicator {
-      display: none;
-      margin-left: 0;
-      margin-bottom: 10px;
-      align-self: flex-start;
-    }
-
-    .typing-indicator span {
-      width: 8px;
-      height: 8px;
-      background: #fff;
-      border-radius: 50%;
-      display: inline-block;
-      margin: 0 2px;
-      animation: blink 1.4s infinite both;
-    }
-
-    .typing-indicator span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .typing-indicator span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-
-    @keyframes blink {
-      0%, 80%, 100% { opacity: 0; }
-      40% { opacity: 1; }
-    }
-
-    .chatbot-input {
-      display: flex;
-      border-top: 1px solid #444;
-      background-color: #111;
-    }
-
-    .chatbot-input input {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      background-color: #222;
-      color: #fff;
-      font-size: 14px;
-    }
-
-    .chatbot-input button {
-      padding: 12px 18px;
-      background-color: #800000;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .chatbot-input button:hover {
-      background-color: #a00000;
-    }
-
-    .chatbot-messages::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .chatbot-messages::-webkit-scrollbar-thumb {
-      background-color: #444;
-      border-radius: 5px;
-    }
-
-    @media (max-width: 480px) {
-      .chatbot-widget {
-        width: 100%;
-        height: 100vh;
-        border-radius: 0;
-      }
-
-      .chatbot-header {
-        font-size: 16px;
-        padding: 8px 12px;
-      }
-
-      .chatbot-input input {
-        font-size: 13px;
-      }
-
-      .chatbot-input button {
-        font-size: 13px;
-        padding: 10px;
-      }
-    }
-  </style>
+        .chat-input button:hover {
+            background-color: #a00000;
+        }
+    </style>
 </head>
 <body>
-
-<div class="chatbot-widget" id="chatbot">
-  <div class="chatbot-header">
-    Asisten AI
-    <span onclick="closeChatbot()">✖️</span>
-  </div>
-  <div id="chat-messages" class="chatbot-messages">
-    <div class="bot-message guide-message">
-      Halo! Selamat datang di Asisten AI STMK Trisakti. Berikut panduan penggunaan:<br>
-      - <strong>Masuk Mode AI:</strong> Ketik 'bicara dengan ai', 'ai bantu saya', atau 'ai jawab' untuk ngobrol langsung sama AI cerdas ala Grok. AI bisa jawab apa aja!<br>
-      - <strong>Mode Diskusi Bebas:</strong> Setelah mode AI, ketik 'ayo diskusi' buat ngobrol bebas tanpa batas.<br>
-      - <strong>Keluar dari Mode:</strong> Ketik 'selesai diskusi' buat keluar dari diskusi, atau 'keluar dari ai' buat kembali ke mode biasa.<br>
-      - <strong>Kata Kunci:</strong> Coba 'alamat', 'jurusan', 'whatsapp', atau 'lebih lengkap' di mode biasa. Di mode AI, bebas tanya apa aja! 😊
+    <div id="chatbot-widget">
+        <div id="chatbot-header" onclick="toggleChatbot()">Asisten STMK Trisakti</div>
+        <div id="chatbot-body">
+            <div class="chatbox" id="chatbox"></div>
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Tanya apa saja...">
+                <button onclick="sendMessage()">Kirim</button>
+            </div>
+        </div>
     </div>
-    <div class="bot-message">
-      Halo! Saya adalah asisten AI. Silakan ajukan pertanyaan kamu.
-    </div>
-    <div class="typing-indicator" id="typing-indicator">
-      <span></span><span></span><span></span>
-    </div>
-  </div>
-  <div class="chatbot-input">
-    <input type="text" id="user-input" placeholder="Tulis pertanyaan kamu..." />
-    <button onclick="sendMessage()">Kirim</button>
-  </div>
-</div>
 
-<script>
-  const chatbot = document.getElementById("chatbot");
-  const chatMessages = document.getElementById("chat-messages");
-  const userInput = document.getElementById("user-input");
-  const typingIndicator = document.getElementById("typing-indicator");
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('userInput');
+        const chatbotBody = document.getElementById('chatbot-body');
 
-  function closeChatbot() {
-    chatbot.style.display = "none";
-  }
+        function toggleChatbot() {
+            chatbotBody.style.display = chatbotBody.style.display === 'none' ? 'block' : 'none';
+        }
 
-  function showTyping(show) {
-    typingIndicator.style.display = show ? "flex" : "none";
-  }
+        function addMessage(sender, message) {
+            const p = document.createElement('p');
+            p.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            chatbox.appendChild(p);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
 
-  function addMessage(text, sender) {
-    const msg = document.createElement("div");
-    msg.className = sender === "bot" ? "bot-message" : "user-message";
-    msg.innerText = text;
-    chatMessages.insertBefore(msg, typingIndicator); // Masukkan sebelum typing-indicator
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
 
-  function sendMessage() {
-    const message = userInput.value.trim();
-    if (!message) return;
+            addMessage('Kamu', message);
+            userInput.value = '';
 
-    addMessage(message, "user");
-    userInput.value = "";
-    showTyping(true);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+            const res = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
 
-    fetch("/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    })
-    .then(res => res.json())
-    .then(data => {
-      showTyping(false);
-      if (data.reply) {
-        addMessage(data.reply, "bot");
-      }
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    })
-    .catch(err => {
-      showTyping(false);
-      addMessage("Maaf, terjadi kesalahan.", "bot");
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
-  }
+            const data = await res.json();
+            addMessage('Chatbot', data.response);
+        }
 
-  userInput.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") sendMessage();
-  });
-
-  // Tampilkan widget secara default saat halaman dimuat
-  window.onload = function() {
-    chatbot.style.display = "flex";
-  };
-</script>
-
+        // Buka otomatis saat halaman iframe dibuka
+        toggleChatbot();
+    </script>
 </body>
 </html>
