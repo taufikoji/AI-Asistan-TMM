@@ -47,7 +47,7 @@ def ai_jawab(pesan):
         "X-Title": "Chatbot STMK Trisakti"
     }
     payload = {
-        "model": "deepseek-chat",
+        "model": "deepseek-r1-0528-qwen3-8b:free",
         "messages": [
             {
                 "role": "system",
