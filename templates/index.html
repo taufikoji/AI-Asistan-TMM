@@ -55,6 +55,14 @@
       padding: 0;
     }
 
+    .faq-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 30px;
+      font-size: 14px;
+      line-height: 1.8em;
+    }
+
     footer {
       text-align: center;
       padding: 20px;
@@ -196,9 +204,9 @@
   <div class="guide">
     <h3>Cara Menggunakan Mode AI</h3>
     <ul>
-      <li><strong>Masuk Mode AI:</strong> Ketik 'bicara dengan ai', 'ai bantu saya', atau 'ai jawab' untuk ngobrol langsung sama AI cerdas ala Grok. AI bisa jawab apa aja, dari info kampus sampe hal random! 😄</li>
-      <li><strong>Mode Diskusi Bebas:</strong> Setelah masuk mode AI, ketik 'ayo diskusi' buat ngobrol bebas tanpa batas. AI bakal jawab apa aja dengan santai!</li>
-      <li><strong>Keluar dari Mode:</strong> Ketik 'selesai diskusi' buat keluar dari diskusi, atau 'keluar dari ai' buat kembali ke mode biasa dengan kata kunci seperti 'jurusan' atau 'fasilitas'.</li>
+      <li><strong>Masuk Mode AI:</strong> Ketik 'bicara dengan ai', 'ai bantu saya', atau 'ai jawab' untuk ngobrol langsung sama AI cerdas ala Grok. AI bisa jawab apa aja!</li>
+      <li><strong>Mode Diskusi Bebas:</strong> Setelah mode AI, ketik 'ayo diskusi' buat ngobrol bebas tanpa batas.</li>
+      <li><strong>Keluar dari Mode:</strong> Ketik 'selesai diskusi' buat keluar dari diskusi, atau 'keluar dari ai' buat kembali ke mode biasa.</li>
       <li><strong>Kata Kunci:</strong> Coba 'alamat', 'jurusan', 'whatsapp', atau 'lebih lengkap' di mode biasa. Di mode AI, bebas tanya apa aja! 😊</li>
     </ul>
   </div>
@@ -252,18 +260,26 @@
   }
 
   function showTyping(show) {
-    typingIndicator.style.display = show ? "block" : "none";
+    typingIndicator.style.display = show ? "flex" : "none";
+  }
+
+  function addMessage(text, className) {
+    const div = document.createElement("div");
+    div.className = `chat-message ${className}`;
+    if (className === "bot") {
+      div.innerHTML = `<img class="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712105.png" /><div class="message">${text}</div>`;
+    } else {
+      div.innerHTML = `<div class="message" style="margin-left:auto; background:#800000">${text}</div>`;
+    }
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 
   function sendMessage() {
     const message = userInput.value.trim();
     if (!message) return;
 
-    const userMessage = document.createElement("div");
-    userMessage.className = "chat-message";
-    userMessage.innerHTML = `<div class="message" style="margin-left:auto; background:#800000">${message}</div>`;
-    chatBox.appendChild(userMessage);
-
+    addMessage(message, "user");
     userInput.value = "";
     showTyping(true);
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -271,22 +287,20 @@
     fetch("/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: message })
+      body: JSON.stringify({ message })
     })
     .then(res => res.json())
     .then(data => {
       showTyping(false);
-      const botMessage = document.createElement("div");
-      botMessage.className = "chat-message bot";
-      botMessage.innerHTML = `
-        <img class="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712105.png" />
-        <div class="message">${data.reply}</div>`;
-      chatBox.appendChild(botMessage);
+      if (data.reply) {
+        addMessage(data.reply, "bot");
+      }
       chatBox.scrollTop = chatBox.scrollHeight;
     })
     .catch(err => {
       showTyping(false);
-      alert("Terjadi kesalahan: " + err);
+      addMessage("Maaf, terjadi kesalahan.", "bot");
+      chatBox.scrollTop = chatBox.scrollHeight;
     });
   }
 
