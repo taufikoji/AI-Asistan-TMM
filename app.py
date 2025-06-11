@@ -41,22 +41,21 @@ def chat():
         # Cek apakah pengguna ingin masuk/keluar dari mode AI atau diskusi
         if any(k in user_msg for k in ["bicara dengan ai", "ai bantu saya", "ai jawab"]):
             session["ai_mode"] = True
-            return jsonify({"reply": "Halo bro! Sekarang kamu ngobrol sama AI cerdas ala Grok dari STMK Trisakti! 😄 Aku bisa jawab apa aja, dari kampus sampe hal random. Ketik 'keluar dari ai' kalau mau istirahat, atau 'ayo diskusi' buat ngobrol bebas! Apa yang pengen kamu tanyain?"})
+            return jsonify({"reply": "Halo bro! Sekarang kamu ngobrol sama AI cerdas ala Grok dari STMK Trisakti! 😄 Aku bisa jawab apa aja, dari kampus sampe hal random. Ketik 'keluar dari ai' kalau mau istirahat, atau 'ayo diskusi' buat ngobrol bebas! Apa yang pengen kamu tanyain?", "typing": False})
         elif "keluar dari ai" in user_msg:
             session["ai_mode"] = False
             session["discussion_mode"] = False
             keywords = "Kata kunci seru: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, lebih lengkap."
-            return jsonify({"reply": f"Okedeh, kamu udah keluar dari mode AI! Kembali ke mode biasa. 😊 {keywords} \n\n{random.choice(pantun_daftar)}"})
+            return jsonify({"reply": f"Okedeh, kamu udah keluar dari mode AI! Kembali ke mode biasa. 😊 {keywords} \n\n{random.choice(pantun_daftar)}", "typing": False})
         elif "ayo diskusi" in user_msg and session["ai_mode"]:
             session["discussion_mode"] = True
-            return jsonify({"reply": "Yeay, kita mulai diskusi bebas nih! 😄 Aku siap jawab apa aja, dari STMK Trisakti sampe hal random. Bebas ngobrol, bro! Ketik 'selesai diskusi' kalau udah puas. Apa yang mau dibahas?"})
+            return jsonify({"reply": "Yeay, kita mulai diskusi bebas nih! 😄 Aku siap jawab apa aja, dari STMK Trisakti sampe hal random. Bebas ngobrol, bro! Ketik 'selesai diskusi' kalau udah puas. Apa yang mau dibahas?", "typing": False})
         elif "selesai diskusi" in user_msg and session["discussion_mode"]:
             session["discussion_mode"] = False
-            return jsonify({"reply": "Seru banget diskusinya! 😊 Kembali ke mode AI biasa. Mau tanya lagi tentang STMK? Coba kata kunci seperti jurusan atau ketik 'keluar dari ai' kalau mau selesai total! \n\n{random.choice(pantun_daftar)}"})
+            return jsonify({"reply": "Seru banget diskusinya! 😊 Kembali ke mode AI biasa. Mau tanya lagi tentang STMK? Coba kata kunci seperti jurusan atau ketik 'keluar dari ai' kalau mau selesai total! \n\n{random.choice(pantun_daftar)}", "typing": False})
 
         # Jika dalam mode diskusi, AI bebas menjawab
         if session["discussion_mode"]:
-            # Kirim indikator mengetik
             return jsonify({"typing": True})
             time.sleep(1)  # Simulasi waktu pemrosesan
             ai_reply = ai_jawab(user_msg)
@@ -65,7 +64,6 @@ def chat():
 
         # Jika dalam mode AI (tanpa diskusi), prioritaskan topik STMK
         if session["ai_mode"]:
-            # Kirim indikator mengetik
             return jsonify({"typing": True})
             time.sleep(1)  # Simulasi waktu pemrosesan
             ai_reply = ai_jawab(user_msg)
@@ -83,16 +81,15 @@ def chat():
             # Tambahkan pantun secara acak untuk respons lokal (20% kemungkinan)
             if random.random() < 0.2:
                 jawaban_lokal += f"\n\n{random.choice(pantun_daftar)}"
-            return jsonify({"reply": jawaban_lokal})
+            return jsonify({"reply": jawaban_lokal, "typing": False})
 
         # Cek apakah sapaan ringan
         if is_ringan(user_msg):
             keywords = "Kata kunci seru: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, lebih lengkap. Atau ketik 'bicara dengan ai' buat ngobrol langsung sama AI!"
-            return jsonify({"reply": f"Hai! Selamat datang di chatbot STMK Trisakti! 😊 Kayaknya kamu penasaran, ya? {keywords} \n\n{random.choice(pantun_daftar)}"})
+            return jsonify({"reply": f"Hai! Selamat datang di chatbot STMK Trisakti! 😊 Kayaknya kamu penasaran, ya? {keywords} \n\n{random.choice(pantun_daftar)}", "typing": False})
 
         # Cek apakah pertanyaan akademik
         if is_akademik(user_msg):
-            # Kirim indikator mengetik
             return jsonify({"typing": True})
             time.sleep(1)  # Simulasi waktu pemrosesan
             ai_reply = ai_jawab(user_msg)
@@ -106,10 +103,10 @@ def chat():
 
         # Jika tidak relevan
         keywords = "Coba kata kunci seperti: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, atau ketik 'lebih lengkap' atau 'bicara dengan ai'."
-        return jsonify({"reply": f"Hmm, aku rada bingung sama pertanyaanmu! 😅 Saya cuma bisa bantu seputar STMK Trisakti atau topik akademik. {keywords} Cek https://trisaktimultimedia.ac.id kalau penasaran! \n\n{random.choice(pantun_daftar)}"})
+        return jsonify({"reply": f"Hmm, aku rada bingung sama pertanyaanmu! 😅 Saya cuma bisa bantu seputar STMK Trisakti atau topik akademik. {keywords} Cek https://trisaktimultimedia.ac.id kalau penasaran! \n\n{random.choice(pantun_daftar)}", "typing": False})
 
     except Exception as e:
-        return jsonify({"reply": f"Ups, ada sedikit masalah teknis: {str(e)}. Sabar ya, coba lagi nanti atau cek https://trisaktimultimedia.ac.id! 😊"}), 500
+        return jsonify({"reply": f"Ups, ada sedikit masalah teknis: {str(e)}. Sabar ya, coba lagi nanti atau cek https://trisaktimultimedia.ac.id! 😊", "typing": False}), 500
 
 def cek_data_kampus(pesan):
     # Prioritaskan kata kunci yang lebih spesifik
