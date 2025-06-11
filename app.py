@@ -42,6 +42,16 @@ def chat():
     try:
         user_msg = request.json.get("message").strip().lower()
 
+        # Debug: Cetak pesan untuk memastikan diterima
+        print(f"Received message: {user_msg}")
+
+        # Mode chatbot biasa (tanpa AI)
+        jawaban_lokal = cek_data_kampus(user_msg)
+        if jawaban_lokal:
+            if random.random() < 0.2:
+                jawaban_lokal += f"\n\n{random.choice(pantun_daftar)}"
+            return jsonify({"reply": jawaban_lokal, "typing": False})
+
         # Cek apakah pengguna ingin masuk/keluar dari mode AI atau diskusi
         if any(k in user_msg for k in ["bicara dengan ai", "ai bantu saya", "ai jawab"]):
             session["ai_mode"] = True
@@ -59,33 +69,28 @@ def chat():
             return jsonify({"reply": "Seru banget diskusinya! 😊 Kembali ke mode AI biasa. Mau tanya lagi tentang STMK? Coba kata kunci seperti jurusan atau ketik 'keluar dari ai' kalau mau selesai total! \n\n{random.choice(pantun_daftar)}", "typing": False})
 
         # Jika dalam mode diskusi, AI bebas menjawab
-        if session["discussion_mode"]:
+        if session["discussion_mode"] and session["ai_mode"]:
             return jsonify({"typing": True})
             time.sleep(1)  # Simulasi waktu pemrosesan
             ai_reply = ai_jawab(user_msg)
+            if not ai_reply:
+                ai_reply = "Hmm, sepertinya aku lagi bingung nih! 😅 Coba tanyakan lagi ya!"
             ai_reply = clean_and_validate_response(ai_reply, user_msg)
             return jsonify({"reply": ai_reply, "typing": False})
 
         # Jika dalam mode AI (tanpa diskusi), prioritaskan topik STMK
-        if session["ai_mode"]:
+        if session["ai_mode"] and not session["discussion_mode"]:
             return jsonify({"typing": True})
             time.sleep(1)  # Simulasi waktu pemrosesan
             ai_reply = ai_jawab(user_msg)
-            # Validasi dan rapikan teks
+            if not ai_reply:
+                ai_reply = "Oops, aku nggak bisa jawab sekarang! 😅 Coba lagi atau ketik 'keluar dari ai' ya!"
             ai_reply = clean_and_validate_response(ai_reply, user_msg)
             if is_jawaban_relevan(ai_reply, user_msg):
                 return jsonify({"reply": ai_reply, "typing": False})
             else:
                 ai_reply = f"Wah, topik seru nih! 😄 Tapi aku lebih jago soal STMK Trisakti. Coba tanyain tentang jurusan atau fasilitas, atau aku coba jawab apa adanya: {ai_reply}\nPenasaran lagi? Ketik 'ayo diskusi' buat ngobrol bebas atau 'keluar dari ai' kalau mau selesai!"
                 return jsonify({"reply": ai_reply, "typing": False})
-
-        # Cek apakah pertanyaan cocok dengan data kampus
-        jawaban_lokal = cek_data_kampus(user_msg)
-        if jawaban_lokal:
-            # Tambahkan pantun secara acak untuk respons lokal (20% kemungkinan)
-            if random.random() < 0.2:
-                jawaban_lokal += f"\n\n{random.choice(pantun_daftar)}"
-            return jsonify({"reply": jawaban_lokal, "typing": False})
 
         # Cek apakah sapaan ringan
         if is_ringan(user_msg):
@@ -97,7 +102,8 @@ def chat():
             return jsonify({"typing": True})
             time.sleep(1)  # Simulasi waktu pemrosesan
             ai_reply = ai_jawab(user_msg)
-            # Validasi dan rapikan teks
+            if not ai_reply:
+                ai_reply = "Hmm, sepertinya aku butuh bantuan ekstra nih! 😅 Coba lagi atau ketik 'bicara dengan ai' ya!"
             ai_reply = clean_and_validate_response(ai_reply, user_msg)
             if is_jawaban_relevan(ai_reply, user_msg):
                 return jsonify({"reply": ai_reply, "typing": False})
@@ -110,6 +116,7 @@ def chat():
         return jsonify({"reply": f"Hmm, aku rada bingung sama pertanyaanmu! 😅 Saya cuma bisa bantu seputar STMK Trisakti atau topik akademik. {keywords} Cek https://trisaktimultimedia.ac.id kalau penasaran! \n\n{random.choice(pantun_daftar)}", "typing": False})
 
     except Exception as e:
+        print(f"Error: {e}")  # Debug error
         return jsonify({"reply": f"Ups, ada sedikit masalah teknis: {str(e)}. Sabar ya, coba lagi nanti atau cek https://trisaktimultimedia.ac.id! 😊", "typing": False}), 500
 
 def cek_data_kampus(pesan):
@@ -219,7 +226,8 @@ def ai_jawab(pesan):
         reply = reply.replace("*", "").strip()  # Hapus tanda bintang
         reply = "\n".join(line.strip() for line in reply.split("\n") if line.strip())  # Bersihkan baris kosong dan spasi
         return reply
-    except requests.RequestException:
+    except requests.RequestException as e:
+        print(f"API Error: {e}")  # Debug API error
         return "Ups, serverku lagi rewel nih! 😅 Coba lagi nanti atau cek https://trisaktimultimedia.ac.id ya!"
 
 def clean_and_validate_response(ai_reply, user_msg):
