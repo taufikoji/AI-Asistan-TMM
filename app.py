@@ -52,12 +52,13 @@ def chat():
         print(f"Received message: '{user_msg}' | AI Mode: {session['ai_mode']} | Discussion Mode: {session['discussion_mode']}")
 
         # Mode chatbot biasa (tanpa AI)
-        jawaban_lokal = cek_data_kampus(user_msg)
-        if jawaban_lokal and not session["ai_mode"]:
-            if random.random() < 0.2:
-                jawaban_lokal += f"\n\n{random.choice(pantun_daftar)}"
-            print(f"Local response: {jawaban_lokal}")
-            return jsonify({"reply": jawaban_lokal, "typing": False})
+        if not session["ai_mode"]:
+            jawaban_lokal = cek_data_kampus(user_msg)
+            if jawaban_lokal:
+                if random.random() < 0.2:
+                    jawaban_lokal += f"\n\n{random.choice(pantun_daftar)}"
+                print(f"Local response: {jawaban_lokal}")
+                return jsonify({"reply": jawaban_lokal, "typing": False})
 
         # Cek apakah pengguna ingin masuk/keluar dari mode AI atau diskusi
         if any(k in user_msg for k in ["bicara dengan ai", "ai bantu saya", "ai jawab"]) and not session["ai_mode"]:
@@ -107,20 +108,6 @@ def chat():
             keywords = "Kata kunci seru: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, lebih lengkap. Atau ketik 'bicara dengan ai' buat ngobrol langsung sama AI!"
             return jsonify({"reply": f"Hai! Selamat datang di chatbot STMK Trisakti! 😊 Kayaknya kamu penasaran, ya? {keywords} \n\n{random.choice(pantun_daftar)}", "typing": False})
 
-        # Cek apakah pertanyaan akademik
-        if is_akademik(user_msg) and not session["ai_mode"]:
-            return jsonify({"typing": True})
-            time.sleep(1)  # Simulasi waktu pemrosesan
-            ai_reply = ai_jawab(user_msg)
-            if not ai_reply:
-                ai_reply = "Hmm, sepertinya aku butuh bantuan ekstra nih! 😅 Coba lagi atau ketik 'bicara dengan ai' ya!"
-            ai_reply = clean_and_validate_response(ai_reply, user_msg)
-            if is_jawaban_relevan(ai_reply, user_msg):
-                return jsonify({"reply": ai_reply, "typing": False})
-            else:
-                keywords = "Coba kata kunci seperti: jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, atau fokus teknologi. Atau ketik 'bicara dengan ai' buat ngobrol lebih dalam!"
-                return jsonify({"reply": f"Oops, kayaknya pertanyaanmu agak melenceng nih! 😄 {keywords} Tanyakan tentang STMK Trisakti atau topik akademik lain, yuk!", "typing": False})
-
         # Jika tidak relevan
         keywords = "Coba kata kunci seperti: alamat, jurusan, fasilitas, visi, misi, akreditasi, whatsapp, kerja sama, fokus teknologi, atau ketik 'lebih lengkap' atau 'bicara dengan ai'."
         return jsonify({"reply": f"Hmm, aku rada bingung sama pertanyaanmu! 😅 Saya cuma bisa bantu seputar STMK Trisakti atau topik akademik. {keywords} Cek https://trisaktimultimedia.ac.id kalau penasaran! \n\n{random.choice(pantun_daftar)}", "typing": False})
@@ -130,6 +117,8 @@ def chat():
         return jsonify({"reply": f"Ups, ada sedikit masalah teknis: {str(e)}. Sabar ya, coba lagi nanti atau cek https://trisaktimultimedia.ac.id! 😊", "typing": False}), 500
 
 def cek_data_kampus(pesan):
+    if not data_kampus:
+        return "Maaf, data kampus nggak tersedia. Cek file data_kampus.json ya! 😅"
     # Prioritaskan kata kunci yang lebih spesifik
     if "alamat" in pesan and "address" in data_kampus:
         return f"Alamat STMK Trisakti: {data_kampus['address']}\n📍 Sumber: {data_kampus.get('website', 'https://trisaktimultimedia.ac.id')} (Kata kunci lain: jurusan, fasilitas, whatsapp, atau ketik 'bicara dengan ai' buat ngobrol sama AI!)"
