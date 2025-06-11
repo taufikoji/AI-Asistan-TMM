@@ -148,4 +148,4 @@ def chat():
     return jsonify({"reply": "Maaf, aku belum tahu jawaban itu. Coba tanya yang lain atau ketik 'ayo diskusi' kalau mau ngobrol bebas. 😊", "typing": False})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
