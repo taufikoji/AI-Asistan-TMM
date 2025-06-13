@@ -1,4 +1,6 @@
 flask
 requests
 python-dotenv
-PyMuPDF         # jika pakai fitur upload PDF
+pymupdf
+flask-cors
+gunicorn
