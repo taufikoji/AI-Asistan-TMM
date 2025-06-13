@@ -32,7 +32,7 @@ def chat():
     payload = {
         "model": "deepseek/deepseek-r1-0528:free",
         "messages": [
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": "You are an intelligent and professional assistant. Please respond in a clear, structured, and helpful manner in Bahasa Indonesia."},
             {"role": "user", "content": user_message}
         ],
         "temperature": 0.7
