@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asisten AI STMK Trisakti</title>
   <style>
+    :root {
+      --primary: #800000; /* maroon */
+      --secondary: #f4f4f4;
+      --user-msg: #a30000;
+      --ai-msg: #eaeaea;
+      --text-dark: #222;
+      --text-light: #fff;
+    }
+
     * {
       box-sizing: border-box;
       font-family: 'Segoe UI', sans-serif;
@@ -12,74 +21,79 @@
 
     body {
       margin: 0;
-      background-color: #f4f4f4;
       display: flex;
       flex-direction: column;
       height: 100vh;
+      background-color: var(--secondary);
+      color: var(--text-dark);
     }
 
     header {
-      background-color: #002d72;
-      color: white;
-      padding: 1rem;
+      background-color: var(--primary);
+      color: var(--text-light);
+      padding: 1rem 2rem;
       text-align: center;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     #chat-container {
       flex: 1;
-      overflow-y: auto;
       padding: 1rem;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
     }
 
     .message {
       display: flex;
+      align-items: flex-end;
       margin-bottom: 1rem;
     }
 
+    .user {
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+    }
+
+    .ai {
+      flex-direction: row;
+      justify-content: flex-start;
+    }
+
+    .icon {
+      width: 36px;
+      height: 36px;
+      margin: 0 10px;
+      border-radius: 50%;
+    }
+
+    .text {
+      max-width: 85%;
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      position: relative;
+      line-height: 1.4;
+    }
+
     .user .text {
-      background-color: #0074D9;
+      background-color: var(--user-msg);
       color: white;
-      align-self: flex-end;
       border-radius: 12px 12px 0 12px;
     }
 
     .ai .text {
-      background-color: #e1e1e1;
-      color: #333;
-      align-self: flex-start;
+      background-color: var(--ai-msg);
+      color: var(--text-dark);
       border-radius: 12px 12px 12px 0;
-      position: relative;
     }
 
-    .text {
-      padding: 0.75rem 1rem;
-      max-width: 90%;
-      position: relative;
-    }
-
-    .icon {
-      width: 32px;
-      height: 32px;
-      margin-right: 10px;
-    }
-
-    .user {
-      justify-content: flex-end;
-      flex-direction: row-reverse;
-    }
-
-    .ai {
-      justify-content: flex-start;
-    }
-
-    .message .copy-button {
-      font-size: 0.75rem;
+    .copy-button {
+      font-size: 0.7rem;
       position: absolute;
-      bottom: 6px;
-      right: 10px;
+      bottom: 4px;
+      right: 8px;
       background: none;
       border: none;
       color: #555;
@@ -95,27 +109,29 @@
 
     #message-input {
       flex: 1;
-      padding: 0.75rem;
+      padding: 0.8rem;
+      font-size: 1rem;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 8px;
       margin-right: 0.5rem;
     }
 
     button {
-      padding: 0.75rem 1.2rem;
-      border: none;
-      background-color: #002d72;
+      background-color: var(--primary);
       color: white;
-      border-radius: 6px;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: 600;
     }
 
     #typing-indicator {
       font-style: italic;
       color: #888;
+      font-size: 0.9rem;
       margin-top: -10px;
       margin-bottom: 10px;
-      font-size: 0.9rem;
     }
 
     @media (max-width: 600px) {
@@ -124,8 +140,8 @@
       }
 
       .icon {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
       }
     }
   </style>
@@ -151,7 +167,9 @@
 
       const icon = document.createElement('img');
       icon.classList.add('icon');
-      icon.src = role === 'user' ? 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png' : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png';
+      icon.src = role === 'user'
+        ? 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
+        : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png';
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
