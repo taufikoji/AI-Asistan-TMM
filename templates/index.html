@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asisten AI STMK Trisakti</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.21.4/index.css" />
   <style>
     :root {
       --primary: #800000;
@@ -62,12 +60,7 @@
       font-weight: 700;
     }
 
-    .header-buttons {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    #theme-toggle, #clear-chat {
+    #theme-toggle {
       background: none;
       border: none;
       color: var(--text-light);
@@ -78,7 +71,7 @@
       transition: var(--transition);
     }
 
-    #theme-toggle:hover, #clear-chat:hover {
+    #theme-toggle:hover {
       background-color: rgba(255, 255, 255, 0.1);
     }
 
@@ -126,7 +119,6 @@
       line-height: 1.6;
       box-shadow: var(--shadow);
       transition: var(--transition);
-      word-wrap: break-word;
     }
 
     .user .text {
@@ -171,12 +163,11 @@
 
     #input-container {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.75rem;
       background-color: var(--ai-msg);
       padding: 0.5rem;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
-      position: relative;
     }
 
     #message-input {
@@ -196,36 +187,7 @@
       outline: none;
     }
 
-    #input-buttons {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    #emoji-toggle, #voice-toggle {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 0.5rem;
-      border-radius: 8px;
-      color: var(--text-dark);
-      transition: var(--transition);
-    }
-
-    #emoji-toggle:hover, #voice-toggle:hover {
-      background-color: rgba(0, 0, 0, 0.1);
-    }
-
-    #emoji-picker {
-      position: absolute;
-      bottom: 70px;
-      right: 10px;
-      z-index: 20;
-      display: none;
-    }
-
-    button[type="submit"] {
+    button {
       background-color: var(--primary);
       color: var(--text-light);
       border: none;
@@ -236,7 +198,7 @@
       transition: var(--transition);
     }
 
-    button[type="submit"]:hover {
+    button:hover {
       filter: brightness(1.1);
       transform: translateY(-2px);
     }
@@ -292,21 +254,13 @@
       header h1 {
         font-size: 1.25rem;
       }
-
-      #emoji-picker {
-        max-width: 100%;
-        right: 0;
-      }
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Asisten AI STMK Trisakti</h1>
-    <div class="header-buttons">
-      <button id="clear-chat" title="Hapus Chat">🗑️</button>
-      <button id="theme-toggle" title="Ganti Tema">☀️</button>
-    </div>
+    <button id="theme-toggle" title="Ganti Tema">☀️</button>
   </header>
 
   <div id="chat-container"></div>
@@ -314,26 +268,15 @@
   <form id="input-form">
     <div id="input-container">
       <textarea id="message-input" placeholder="Tulis pertanyaan Anda..." autocomplete="off" required></textarea>
-      <div id="input-buttons">
-        <button id="emoji-toggle" title="Pilih Emoji">😊</button>
-        <button id="voice-toggle" title="Input Suara">🎤</button>
-        <button type="submit">Kirim</button>
-      </div>
+      <button type="submit">Kirim</button>
     </div>
-    <emoji-picker id="emoji-picker"></emoji-picker>
   </form>
 
-  <script type="module">
-    import 'https://cdn.jsdelivr.net/npm/emoji-picker-element@1.21.4/index.js';
-
+  <script>
     const chatContainer = document.getElementById('chat-container');
     const form = document.getElementById('input-form');
     const input = document.getElementById('message-input');
     const themeToggle = document.getElementById('theme-toggle');
-    const clearChat = document.getElementById('clear-chat');
-    const emojiToggle = document.getElementById('emoji-toggle');
-    const emojiPicker = document.getElementById('emoji-picker');
-    const voiceToggle = document.getElementById('voice-toggle');
 
     // Theme toggle
     themeToggle.addEventListener('click', () => {
@@ -354,67 +297,6 @@
       input.style.height = 'auto';
       input.style.height = `${Math.min(input.scrollHeight, 150)}px`;
     });
-
-    // Emoji picker
-    emojiToggle.addEventListener('click', () => {
-      emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
-    });
-
-    emojiPicker.addEventListener('emoji-click', (event) => {
-      input.value += event.detail.unicode;
-      input.focus();
-      emojiPicker.style.display = 'none';
-      input.dispatchEvent(new Event('input'));
-    });
-
-    // Voice input
-    let recognition = null;
-    if ('webkitSpeechRecognition' in window) {
-      recognition = new webkitSpeechRecognition();
-      recognition.lang = 'id-ID';
-      recognition.interimResults = true;
-      recognition.continuous = false;
-
-      voiceToggle.addEventListener('click', () => {
-        if (recognition.isStarted) {
-          recognition.stop();
-          voiceToggle.textContent = '🎤';
-        } else {
-          recognition.start();
-          voiceToggle.textContent = '⏹️';
-        }
-      });
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        input.value = transcript;
-        input.dispatchEvent(new Event('input'));
-      };
-
-      recognition.onend = () => {
-        voiceToggle.textContent = '🎤';
-        recognition.isStarted = false;
-      };
-
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        voiceToggle.textContent = '🎤';
-        recognition.isStarted = false;
-        appendMessage('ai', 'Maaf, input suara gagal. Coba lagi.');
-      };
-    } else {
-      voiceToggle.style.display = 'none'; // Hide if not supported
-    }
-
-    // Clear chat
-    clearChat.addEventListener('click', () => {
-      chatContainer.innerHTML = '';
-      localStorage.removeItem('chatHistory');
-    });
-
-    // Load chat history
-    const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-    chatHistory.forEach(({ role, content }) => appendMessage(role, content));
 
     function appendMessage(role, content) {
       const msg = document.createElement('div');
@@ -447,10 +329,6 @@
       msg.appendChild(bubble);
       chatContainer.appendChild(msg);
       chatContainer.scrollTop = chatContainer.scrollHeight;
-
-      // Save to localStorage
-      chatHistory.push({ role, content });
-      localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
     }
 
     function showTypingIndicator() {
@@ -490,7 +368,6 @@
       } catch (err) {
         typingIndicator.remove();
         appendMessage('ai', 'Terjadi kesalahan jaringan atau server.');
-        console.error('Error:', err);
       }
     });
   </script>
