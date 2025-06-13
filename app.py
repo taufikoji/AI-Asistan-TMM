@@ -7,6 +7,13 @@ import requests
 import pytesseract
 from PIL import Image
 import fitz  # PyMuPDF
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Di awal file, sebelum definisi route
+logger.debug("Memulai aplikasi Flask")
+logger.debug(f"Tesseract version: {pytesseract.get_tesseract_version()}")
 
 # Load API Key dari .env
 load_dotenv()
