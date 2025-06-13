@@ -11,7 +11,7 @@
       --secondary: #ffffff; /* Putih di mode terang */
       --user-msg: #a30000; /* Merah tua untuk pesan user */
       --ai-msg: #f0f4f8; /* Abu-abu muda standar untuk pesan AI */
-      --text-dark: #1e293b; /* Hitam tua untuk teks */
+      --text-dark: #1e293b; /* Hitam tua untuk teks di mode terang */
       --text-light: #ffffff; /* Putih untuk teks di mode gelap */
       --border-radius: 12px;
       --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -40,12 +40,12 @@
       flex-direction: column;
       min-height: 100vh;
       background: var(--secondary);
-      color: var(--text-dark);
+      color: var(--text-dark); /* Teks utama mengikuti tema */
       transition: var(--transition);
       overflow-x: hidden;
     }
 
-    /* Hanya aktifkan dekorasi futuristik di mode gelap */
+    /* Dekorasi futuristik hanya di mode gelap */
     [data-theme="dark"] body::before {
       content: '';
       position: fixed;
@@ -169,13 +169,13 @@
       box-shadow: var(--shadow);
       transition: var(--transition);
       white-space: pre-wrap; /* Menjaga indentasi dan baris baru */
-      background: var(--ai-msg); /* Latar belakang polos di mode terang */
-      color: var(--text-dark); /* Teks hitam di mode terang */
+      background: var(--ai-msg);
+      color: var(--text-dark); /* Teks hitam di mode terang, terang di mode gelap */
     }
 
     .user .text {
       background: var(--user-msg);
-      color: var(--text-light);
+      color: var(--text-light); /* Teks putih di mode terang, neon di mode gelap */
       border-radius: var(--border-radius) var(--border-radius) 0 var(--border-radius);
     }
 
@@ -230,7 +230,7 @@
       border: none;
       border-radius: 8px;
       background: transparent;
-      color: var(--text-dark);
+      color: var(--text-dark); /* Teks input mengikuti tema */
       resize: none;
       overflow-y: auto;
       max-height: 150px;
@@ -414,45 +414,4 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    function showTypingIndicator() {
-      const typingIndicator = document.createElement('div');
-      typingIndicator.id = 'typing-indicator';
-      typingIndicator.innerHTML = 'AI sedang mengetik <span class="dot"></span><span class="dot"></span><span class="dot"></span>';
-      chatContainer.appendChild(typingIndicator);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return typingIndicator;
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const message = input.value.trim();
-      if (!message) return;
-
-      appendMessage('user', message);
-      input.value = '';
-      input.style.height = 'auto';
-
-      const typingIndicator = showTypingIndicator();
-
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
-        });
-        const data = await res.json();
-        typingIndicator.remove();
-
-        if (data.reply) {
-          appendMessage('ai', data.reply);
-        } else {
-          appendMessage('ai', 'Maaf, terjadi kesalahan dalam mendapatkan jawaban.');
-        }
-      } catch (err) {
-        typingIndicator.remove();
-        appendMessage('ai', 'Terjadi kesalahan jaringan atau server.');
-      }
-    });
-  </script>
-</body>
-</html>
+    function show
