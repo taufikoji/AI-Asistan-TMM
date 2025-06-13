@@ -1,165 +1,303 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asisten AI STMK Trisakti</title>
   <style>
     :root {
-      --primary: #800000; /* maroon */
-      --secondary: #f4f4f4;
+      --primary: #800000;
+      --secondary: #f8fafc;
       --user-msg: #a30000;
-      --ai-msg: #eaeaea;
-      --text-dark: #222;
-      --text-light: #fff;
+      --ai-msg: #e2e8f0;
+      --text-dark: #1e293b;
+      --text-light: #ffffff;
+      --border-radius: 16px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --primary: #991b1b;
+      --secondary: #1e293b;
+      --user-msg: #dc2626;
+      --ai-msg: #334155;
+      --text-dark: #f1f5f9;
+      --text-light: #1e293b;
     }
 
     * {
       box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      min-height: 100vh;
       background-color: var(--secondary);
       color: var(--text-dark);
+      transition: var(--transition);
     }
 
     header {
       background-color: var(--primary);
       color: var(--text-light);
-      padding: 1rem 2rem;
-      text-align: center;
-      font-size: 1.3rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    #theme-toggle:hover {
+      background-color: rgba(255, 255, 255, 0.1);
     }
 
     #chat-container {
       flex: 1;
-      padding: 1rem;
+      padding: 1.5rem;
       overflow-y: auto;
-      display: flex;
-      flex-direction: column;
+      scroll-behavior: smooth;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     .message {
       display: flex;
       align-items: flex-end;
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideIn 0.3s ease forwards;
     }
 
     .user {
       flex-direction: row-reverse;
-      justify-content: flex-end;
     }
 
     .ai {
       flex-direction: row;
-      justify-content: flex-start;
     }
 
     .icon {
-      width: 36px;
-      height: 36px;
-      margin: 0 10px;
+      width: 40px;
+      height: 40px;
+      margin: 0 12px;
       border-radius: 50%;
+      border: 2px solid var(--primary);
+      transition: var(--transition);
     }
 
     .text {
-      max-width: 85%;
-      padding: 0.8rem 1rem;
-      border-radius: 12px;
+      max-width: 80%;
+      padding: 1rem 1.25rem;
+      border-radius: var(--border-radius);
       position: relative;
-      line-height: 1.4;
+      line-height: 1.6;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
     }
 
     .user .text {
       background-color: var(--user-msg);
-      color: white;
-      border-radius: 12px 12px 0 12px;
+      color: var(--text-light);
+      border-radius: var(--border-radius) var(--border-radius) 0 var(--border-radius);
     }
 
     .ai .text {
       background-color: var(--ai-msg);
       color: var(--text-dark);
-      border-radius: 12px 12px 12px 0;
+      border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
     }
 
     .copy-button {
-      font-size: 0.7rem;
       position: absolute;
-      bottom: 4px;
+      bottom: 8px;
       right: 8px;
-      background: none;
+      background: rgba(0, 0, 0, 0.1);
       border: none;
-      color: #555;
+      border-radius: 6px;
+      color: var(--text-dark);
+      padding: 0.25rem 0.5rem;
       cursor: pointer;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .text:hover .copy-button {
+      opacity: 1;
     }
 
     #input-form {
-      display: flex;
       padding: 1rem;
-      background-color: white;
-      border-top: 1px solid #ccc;
+      background-color: var(--secondary);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    #input-container {
+      display: flex;
+      gap: 0.75rem;
+      background-color: var(--ai-msg);
+      padding: 0.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
     }
 
     #message-input {
       flex: 1;
-      padding: 0.8rem;
+      padding: 0.75rem;
       font-size: 1rem;
-      border: 1px solid #ccc;
+      border: none;
       border-radius: 8px;
-      margin-right: 0.5rem;
+      background: transparent;
+      color: var(--text-dark);
+      resize: none;
+      overflow-y: auto;
+      max-height: 150px;
+    }
+
+    #message-input:focus {
+      outline: none;
     }
 
     button {
       background-color: var(--primary);
-      color: white;
+      color: var(--text-light);
       border: none;
-      padding: 0.8rem 1.2rem;
+      padding: 0.75rem 1.5rem;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
+      transition: var(--transition);
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
     }
 
     #typing-indicator {
       font-style: italic;
-      color: #888;
+      color: var(--text-dark);
       font-size: 0.9rem;
-      margin-top: -10px;
-      margin-bottom: 10px;
+      margin: 0.5rem 0;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    @media (max-width: 600px) {
+    .dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--text-dark);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      #chat-container, #input-form {
+        padding: 1rem;
+      }
+
       .text {
-        max-width: 100%;
+        max-width: 85%;
       }
 
       .icon {
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
+      }
+
+      header h1 {
+        font-size: 1.25rem;
       }
     }
   </style>
 </head>
 <body>
-  <header>Asisten AI STMK Trisakti</header>
+  <header>
+    <h1>Asisten AI STMK Trisakti</h1>
+    <button id="theme-toggle" title="Ganti Tema">☀️</button>
+  </header>
 
   <div id="chat-container"></div>
 
   <form id="input-form">
-    <input type="text" id="message-input" placeholder="Tulis pertanyaan Anda..." autocomplete="off" required />
-    <button type="submit">Kirim</button>
+    <div id="input-container">
+      <textarea id="message-input" placeholder="Tulis pertanyaan Anda..." autocomplete="off" required></textarea>
+      <button type="submit">Kirim</button>
+    </div>
   </form>
 
   <script>
     const chatContainer = document.getElementById('chat-container');
     const form = document.getElementById('input-form');
     const input = document.getElementById('message-input');
+    const themeToggle = document.getElementById('theme-toggle');
+
+    // Theme toggle
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      themeToggle.textContent = newTheme === 'light' ? '☀️' : '🌙';
+      localStorage.setItem('theme', newTheme);
+    });
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'light' ? '☀️' : '🌙';
+
+    // Auto-resize textarea
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = `${Math.min(input.scrollHeight, 150)}px`;
+    });
 
     function appendMessage(role, content) {
       const msg = document.createElement('div');
@@ -170,6 +308,7 @@
       icon.src = role === 'user'
         ? 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
         : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png';
+      icon.alt = `${role} icon`;
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
@@ -179,7 +318,11 @@
         const copyBtn = document.createElement('button');
         copyBtn.classList.add('copy-button');
         copyBtn.textContent = 'Salin';
-        copyBtn.onclick = () => navigator.clipboard.writeText(content);
+        copyBtn.onclick = () => {
+          navigator.clipboard.writeText(content);
+          copyBtn.textContent = 'Tersalin!';
+          setTimeout(() => copyBtn.textContent = 'Salin', 2000);
+        };
         bubble.appendChild(copyBtn);
       }
 
@@ -189,6 +332,15 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
+    function showTypingIndicator() {
+      const typingIndicator = document.createElement('div');
+      typingIndicator.id = 'typing-indicator';
+      typingIndicator.innerHTML = 'AI sedang mengetik <span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+      chatContainer.appendChild(typingIndicator);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      return typingIndicator;
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const message = input.value.trim();
@@ -196,12 +348,9 @@
 
       appendMessage('user', message);
       input.value = '';
+      input.style.height = 'auto';
 
-      const typingIndicator = document.createElement('div');
-      typingIndicator.id = 'typing-indicator';
-      typingIndicator.textContent = 'AI sedang mengetik...';
-      chatContainer.appendChild(typingIndicator);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+      const typingIndicator = showTypingIndicator();
 
       try {
         const res = await fetch('/api/chat', {
