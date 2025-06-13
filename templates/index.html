@@ -11,8 +11,8 @@
       --secondary: #ffffff; /* Putih di mode terang */
       --user-msg: #a30000;
       --ai-msg: #e0f7fa; /* Latar belakang AI terang dengan sentuhan futuristik */
-      --text-dark: #1e293b;
-      --text-light: #ffffff;
+      --text-dark: #1e293b; /* Hitam tua untuk teks di mode terang */
+      --text-light: #ffffff; /* Putih untuk teks di mode gelap */
       --neon-accent: #00ffcc; /* Warna neon untuk aksen */
       --border-radius: 12px;
       --shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
@@ -24,7 +24,7 @@
       --secondary: #000000; /* Hitam pekat di mode gelap */
       --user-msg: #dc2626;
       --ai-msg: #0a0a1a; /* Latar belakang AI gelap futuristik */
-      --text-dark: #f1f5f9;
+      --text-dark: #f1f5f9; /* Teks terang di mode gelap */
       --text-light: #00ffcc; /* Neon hijau untuk teks di mode gelap */
       --neon-accent: #00ffcc;
     }
@@ -41,7 +41,7 @@
       flex-direction: column;
       min-height: 100vh;
       background: var(--secondary);
-      color: var(--text-dark);
+      color: var(--text-dark); /* Teks utama mengikuti tema */
       transition: var(--transition);
       overflow-x: hidden;
     }
@@ -178,6 +178,7 @@
       transition: var(--transition);
       white-space: pre-wrap; /* Menjaga indentasi dan baris baru */
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--ai-msg));
+      color: var(--text-light); /* Memastikan teks kontras dengan latar */
     }
 
     .user .text {
@@ -188,7 +189,7 @@
 
     .ai .text {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--ai-msg));
-      color: var(--text-light);
+      color: var(--text-light); /* Teks putih untuk kontras */
     }
 
     .copy-button {
@@ -248,7 +249,7 @@
       border: none;
       border-radius: 8px;
       background: transparent;
-      color: var(--text-light);
+      color: var(--text-light); /* Teks input mengikuti tema */
       resize: none;
       overflow-y: auto;
       max-height: 150px;
