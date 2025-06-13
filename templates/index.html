@@ -8,11 +8,11 @@
   <style>
     :root {
       --primary: #800000;
-      --secondary: #f8fafc;
+      --secondary: #000000; /* Mengubah ke hitam pekat seperti DeepSeek */
       --user-msg: #a30000;
-      --ai-msg: #e2e8f0;
+      --ai-msg: #1a1a1a; /* Sesuai dengan DeepSeek */
       --text-dark: #1e293b;
-      --text-light: #ffffff;
+      --text-light: #ffffff; /* Teks putih seperti DeepSeek */
       --border-radius: 16px;
       --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       --transition: all 0.3s ease;
@@ -20,11 +20,11 @@
 
     [data-theme="dark"] {
       --primary: #991b1b;
-      --secondary: #1e293b;
+      --secondary: #000000; /* Tetap hitam pekat */
       --user-msg: #dc2626;
-      --ai-msg: #334155;
+      --ai-msg: #1a1a1a; /* Tetap sesuai DeepSeek */
       --text-dark: #f1f5f9;
-      --text-light: #1e293b;
+      --text-light: #ffffff; /* Tetap putih */
     }
 
     * {
@@ -39,7 +39,7 @@
       flex-direction: column;
       min-height: 100vh;
       background-color: var(--secondary);
-      color: var(--text-dark);
+      color: var(--text-light);
       transition: var(--transition);
     }
 
@@ -91,7 +91,7 @@
 
     #welcome-message {
       text-align: center;
-      color: var(--text-dark);
+      color: var(--text-light);
       padding: 1rem;
       font-style: italic;
       opacity: 0.7;
@@ -131,6 +131,7 @@
       line-height: 1.4;
       box-shadow: var(--shadow);
       transition: var(--transition);
+      white-space: pre-wrap; /* Menjaga indentasi dan baris baru seperti DeepSeek */
     }
 
     .user .text {
@@ -141,18 +142,17 @@
 
     .ai .text {
       background-color: var(--ai-msg);
-      color: var(--text-dark);
-      border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
+      color: var(--text-light); /* Teks putih seperti DeepSeek */
     }
 
     .copy-button {
       position: absolute;
       bottom: 4px;
       right: 8px;
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.1); /* Sesuai dengan tema DeepSeek */
       border: none;
       border-radius: 6px;
-      color: var(--text-dark);
+      color: var(--text-light);
       padding: 0.25rem 0.5rem;
       cursor: pointer;
       font-size: 0.75rem;
@@ -167,7 +167,7 @@
     #input-form {
       padding: 1rem;
       background-color: var(--secondary);
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.1); /* Sesuai tema gelap */
       max-width: 1000px;
       margin: 0 auto;
       width: 100%;
@@ -189,7 +189,7 @@
       border: none;
       border-radius: 8px;
       background: transparent;
-      color: var(--text-dark);
+      color: var(--text-light);
       resize: none;
       overflow-y: auto;
       max-height: 150px;
@@ -217,7 +217,7 @@
 
     #typing-indicator {
       font-style: italic;
-      color: var(--text-dark);
+      color: var(--text-light);
       font-size: 0.9rem;
       margin: 0.5rem 0;
       opacity: 0.7;
@@ -229,7 +229,7 @@
     .dot {
       width: 6px;
       height: 6px;
-      background-color: var(--text-dark);
+      background-color: var(--text-light);
       border-radius: 50%;
       animation: pulse 1.5s infinite;
     }
@@ -352,14 +352,16 @@
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
-      bubble.textContent = content;
+      // Hapus tanda ** dari konten sebelum ditampilkan
+      const cleanContent = content.replace(/\*\*/g, '');
+      bubble.textContent = cleanContent;
 
       if (role === 'ai') {
         const copyBtn = document.createElement('button');
         copyBtn.classList.add('copy-button');
         copyBtn.textContent = 'Salin';
         copyBtn.onclick = () => {
-          navigator.clipboard.writeText(content);
+          navigator.clipboard.writeText(cleanContent);
           copyBtn.textContent = 'Tersalin!';
           setTimeout(() => copyBtn.textContent = 'Salin', 2000);
         };
