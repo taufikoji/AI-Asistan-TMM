@@ -1,26 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>AI Assistant</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asisten AI STMK Trisakti</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background-color: #002d72;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    #chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+
+    .user .text {
+      background-color: #0074D9;
+      color: white;
+      align-self: flex-end;
+      border-radius: 12px 12px 0 12px;
+    }
+
+    .ai .text {
+      background-color: #e1e1e1;
+      color: #333;
+      align-self: flex-start;
+      border-radius: 12px 12px 12px 0;
+      position: relative;
+    }
+
+    .text {
+      padding: 0.75rem 1rem;
+      max-width: 90%;
+      position: relative;
+    }
+
+    .icon {
+      width: 32px;
+      height: 32px;
+      margin-right: 10px;
+    }
+
+    .user {
+      justify-content: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .ai {
+      justify-content: flex-start;
+    }
+
+    .message .copy-button {
+      font-size: 0.75rem;
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #555;
+      cursor: pointer;
+    }
+
+    #input-form {
+      display: flex;
+      padding: 1rem;
+      background-color: white;
+      border-top: 1px solid #ccc;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-right: 0.5rem;
+    }
+
+    button {
+      padding: 0.75rem 1.2rem;
+      border: none;
+      background-color: #002d72;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #typing-indicator {
+      font-style: italic;
+      color: #888;
+      margin-top: -10px;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .text {
+        max-width: 100%;
+      }
+
+      .icon {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Unggah File untuk Analisis</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png">
-        <input type="submit" value="Unggah">
-    </form>
-    <div id="result"></div>
-    <script>
-        document.querySelector('form').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            document.getElementById('result').innerText = data.analysis || data.error || 'Error tidak diketahui';
-        };
-    </script>
+  <header>Asisten AI STMK Trisakti</header>
+
+  <div id="chat-container"></div>
+
+  <form id="input-form">
+    <input type="text" id="message-input" placeholder="Tulis pertanyaan Anda..." autocomplete="off" required />
+    <button type="submit">Kirim</button>
+  </form>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const form = document.getElementById('input-form');
+    const input = document.getElementById('message-input');
+
+    function appendMessage(role, content) {
+      const msg = document.createElement('div');
+      msg.classList.add('message', role);
+
+      const icon = document.createElement('img');
+      icon.classList.add('icon');
+      icon.src = role === 'user' ? 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png' : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png';
+
+      const bubble = document.createElement('div');
+      bubble.classList.add('text');
+      bubble.textContent = content;
+
+      if (role === 'ai') {
+        const copyBtn = document.createElement('button');
+        copyBtn.classList.add('copy-button');
+        copyBtn.textContent = 'Salin';
+        copyBtn.onclick = () => navigator.clipboard.writeText(content);
+        bubble.appendChild(copyBtn);
+      }
+
+      msg.appendChild(icon);
+      msg.appendChild(bubble);
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = input.value.trim();
+      if (!message) return;
+
+      appendMessage('user', message);
+      input.value = '';
+
+      const typingIndicator = document.createElement('div');
+      typingIndicator.id = 'typing-indicator';
+      typingIndicator.textContent = 'AI sedang mengetik...';
+      chatContainer.appendChild(typingIndicator);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+        typingIndicator.remove();
+
+        if (data.reply) {
+          appendMessage('ai', data.reply);
+        } else {
+          appendMessage('ai', 'Maaf, terjadi kesalahan dalam mendapatkan jawaban.');
+        }
+      } catch (err) {
+        typingIndicator.remove();
+        appendMessage('ai', 'Terjadi kesalahan jaringan atau server.');
+      }
+    });
+  </script>
 </body>
 </html>
