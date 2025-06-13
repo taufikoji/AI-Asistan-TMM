@@ -1,220 +1,26 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Asisten Kampus AI</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root {
-            --bg-color: #fdfdfd;
-            --text-color: #111;
-            --user-bubble: #d32f2f;
-            --bot-bubble: #eeeeee;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #fff;
-            --user-bubble: #b71c1c;
-            --bot-bubble: #1f1f1f;
-        }
-
-        body {
-            font-family: sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        #chat {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 10px 14px;
-            margin: 10px;
-            border-radius: 10px;
-            white-space: pre-wrap;
-        }
-
-        .user {
-            background: var(--user-bubble);
-            color: #fff;
-            align-self: flex-end;
-        }
-
-        .bot {
-            background: var(--bot-bubble);
-            align-self: flex-start;
-        }
-
-        #input-area {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #ccc;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        button, label {
-            margin-left: 10px;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        #theme-toggle {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-
-        .copy-btn {
-            cursor: pointer;
-            font-size: 12px;
-            background: none;
-            border: none;
-            color: #888;
-        }
-
-        .upload-label {
-            background: #d32f2f;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-        }
-
-        .upload-label:hover {
-            opacity: 0.9;
-        }
-
-        .typing {
-            font-style: italic;
-            font-size: 14px;
-            padding-left: 10px;
-        }
-    </style>
+    <title>AI Assistant</title>
 </head>
-<body data-theme="light">
-
-    <button id="theme-toggle">🌙</button>
-
-    <div id="chat"></div>
-
-    <div id="input-area">
-        <input type="text" id="user-input" placeholder="Tulis pertanyaan...">
-        <label class="upload-label">
-            📎
-            <input type="file" id="file-upload" hidden>
-        </label>
-        <button onclick="sendMessage()">Kirim</button>
-    </div>
-
+<body>
+    <h1>Unggah File untuk Analisis</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Unggah">
+    </form>
+    <div id="result"></div>
     <script>
-        const chat = document.getElementById('chat');
-        const userInput = document.getElementById('user-input');
-        const fileUpload = document.getElementById('file-upload');
-
-        function appendMessage(content, sender) {
-            const msg = document.createElement('div');
-            msg.className = `message ${sender}`;
-            msg.innerHTML = content;
-
-            if (sender === 'bot') {
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.innerText = 'Salin';
-                copyBtn.onclick = () => navigator.clipboard.writeText(msg.innerText);
-                msg.appendChild(document.createElement('br'));
-                msg.appendChild(copyBtn);
-            }
-
-            chat.appendChild(msg);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        function showTyping() {
-            const typing = document.createElement('div');
-            typing.className = 'message bot typing';
-            typing.innerText = 'Mengetik...';
-            typing.id = 'typing';
-            chat.appendChild(typing);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        function removeTyping() {
-            const typing = document.getElementById('typing');
-            if (typing) typing.remove();
-        }
-
-        async function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            appendMessage(text, 'user');
-            userInput.value = '';
-            showTyping();
-
-            const res = await fetch('/api/chat', {
+        document.querySelector('form').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/upload', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: text})
+                body: formData
             });
-
-            const data = await res.json();
-            removeTyping();
-
-            if (data.reply) {
-                appendMessage(data.reply, 'bot');
-            } else {
-                appendMessage('Terjadi kesalahan.', 'bot');
-            }
-        }
-
-        fileUpload.addEventListener('change', async () => {
-            const file = fileUpload.files[0];
-            if (!file) return;
-
-            appendMessage(`📄 Mengunggah "${file.name}"...`, 'user');
-            showTyping();
-
-            const form = new FormData();
-            form.append('file', file);
-
-            const res = await fetch('/upload', {
-                method: 'POST',
-                body: form
-            });
-
-            const data = await res.json();
-            removeTyping();
-
-            if (data.reply) {
-                appendMessage(data.reply, 'bot');
-            } else {
-                appendMessage(data.error || 'Gagal membaca file.', 'bot');
-            }
-
-            fileUpload.value = ''; // reset input
-        });
-
-        document.getElementById('theme-toggle').onclick = () => {
-            const theme = document.body.getAttribute('data-theme');
-            document.body.setAttribute('data-theme', theme === 'light' ? 'dark' : 'light');
+            const data = await response.json();
+            document.getElementById('result').innerText = data.analysis || data.error;
         };
-
-        userInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') sendMessage();
-        });
     </script>
 </body>
 </html>
