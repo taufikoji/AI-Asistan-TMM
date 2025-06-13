@@ -6,7 +6,7 @@
 <body>
     <h1>Unggah File untuk Analisis</h1>
     <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
+        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png">
         <input type="submit" value="Unggah">
     </form>
     <div id="result"></div>
@@ -19,7 +19,7 @@
                 body: formData
             });
             const data = await response.json();
-            document.getElementById('result').innerText = data.analysis || data.error;
+            document.getElementById('result').innerText = data.analysis || data.error || 'Error tidak diketahui';
         };
     </script>
 </body>
