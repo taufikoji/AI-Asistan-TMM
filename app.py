@@ -1,93 +1,98 @@
 import os
-import fitz  # PyMuPDF
-from flask import Flask, request, jsonify, render_template, session
-from flask_cors import CORS
+from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import requests
+import pytesseract
+from PIL import Image
+import fitz  # PyMuPDF
 
+# Load API Key dari .env
 load_dotenv()
-
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
-CORS(app)
-
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
+# Inisialisasi Flask
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Halaman Utama
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/api/chat', methods=['POST'])
-def chat():
-    data = request.get_json()
-    user_message = data.get("message", "")
+# Fungsi ekstrak teks dari PDF
+def extract_text_from_pdf(path):
+    try:
+        doc = fitz.open(path)
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        return text.strip()
+    except Exception as e:
+        return f"[Gagal membaca PDF: {str(e)}]"
 
-    # Riwayat percakapan dalam sesi
-    if 'history' not in session:
-        session['history'] = []
+# Fungsi OCR untuk gambar
+def extract_text_from_image(path):
+    try:
+        image = Image.open(path)
+        text = pytesseract.image_to_string(image, lang='eng+ind')
+        return text.strip()
+    except Exception as e:
+        return f"[Gagal membaca gambar: {str(e)}]"
 
-    session['history'].append({"role": "user", "content": user_message})
+# Endpoint Upload File
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files.get('file')
+    if not file:
+        return jsonify({'error': 'Tidak ada file diunggah'}), 400
 
-    # Bangun pesan penuh untuk dikirim ke API
-    messages = [{"role": "system", "content": "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown seperti ** atau ###. Jawaban harus jelas, sopan, dan mudah dibaca."}]
-    messages.extend(session['history'])
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
 
+    # Tentukan tipe file
+    ext = filename.rsplit('.', 1)[-1].lower()
+    if ext in ['pdf']:
+        content = extract_text_from_pdf(filepath)
+    elif ext in ['png', 'jpg', 'jpeg']:
+        content = extract_text_from_image(filepath)
+    else:
+        return jsonify({'error': 'Tipe file tidak didukung'}), 400
+
+    # Kirim ke OpenRouter (DeepSeek)
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://example.com",
+        "HTTP-Referer": "https://example.com",  # ganti dengan domain kamu
         "X-Title": "Chatbot-Kampus"
     }
 
     payload = {
         "model": "deepseek/deepseek-r1-0528:free",
-        "messages": messages,
+        "messages": [
+            {
+                "role": "system",
+                "content": "Baca isi dokumen ini dan berikan tanggapan awal secara profesional. Jangan gunakan markdown atau simbol seperti ** atau ###."
+            },
+            {
+                "role": "user",
+                "content": content
+            }
+        ],
         "temperature": 0.7
     }
 
     try:
-        response = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers=headers,
-            json=payload
-        )
-
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
         if response.status_code == 200:
-            reply = response.json()["choices"][0]["message"]["content"]
-            session['history'].append({"role": "assistant", "content": reply.strip()})
-            return jsonify({"reply": reply.strip()})
+            reply = response.json()['choices'][0]['message']['content']
+            return jsonify({'reply': reply.strip()})
         else:
-            return jsonify({"error": "API Error", "details": response.text}), response.status_code
-
+            return jsonify({'error': 'Gagal mendapatkan respon dari AI', 'details': response.text}), 500
     except Exception as e:
-        return jsonify({"error": "Exception", "message": str(e)}), 500
-
-@app.route('/api/upload', methods=['POST'])
-def upload_pdf():
-    file = request.files.get('file')
-    if file and file.filename.endswith('.pdf'):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join("uploads", filename)
-        os.makedirs("uploads", exist_ok=True)
-        file.save(file_path)
-
-        # Ekstrak teks dari PDF
-        doc = fitz.open(file_path)
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        doc.close()
-
-        # Simpan sebagai pesan sistem atau awal dialog
-        session['history'] = [
-            {"role": "system", "content": "Berikut isi dokumen yang diunggah:\n" + text[:3000]},
-            {"role": "assistant", "content": "Silakan ajukan pertanyaan berdasarkan isi dokumen ini. Contoh: Apa nomor SK-nya?"}
-        ]
-
-        return jsonify({"message": "PDF berhasil diproses.", "suggestion": "Apa nomor SK-nya?"})
-    else:
-        return jsonify({"error": "File tidak valid. Harus PDF."}), 400
+        return jsonify({'error': 'Gagal terhubung ke AI', 'message': str(e)}), 500
 
 
 if __name__ == '__main__':
