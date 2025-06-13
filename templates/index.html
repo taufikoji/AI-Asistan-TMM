@@ -1,209 +1,93 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asisten AI STMK Trisakti</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
+import os
+from flask import Flask, request, jsonify, render_template
+import requests
+from dotenv import load_dotenv
+import fitz  # PyMuPDF
+
+load_dotenv()
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    user_message = data.get("message", "")
+    pdf_text = data.get("pdf_text", "")
+
+    messages = [
+        {"role": "system", "content": "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown seperti ** atau ###. Jawaban harus jelas, sopan, dan enak dibaca."}
+    ]
+
+    if pdf_text:
+        messages.append({
+            "role": "user",
+            "content": f"Berikut ini isi dokumen yang saya unggah:\n\n{pdf_text}\n\nTolong jelaskan secara ringkas dan profesional."
+        })
+
+    messages.append({"role": "user", "content": user_message})
+
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://example.com",
+        "X-Title": "Chatbot-STMK-Trisakti"
     }
 
-    body {
-      margin: 0;
-      background-color: #f4f4f4;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+    payload = {
+        "model": "deepseek/deepseek-r1-0528:free",
+        "messages": messages,
+        "temperature": 0.7
     }
 
-    header {
-      background-color: #002d72;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.2rem;
-    }
+    try:
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers=headers,
+            json=payload
+        )
 
-    #chat-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-    }
+        if response.status_code == 200:
+            reply = response.json()["choices"][0]["message"]["content"]
+            return jsonify({"reply": reply.strip()})
+        else:
+            return jsonify({
+                "error": "API Error",
+                "details": response.text
+            }), response.status_code
 
-    .message {
-      display: flex;
-      margin-bottom: 1rem;
-    }
+    except Exception as e:
+        return jsonify({"error": "Exception", "message": str(e)}), 500
 
-    .user .text {
-      background-color: #0074D9;
-      color: white;
-      align-self: flex-end;
-      border-radius: 12px 12px 0 12px;
-    }
 
-    .ai .text {
-      background-color: #e1e1e1;
-      color: #333;
-      align-self: flex-start;
-      border-radius: 12px 12px 12px 0;
-      position: relative;
-    }
+@app.route('/api/upload-pdf', methods=['POST'])
+def upload_pdf():
+    if 'pdf' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
 
-    .text {
-      padding: 0.75rem 1rem;
-      max-width: 90%;
-      position: relative;
-    }
+    file = request.files['pdf']
+    if file.filename == '':
+        return jsonify({"error": "Empty filename"}), 400
 
-    .icon {
-      width: 32px;
-      height: 32px;
-      margin-right: 10px;
-    }
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+    file.save(filepath)
 
-    .user {
-      justify-content: flex-end;
-      flex-direction: row-reverse;
-    }
+    try:
+        with fitz.open(filepath) as doc:
+            text = ""
+            for page in doc:
+                text += page.get_text()
+        
+        return jsonify({"pdf_text": text})
+    except Exception as e:
+        return jsonify({"error": "Failed to read PDF", "message": str(e)}), 500
 
-    .ai {
-      justify-content: flex-start;
-    }
-
-    .message .copy-button {
-      font-size: 0.75rem;
-      position: absolute;
-      bottom: 6px;
-      right: 10px;
-      background: none;
-      border: none;
-      color: #555;
-      cursor: pointer;
-    }
-
-    #input-form {
-      display: flex;
-      padding: 1rem;
-      background-color: white;
-      border-top: 1px solid #ccc;
-    }
-
-    #message-input {
-      flex: 1;
-      padding: 0.75rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-right: 0.5rem;
-    }
-
-    button {
-      padding: 0.75rem 1.2rem;
-      border: none;
-      background-color: #002d72;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    #typing-indicator {
-      font-style: italic;
-      color: #888;
-      margin-top: -10px;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 600px) {
-      .text {
-        max-width: 100%;
-      }
-
-      .icon {
-        width: 24px;
-        height: 24px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <header>Asisten AI Trisakti School Of Multimedia</header>
-
-  <div id="chat-container"></div>
-
-  <form id="input-form">
-    <input type="text" id="message-input" placeholder="Tulis pertanyaan Anda..." autocomplete="off" required />
-    <button type="submit">Kirim</button>
-  </form>
-
-  <script>
-    const chatContainer = document.getElementById('chat-container');
-    const form = document.getElementById('input-form');
-    const input = document.getElementById('message-input');
-
-    function appendMessage(role, content) {
-      const msg = document.createElement('div');
-      msg.classList.add('message', role);
-
-      const icon = document.createElement('img');
-      icon.classList.add('icon');
-      icon.src = role === 'user' ? 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png' : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png';
-
-      const bubble = document.createElement('div');
-      bubble.classList.add('text');
-      bubble.textContent = content;
-
-      if (role === 'ai') {
-        const copyBtn = document.createElement('button');
-        copyBtn.classList.add('copy-button');
-        copyBtn.textContent = 'Salin';
-        copyBtn.onclick = () => navigator.clipboard.writeText(content);
-        bubble.appendChild(copyBtn);
-      }
-
-      msg.appendChild(icon);
-      msg.appendChild(bubble);
-      chatContainer.appendChild(msg);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const message = input.value.trim();
-      if (!message) return;
-
-      appendMessage('user', message);
-      input.value = '';
-
-      const typingIndicator = document.createElement('div');
-      typingIndicator.id = 'typing-indicator';
-      typingIndicator.textContent = 'AI sedang mengetik...';
-      chatContainer.appendChild(typingIndicator);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
-        });
-        const data = await res.json();
-        typingIndicator.remove();
-
-        if (data.reply) {
-          appendMessage('ai', data.reply);
-        } else {
-          appendMessage('ai', 'Maaf, terjadi kesalahan dalam mendapatkan jawaban.');
-        }
-      } catch (err) {
-        typingIndicator.remove();
-        appendMessage('ai', 'Terjadi kesalahan jaringan atau server.');
-      }
-    });
-  </script>
-</body>
-</html>
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
