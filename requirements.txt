@@ -4,4 +4,4 @@ python-dotenv
 pymupdf
 flask-cors
 gunicorn
-tesseract-ocr
+tesseract
