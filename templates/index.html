@@ -2,141 +2,215 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Chatbot STMK Trisakti</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat AI Tisakti school of multimedia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-wBUkhkRjAo8blZx0K9q2CBKOKJZGnZCMFUVbH3P3zjc74uxOCFRknTV4m4PPKh6+9PvDjM8H3xT0VRyzZ1D6Iw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
-            font-family: "Segoe UI", sans-serif;
-            background: #f5f5f5;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f4f4;
             margin: 0;
             padding: 0;
         }
-        .container {
-            max-width: 700px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #800000;
-            margin-bottom: 20px;
-        }
-        .chat-box {
-            border: 1px solid #ddd;
-            padding: 15px;
-            height: 400px;
-            overflow-y: auto;
+
+        .chat-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: white;
             border-radius: 8px;
-            background: #fafafa;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
         }
+
+        .chat-header {
+            background-color: #800000;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            resize: none;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            background-color: #800000;
+            color: white;
+            border: none;
+            padding: 0 25px;
+            cursor: pointer;
+        }
+
         .message {
             margin-bottom: 15px;
             display: flex;
-            align-items: flex-start;
+            flex-direction: column;
         }
-        .user {
+
+        .message.user .bubble {
+            align-self: flex-end;
+            background-color: #e0e0e0;
             color: #000;
-            font-weight: bold;
         }
-        .ai {
+
+        .message.ai .bubble {
+            align-self: flex-start;
             background-color: #f0f0f0;
+            position: relative;
+        }
+
+        .bubble {
+            padding: 12px 16px;
             border-radius: 8px;
-            padding: 10px 12px;
-            white-space: pre-wrap;
+            max-width: 80%;
+            line-height: 1.5;
+            word-wrap: break-word;
         }
-        .icon {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
+
+        .sender {
+            font-weight: bold;
+            margin-bottom: 5px;
         }
-        form {
-            display: flex;
-            margin-top: 15px;
-        }
-        input[type="text"] {
-            flex-grow: 1;
-            padding: 10px;
-            border-radius: 5px 0 0 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        button {
-            padding: 0 20px;
+
+        .copy-button {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: none;
             border: none;
-            background-color: #800000;
-            color: white;
-            border-radius: 0 5px 5px 0;
+            font-size: 14px;
+            color: #555;
             cursor: pointer;
         }
+
         .typing {
             font-style: italic;
-            color: #777;
-            margin-left: 40px;
+            color: #555;
+            padding: 8px 0;
+        }
+
+        @media (max-width: 600px) {
+            .bubble {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h2>Chatbot STMK Trisakti</h2>
-    <div id="chat" class="chat-box"></div>
-    <div id="typing" class="typing" style="display:none;">AI sedang mengetik...</div>
-    <form id="chat-form">
-        <input type="text" id="user-input" placeholder="Tulis pertanyaanmu di sini..." autocomplete="off" required>
-        <button type="submit">Kirim</button>
-    </form>
-</div>
+    <div class="chat-container">
+        <div class="chat-header">Chat AI Trisakti school of multimedia</div>
+        <div class="chat-body" id="chat-body"></div>
+        <div class="chat-input">
+            <textarea id="user-input" placeholder="Tulis pertanyaanmu di sini..." rows="1"></textarea>
+            <button onclick="sendMessage()">Kirim</button>
+        </div>
+    </div>
 
-<script>
-    const chatBox = document.getElementById('chat');
-    const form = document.getElementById('chat-form');
-    const userInput = document.getElementById('user-input');
-    const typingIndicator = document.getElementById('typing');
+    <script>
+        const chatBody = document.getElementById('chat-body');
+        const userInput = document.getElementById('user-input');
 
-    function appendMessage(sender, message, isAI = false) {
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message');
+        function appendMessage(role, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
 
-        const icon = document.createElement('img');
-        icon.className = 'icon';
-        icon.src = isAI ? 'https://img.icons8.com/ios-filled/50/robot.png' : 'https://img.icons8.com/ios-filled/50/user.png';
+            const senderDiv = document.createElement('div');
+            senderDiv.className = 'sender';
+            senderDiv.textContent = role === 'user' ? 'Kamu:' : 'AI:';
 
-        const text = document.createElement('div');
-        text.className = isAI ? 'ai' : 'user';
-        text.innerText = (isAI ? '' : 'Kamu: ') + message;
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'bubble';
+            bubbleDiv.textContent = text;
 
-        msgDiv.appendChild(icon);
-        msgDiv.appendChild(text);
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+            if (role === 'ai') {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-button';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.onclick = () => {
+                    navigator.clipboard.writeText(text);
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                    }, 2000);
+                };
+                bubbleDiv.appendChild(copyBtn);
+            }
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const message = userInput.value.trim();
-        if (!message) return;
-
-        appendMessage("user", message);
-        userInput.value = "";
-        typingIndicator.style.display = "block";
-
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
-        });
-
-        const data = await response.json();
-        typingIndicator.style.display = "none";
-
-        if (data.reply) {
-            appendMessage("ai", data.reply, true);
-        } else {
-            appendMessage("ai", "Maaf, terjadi kesalahan. Silakan coba lagi.", true);
+            messageDiv.appendChild(senderDiv);
+            messageDiv.appendChild(bubbleDiv);
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
         }
-    });
-</script>
+
+        function showTyping() {
+            const typing = document.createElement('div');
+            typing.id = 'typing';
+            typing.className = 'typing';
+            typing.textContent = 'AI sedang mengetik...';
+            chatBody.appendChild(typing);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function removeTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.remove();
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            appendMessage('user', message);
+            userInput.value = '';
+
+            showTyping();
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message})
+            })
+            .then(res => res.json())
+            .then(data => {
+                removeTyping();
+                if (data.reply) {
+                    appendMessage('ai', data.reply);
+                } else {
+                    appendMessage('ai', 'Maaf, terjadi kesalahan dalam menjawab.');
+                }
+            })
+            .catch(() => {
+                removeTyping();
+                appendMessage('ai', 'Maaf, terjadi kesalahan dalam koneksi.');
+            });
+        }
+
+        userInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
 </body>
 </html>
