@@ -1,83 +1,168 @@
-<!-- ...header & chatbox sebelumnya tetap... -->
-<form id="input-form" enctype="multipart/form-data">
-  <input type="text" id="user-input" placeholder="Ketik pertanyaan Anda..." required />
-  <label for="file-upload" style="cursor:pointer; color: maroon;">📎</label>
-  <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png" style="display:none" />
-  <button type="submit">Kirim</button>
-</form>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Asisten Kampus STMK Trisakti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-light: #f5f5f5;
+            --bg-dark: #1e1e1e;
+            --text-light: #000;
+            --text-dark: #fff;
+            --primary: #800000; /* Maroon */
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            transition: 0.3s;
+        }
+        .dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+        header {
+            background: var(--primary);
+            padding: 15px;
+            text-align: center;
+            color: white;
+        }
+        #chat-box {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 10px;
+            height: 65vh;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background: white;
+        }
+        .dark-mode #chat-box {
+            background: #2c2c2c;
+            border-color: #555;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            max-width: 90%;
+        }
+        .user { background: #d1e7dd; align-self: flex-end; }
+        .bot  { background: #f8d7da; align-self: flex-start; }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        #input-area {
+            display: flex;
+            max-width: 800px;
+            margin: auto;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+        .copy-btn {
+            float: right;
+            font-size: 12px;
+            background: none;
+            color: #555;
+            border: none;
+            cursor: pointer;
+        }
+        .dark-mode .copy-btn { color: #ccc; }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Asisten AI STMK Trisakti</h2>
+    </header>
 
-<div id="file-preview" style="text-align:center; margin-top:10px;"></div>
+    <div class="controls">
+        <button onclick="toggleDarkMode()">🌓 Mode Gelap / Terang</button>
+        <input type="file" id="pdf-upload" accept="application/pdf" />
+    </div>
 
-<script>
-const form = document.getElementById('input-form');
-const input = document.getElementById('user-input');
-const fileInput = document.getElementById('file-upload');
-const preview = document.getElementById('file-preview');
-const chatBox = document.getElementById('chat-box');
+    <div id="chat-box"></div>
 
-let uploadedFileContent = "";
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="Ketik pertanyaan...">
+        <button onclick="sendMessage()">Kirim</button>
+    </div>
 
-form.onsubmit = async (e) => {
-  e.preventDefault();
-  const userText = input.value;
-  appendMessage(userText, 'user');
-  input.value = "";
-  appendMessage("Sedang mengetik...", 'bot');
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const input = document.getElementById('user-input');
+        const pdfUpload = document.getElementById('pdf-upload');
 
-  const message = uploadedFileContent
-    ? `${userText}\n\nBerikut adalah konten file yang saya unggah:\n${uploadedFileContent}`
-    : userText;
+        function appendMessage(role, text) {
+            const msg = document.createElement('div');
+            msg.className = `message ${role}`;
+            msg.innerHTML = `<span>${text}</span> <button class="copy-btn" onclick="copyToClipboard(this)">📋</button>`;
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-  uploadedFileContent = "";
-  preview.innerHTML = "";
+        function copyToClipboard(btn) {
+            const text = btn.previousElementSibling.innerText;
+            navigator.clipboard.writeText(text);
+            btn.innerText = "✅";
+            setTimeout(() => btn.innerText = "📋", 1500);
+        }
 
-  const res = await fetch('/api/chat', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({message})
-  });
+        function sendMessage() {
+            const message = input.value.trim();
+            if (!message) return;
 
-  const data = await res.json();
-  document.querySelectorAll('.bot:last-child')[0].remove();
-  appendMessage(data.reply || '[Terjadi kesalahan]', 'bot');
-};
+            appendMessage("user", message);
+            input.value = "";
 
-fileInput.addEventListener('change', async () => {
-  const file = fileInput.files[0];
-  if (!file) return;
+            appendMessage("bot", "Mengetik...");
 
-  const formData = new FormData();
-  formData.append('file', file);
+            fetch('/api/chat', {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message})
+            })
+            .then(res => res.json())
+            .then(data => {
+                chatBox.lastChild.innerHTML = `<span>${data.reply}</span> <button class="copy-btn" onclick="copyToClipboard(this)">📋</button>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
 
-  const res = await fetch('/api/upload', {
-    method: 'POST',
-    body: formData
-  });
+        pdfUpload.addEventListener("change", () => {
+            const file = pdfUpload.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
 
-  const data = await res.json();
-  if (data.type === "pdf") {
-    uploadedFileContent = data.content;
-    preview.innerHTML = `<p style="color:#aaa;">📄 PDF berhasil diunggah dan dibaca</p>`;
-  } else if (data.type === "image") {
-    uploadedFileContent = "[Gambar telah diunggah]";
-    preview.innerHTML = `<img src="${data.content}" alt="Preview" style="max-width:200px; margin:10px auto; border:1px solid #444"/>`;
-  } else {
-    preview.innerHTML = `<p style="color:red;">❌ Gagal memproses file</p>`;
-  }
-});
+            fetch('/api/upload', {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.suggestion) {
+                    appendMessage("bot", data.suggestion);
+                }
+            });
+        });
 
-function appendMessage(content, sender) {
-  const div = document.createElement('div');
-  div.className = `msg ${sender}`;
-  div.innerHTML = content + `<span class="copy-btn" onclick="copyToClipboard(this)">📋</span>`;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function copyToClipboard(el) {
-  const text = el.parentElement.textContent;
-  navigator.clipboard.writeText(text.trim());
-  el.textContent = "✅";
-  setTimeout(() => el.textContent = "📋", 1500);
-}
-</script>
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+    </script>
+</body>
+</html>
