@@ -16,7 +16,10 @@ def index():
 @app.route('/api/chat', methods=['POST'])
 def chat():
     data = request.get_json()
-    user_message = data.get("message", "")
+    user_message = data.get("message", "").strip().lower()
+
+    # Deteksi jika pengguna meminta outline
+    is_outline_request = any(keyword in user_message for keyword in ["outline", "struktur", "kerangka", "buat outline"])
 
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -25,11 +28,24 @@ def chat():
         "X-Title": "Chatbot-STMK-Trisakti"
     }
 
+    # Prompt sistem dan pengguna disesuaikan berdasarkan permintaan
+    system_message = "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown seperti **, ###, atau *. Jawaban harus jelas, sopan, dan enak dibaca."
+    if is_outline_request:
+        prompt = (
+            f"Buat outline standar untuk jurnal akademik dalam format terstruktur menggunakan nomor urut (1., 2., dll.) dan poin-poin dengan tanda '- ' untuk setiap detail, tanpa teks naratif awal. "
+            f"Hindari penggunaan simbol seperti **, #, atau *. Pastikan setiap bagian memiliki judul dan penjelasan singkat. Contoh format: "
+            f"1. Judul (Title) - Singkat, jelas, dan mencerminkan inti penelitian. - Mengandung kata kunci (keywords) yang relevan. "
+            f"2. Abstrak (Abstract) - Ringkasan singkat (biasanya 150-250 kata) yang mencakup latar belakang, tujuan, metode, dan hasil. "
+            f"Gunakan topik '{user_message}' jika ada topik spesifik, atau gunakan 'Pengembangan AI di Pendidikan' jika tidak ada topik spesifik. Jaga penjelasan singkat dan langsung ke inti."
+        )
+    else:
+        prompt = user_message
+
     payload = {
         "model": "deepseek/deepseek-r1-0528:free",
         "messages": [
-            {"role": "system", "content": "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown seperti ** atau ###. Jawaban harus jelas, sopan, dan enak dibaca."},
-            {"role": "user", "content": user_message}
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": prompt}
         ],
         "temperature": 0.7
     }
@@ -43,7 +59,9 @@ def chat():
 
         if response.status_code == 200:
             reply = response.json()["choices"][0]["message"]["content"]
-            return jsonify({"reply": reply.strip()})
+            # Membersihkan tanda ** dan # jika ada
+            clean_reply = reply.replace("**", "").replace("#", "").strip()
+            return jsonify({"reply": clean_reply})
         else:
             return jsonify({
                 "error": "API Error",
