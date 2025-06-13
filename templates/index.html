@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asisten AI STMK Trisakti</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <style>
     :root {
       --primary: #800000;
@@ -45,7 +46,7 @@
     header {
       background-color: var(--primary);
       color: var(--text-light);
-      padding: 1.5rem;
+      padding: 1rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -56,8 +57,9 @@
     }
 
     header h1 {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: 700;
+      white-space: nowrap;
     }
 
     #theme-toggle {
@@ -77,18 +79,28 @@
 
     #chat-container {
       flex: 1;
-      padding: 1.5rem;
+      padding: 1rem;
       overflow-y: auto;
       scroll-behavior: smooth;
       max-width: 1000px;
       margin: 0 auto;
       width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #welcome-message {
+      text-align: center;
+      color: var(--text-dark);
+      padding: 1rem;
+      font-style: italic;
+      opacity: 0.7;
     }
 
     .message {
       display: flex;
       align-items: flex-end;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
       opacity: 0;
       transform: translateY(20px);
       animation: slideIn 0.3s ease forwards;
@@ -103,9 +115,9 @@
     }
 
     .icon {
-      width: 40px;
-      height: 40px;
-      margin: 0 12px;
+      width: 36px;
+      height: 36px;
+      margin: 0 10px;
       border-radius: 50%;
       border: 2px solid var(--primary);
       transition: var(--transition);
@@ -113,10 +125,10 @@
 
     .text {
       max-width: 80%;
-      padding: 1rem 1.25rem;
+      padding: 0.8rem 1rem;
       border-radius: var(--border-radius);
       position: relative;
-      line-height: 1.6;
+      line-height: 1.4;
       box-shadow: var(--shadow);
       transition: var(--transition);
     }
@@ -135,7 +147,7 @@
 
     .copy-button {
       position: absolute;
-      bottom: 8px;
+      bottom: 4px;
       right: 8px;
       background: rgba(0, 0, 0, 0.1);
       border: none;
@@ -163,7 +175,7 @@
 
     #input-container {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.5rem;
       background-color: var(--ai-msg);
       padding: 0.5rem;
       border-radius: var(--border-radius);
@@ -191,7 +203,7 @@
       background-color: var(--primary);
       color: var(--text-light);
       border: none;
-      padding: 0.75rem 1.5rem;
+      padding: 0.75rem 1.2rem;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
@@ -238,8 +250,16 @@
     }
 
     @media (max-width: 768px) {
-      #chat-container, #input-form {
+      header {
         padding: 1rem;
+      }
+
+      header h1 {
+        font-size: 1.1rem;
+      }
+
+      #chat-container, #input-form {
+        padding: 0.75rem;
       }
 
       .text {
@@ -247,12 +267,22 @@
       }
 
       .icon {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
       }
 
-      header h1 {
-        font-size: 1.25rem;
+      #input-container {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      #message-input {
+        width: 100%;
+      }
+
+      button {
+        width: 100%;
+        padding: 0.75rem;
       }
     }
   </style>
@@ -263,7 +293,11 @@
     <button id="theme-toggle" title="Ganti Tema">☀️</button>
   </header>
 
-  <div id="chat-container"></div>
+  <div id="chat-container">
+    <div id="welcome-message">
+      Selamat datang! Ketik pertanyaan Anda di bawah dan tekan "Kirim" untuk memulai.
+    </div>
+  </div>
 
   <form id="input-form">
     <div id="input-container">
@@ -277,6 +311,7 @@
     const form = document.getElementById('input-form');
     const input = document.getElementById('message-input');
     const themeToggle = document.getElementById('theme-toggle');
+    const welcomeMessage = document.getElementById('welcome-message');
 
     // Theme toggle
     themeToggle.addEventListener('click', () => {
@@ -296,9 +331,15 @@
     input.addEventListener('input', () => {
       input.style.height = 'auto';
       input.style.height = `${Math.min(input.scrollHeight, 150)}px`;
+      if (input.value.trim()) {
+        welcomeMessage.style.display = 'none'; // Sembunyikan sambutan saat mulai mengetik
+      } else {
+        welcomeMessage.style.display = 'block'; // Tampilkan lagi jika kosong
+      }
     });
 
     function appendMessage(role, content) {
+      welcomeMessage.style.display = 'none'; // Sembunyikan sambutan saat ada pesan
       const msg = document.createElement('div');
       msg.classList.add('message', role);
 
