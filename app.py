@@ -2,37 +2,35 @@ import os
 from flask import Flask, request, jsonify, render_template
 import requests
 from dotenv import load_dotenv
+import markdown
 
-# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 
-# Ambil API Key dari file .env
+# API key dari environment variable
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 @app.route('/')
 def index():
-    return render_template('index.html')  # Pastikan file ini ada di folder templates/
+    return render_template('index.html')
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
     data = request.get_json()
     user_message = data.get("message", "")
 
-    # Headers khusus untuk OpenRouter
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://example.com",     # Ganti jika kamu punya domain
-        "X-Title": "Chatbot-Kampus-AI"
+        "HTTP-Referer": "https://example.com",  # Ganti jika perlu
+        "X-Title": "Chatbot-STMK-Trisakti"
     }
 
-    # Payload permintaan ke DeepSeek via OpenRouter
     payload = {
         "model": "deepseek/deepseek-r1-0528:free",
         "messages": [
-            {"role": "system", "content": "You are an intelligent and professional assistant. Please respond in a clear, structured, and helpful manner in Bahasa Indonesia."},
+            {"role": "system", "content": "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown seperti ** atau ###. Jawaban harus jelas, sopan, dan enak dibaca."},
             {"role": "user", "content": user_message}
         ],
         "temperature": 0.7
@@ -47,7 +45,7 @@ def chat():
 
         if response.status_code == 200:
             reply = response.json()["choices"][0]["message"]["content"]
-            return jsonify({"reply": reply})
+            return jsonify({"reply": reply.strip()})
         else:
             return jsonify({
                 "error": "API Error",
