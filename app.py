@@ -1,14 +1,20 @@
 import os
-import fitz  # PyMuPDF
+import fitz  # PyMuPDF untuk PDF
 from flask import Flask, request, jsonify, render_template
 import requests
 from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # Max 10MB
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 @app.route('/')
 def index():
@@ -29,7 +35,7 @@ def chat():
     payload = {
         "model": "deepseek/deepseek-r1-0528:free",
         "messages": [
-            {"role": "system", "content": "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown. Jawaban harus jelas dan mudah dipahami."},
+            {"role": "system", "content": "Gunakan bahasa Indonesia profesional dan rapi. Jangan gunakan markdown. Jawaban harus jelas dan mudah dibaca."},
             {"role": "user", "content": user_message}
         ],
         "temperature": 0.7
@@ -45,20 +51,33 @@ def chat():
     except Exception as e:
         return jsonify({"error": "Exception", "message": str(e)}), 500
 
-@app.route('/api/upload-pdf', methods=['POST'])
-def upload_pdf():
-    file = request.files['file']
+@app.route('/api/upload', methods=['POST'])
+def upload():
+    file = request.files.get('file')
     if not file:
         return jsonify({"error": "No file uploaded"}), 400
 
-    try:
-        doc = fitz.open(stream=file.read(), filetype="pdf")
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        return jsonify({"text": text.strip()[:5000]})  # Batasi agar tidak overload model
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+
+    ext = os.path.splitext(filename)[1].lower()
+
+    if ext == '.pdf':
+        try:
+            doc = fitz.open(filepath)
+            text = ""
+            for page in doc:
+                text += page.get_text()
+            return jsonify({"type": "pdf", "content": text.strip()[:5000]})
+        except Exception as e:
+            return jsonify({"error": f"Gagal membaca PDF: {str(e)}"}), 500
+
+    elif ext in ['.jpg', '.jpeg', '.png']:
+        return jsonify({"type": "image", "content": f"/{filepath}"})
+
+    else:
+        return jsonify({"error": "Format tidak didukung"}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
