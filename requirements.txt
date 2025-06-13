@@ -5,3 +5,5 @@ pymupdf
 flask-cors
 gunicorn
 tesseract
+pillow
+pdf21image
