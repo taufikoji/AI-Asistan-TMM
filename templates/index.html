@@ -1,147 +1,83 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chatbot Kampus AI</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #1c1c1c;
-      color: #f0f0f0;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: maroon;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.2rem;
-      color: white;
-    }
-    #chat-box {
-      max-width: 800px;
-      margin: 20px auto;
-      background: #2b2b2b;
-      padding: 1rem;
-      border-radius: 10px;
-      min-height: 400px;
-      overflow-y: auto;
-    }
-    .msg {
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .user {
-      background: #800000;
-      color: white;
-      text-align: right;
-    }
-    .bot {
-      background: #333;
-      color: #eee;
-      text-align: left;
-    }
-    #input-form {
-      display: flex;
-      gap: 0.5rem;
-      margin: 20px auto;
-      max-width: 800px;
-      padding: 0 1rem;
-    }
-    input[type="text"], input[type="file"] {
-      flex: 1;
-      padding: 0.8rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: none;
-    }
-    button {
-      padding: 0.8rem 1.2rem;
-      background-color: maroon;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .copy-btn {
-      margin-left: 10px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      color: #999;
-    }
-  </style>
-</head>
-<body>
-  <header>🤖 Chatbot STMK Trisakti - Mode Gelap</header>
+<!-- ...header & chatbox sebelumnya tetap... -->
+<form id="input-form" enctype="multipart/form-data">
+  <input type="text" id="user-input" placeholder="Ketik pertanyaan Anda..." required />
+  <label for="file-upload" style="cursor:pointer; color: maroon;">📎</label>
+  <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png" style="display:none" />
+  <button type="submit">Kirim</button>
+</form>
 
-  <div id="chat-box"></div>
+<div id="file-preview" style="text-align:center; margin-top:10px;"></div>
 
-  <form id="input-form">
-    <input type="text" id="user-input" placeholder="Ketik pertanyaan Anda..." required />
-    <button type="submit">Kirim</button>
-  </form>
+<script>
+const form = document.getElementById('input-form');
+const input = document.getElementById('user-input');
+const fileInput = document.getElementById('file-upload');
+const preview = document.getElementById('file-preview');
+const chatBox = document.getElementById('chat-box');
 
-  <div style="text-align:center; margin-bottom:20px;">
-    <input type="file" id="pdf-input" accept="application/pdf"/>
-    <button onclick="uploadPDF()">Upload PDF</button>
-  </div>
+let uploadedFileContent = "";
 
-  <script>
-    const chatBox = document.getElementById('chat-box');
-    const form = document.getElementById('input-form');
-    const input = document.getElementById('user-input');
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  const userText = input.value;
+  appendMessage(userText, 'user');
+  input.value = "";
+  appendMessage("Sedang mengetik...", 'bot');
 
-    function appendMessage(content, sender) {
-      const div = document.createElement('div');
-      div.className = `msg ${sender}`;
-      div.innerHTML = content + `<span class="copy-btn" onclick="copyToClipboard(this)">📋</span>`;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+  const message = uploadedFileContent
+    ? `${userText}\n\nBerikut adalah konten file yang saya unggah:\n${uploadedFileContent}`
+    : userText;
 
-    function copyToClipboard(el) {
-      const text = el.parentElement.textContent;
-      navigator.clipboard.writeText(text.trim());
-      el.textContent = "✅";
-      setTimeout(() => el.textContent = "📋", 1500);
-    }
+  uploadedFileContent = "";
+  preview.innerHTML = "";
 
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      const message = input.value;
-      appendMessage(message, 'user');
-      input.value = "";
-      appendMessage("Sedang mengetik...", 'bot');
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message})
+  });
 
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({message})
-      });
-      const data = await res.json();
-      document.querySelectorAll('.bot:last-child')[0].remove();
-      appendMessage(data.reply || '[Terjadi kesalahan]', 'bot');
-    };
+  const data = await res.json();
+  document.querySelectorAll('.bot:last-child')[0].remove();
+  appendMessage(data.reply || '[Terjadi kesalahan]', 'bot');
+};
 
-    async function uploadPDF() {
-      const file = document.getElementById("pdf-input").files[0];
-      if (!file) return alert("Pilih file PDF terlebih dahulu.");
+fileInput.addEventListener('change', async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
 
-      const formData = new FormData();
-      formData.append("file", file);
+  const formData = new FormData();
+  formData.append('file', file);
 
-      appendMessage("📄 Membaca isi PDF...", "bot");
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData
+  });
 
-      const res = await fetch("/api/upload-pdf", {
-        method: "POST",
-        body: formData
-      });
+  const data = await res.json();
+  if (data.type === "pdf") {
+    uploadedFileContent = data.content;
+    preview.innerHTML = `<p style="color:#aaa;">📄 PDF berhasil diunggah dan dibaca</p>`;
+  } else if (data.type === "image") {
+    uploadedFileContent = "[Gambar telah diunggah]";
+    preview.innerHTML = `<img src="${data.content}" alt="Preview" style="max-width:200px; margin:10px auto; border:1px solid #444"/>`;
+  } else {
+    preview.innerHTML = `<p style="color:red;">❌ Gagal memproses file</p>`;
+  }
+});
 
-      const data = await res.json();
-      appendMessage(data.text || '[Gagal membaca PDF]', 'bot');
-    }
-  </script>
-</body>
-</html>
+function appendMessage(content, sender) {
+  const div = document.createElement('div');
+  div.className = `msg ${sender}`;
+  div.innerHTML = content + `<span class="copy-btn" onclick="copyToClipboard(this)">📋</span>`;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function copyToClipboard(el) {
+  const text = el.parentElement.textContent;
+  navigator.clipboard.writeText(text.trim());
+  el.textContent = "✅";
+  setTimeout(() => el.textContent = "📋", 1500);
+}
+</script>
