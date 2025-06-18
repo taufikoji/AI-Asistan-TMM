@@ -2,6 +2,10 @@ import os
 from flask import Flask, request, jsonify, render_template
 import requests
 from dotenv import load_dotenv
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)  # Tambahkan ini setelah inisialisasi Flask
 
 load_dotenv()
 
