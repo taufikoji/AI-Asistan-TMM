@@ -1,6 +1,7 @@
 Flask
 requests
 python-dotenv
+flask-cors
 #beautifulsoup4
 #sentence-transformers
 #faiss-cpu
