@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Tambahkan ini setelah inisialisasi Flask
+CORS(app)  
 
 load_dotenv()
 
@@ -33,6 +33,7 @@ def chat():
 
     # Prompt sistem dan pengguna disesuaikan berdasarkan permintaan
     system_message = "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown seperti **, ###, atau *. Jawaban harus jelas, sopan, dan enak dibaca."
+    
     if is_outline_request:
         prompt = (
             f"Buat outline standar untuk jurnal akademik dalam format terstruktur menggunakan nomor urut (1., 2., dll.) dan poin-poin dengan tanda '- ' untuk setiap detail, tanpa teks naratif awal. "
@@ -40,6 +41,7 @@ def chat():
             f"1. Judul (Title) - Singkat, jelas, dan mencerminkan inti penelitian. - Mengandung kata kunci (keywords) yang relevan. "
             f"2. Abstrak (Abstract) - Ringkasan singkat (biasanya 150-250 kata) yang mencakup latar belakang, tujuan, metode, dan hasil. "
             f"Gunakan topik '{user_message}' jika ada topik spesifik, atau gunakan 'Pengembangan AI di Pendidikan' jika tidak ada topik spesifik. Jaga penjelasan singkat dan langsung ke inti."
+            f"ambil referensi dari website www.trisaktimultimedia.ac.id jika ada pertanyaan seputar TMM, STMK, Trisakti Multimedia, trisakti school of multimedia."
         )
     else:
         prompt = user_message
