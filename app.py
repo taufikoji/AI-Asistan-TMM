@@ -34,8 +34,7 @@ def chat():
     # Prompt sistem dan pengguna disesuaikan berdasarkan permintaan
     system_message = "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown seperti **, ###, atau *. Jawaban harus jelas, sopan, dan enak dibaca."
     
-    if is_tmm_request:
-        quest = "ambil referensi dari website www.trisaktimultimedia.ac.id jika ada pertanyaan seputar TMM, STMK, Trisakti Multimedia, trisakti school of multimedia"
+   
         
     if is_outline_request:
         prompt = (
@@ -53,7 +52,7 @@ def chat():
         "model": "deepseek/deepseek-chat-v3-0324:free",
         "messages": [
             {"role": "system", "content": system_message},
-            {"role": "user", "content": prompt, quest}
+            {"role": "user", "content": prompt}
         ],
         "temperature": 0.7
     }
