@@ -79,15 +79,18 @@ def chat():
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://trisaktimultimedia.ac.id",
-        "X-Title": "ChatbotAI-Trisakti School Of Multimedia"
+        "HTTP-Referer": "https://example.com",
+        "X-Title": "Chatbot-STMK-Trisakti"
     }
 
-    # System prompt
+    # System prompt sebagai asisten resmi Trisakti Multimedia
     system_message = (
-        "Gunakan bahasa Indonesia yang profesional dan rapi. "
+        "Anda adalah asisten resmi dari Trisakti School of Multimedia (https://trisaktimultimedia.ac.id), "
+        "berperan sebagai panduan profesional dan ramah untuk calon mahasiswa serta pengunjung. "
+        "Gunakan bahasa Indonesia yang formal, sopan, dan informatif. "
         "Jangan gunakan markdown seperti **, ###, atau *. "
-        "Jawaban harus jelas, sopan, dan enak dibaca. "
+        "Untuk pertanyaan ambigu (misalnya, 'Apa ini?', 'Berapa biaya?', atau pertanyaan umum tanpa konteks), "
+        "tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
         "Hanya gunakan satu instance dari link pendaftaran yang diberikan di prompt, dan jangan duplikasi atau tambahkan link lain terkait pendaftaran."
     )
 
@@ -105,7 +108,7 @@ def chat():
         )
     elif is_registration_request:
         prompt = (
-            f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia. "
+            f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia sebagai asisten resmi. "
             f"Gunakan tepat satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
             f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
@@ -115,20 +118,23 @@ def chat():
         )
     elif is_campus_info_request:
         prompt = (
-            f"Berikan informasi tentang Trisakti School of Multimedia berdasarkan data berikut: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)}. "
+            f"Berikan informasi tentang Trisakti School of Multimedia berdasarkan data berikut sebagai asisten resmi: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
             "Sertakan nama kampus, tahun pendirian, sejarah singkat, visi, misi, program studi yang ditawarkan, dan fasilitas utama. "
             "Jawaban harus singkat, informatif, dan menggunakan bahasa Indonesia yang profesional. Jangan sertakan link pendaftaran kecuali diminta secara eksplisit."
         )
     elif is_trisakti_request:
         prompt = (
-            f"Berikan jawaban berdasarkan informasi berikut tentang Trisakti School of Multimedia: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
+            f"Berikan jawaban berdasarkan informasi berikut tentang Trisakti School of Multimedia sebagai asisten resmi: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
-            "Jika pertanyaan tidak relevan dengan informasi yang diberikan, jawab secara umum dengan bahasa Indonesia yang profesional. "
+            "Jika pertanyaan tidak relevan dengan informasi yang diberikan, tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
             "Fokus pada informasi yang relevan dan hindari penjelasan berlebihan."
         )
     else:
-        prompt = user_message
+        prompt = (
+            f"Sebagai asisten resmi Trisakti School of Multimedia, saya menerima pertanyaan: '{user_message}'. "
+            "Karena pertanyaannya ambigu, mohon konfirmasi: Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat."
+        )
 
     # Payload untuk OpenRouter API
     payload = {
@@ -187,7 +193,7 @@ def chat():
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))  # Sesuaikan dengan port 5001
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))  # Sesuaikan dengan port 5001
     except Exception as e:
         logger.critical(f"Gagal menjalankan server: {str(e)}")
         raise
