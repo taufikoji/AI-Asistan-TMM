@@ -6,11 +6,10 @@ from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from flask_cors import CORS
 
-# Optional: Import Gemini
 try:
     import google.generativeai as genai
 except ImportError:
-    genai = None  # biar tetap jalan kalau belum diinstal
+    genai = None  # biar tetap jalan kalau belum diinstall
 
 app = Flask(__name__)
 CORS(app)
@@ -21,8 +20,9 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-if not OPENROUTER_API_KEY or not OPENAI_API_KEY or not GEMINI_API_KEY:
-    raise ValueError("API Key tidak lengkap. Harap isi .env dengan semua kunci API (OpenRouter, OpenAI, Gemini)")
+# Cek semua API key tersedia
+if not OPENROUTER_API_KEY and not OPENAI_API_KEY and not GEMINI_API_KEY:
+    raise ValueError("Tidak ada API key ditemukan di .env")
 
 # Load data kampus
 try:
@@ -47,6 +47,7 @@ def chat():
 
     user_message = data["message"].strip().lower()
 
+    # Deteksi jenis permintaan
     is_outline = any(k in user_message for k in ["outline", "struktur", "kerangka", "buat outline"])
     is_trisakti = any(k in user_message for k in ["trisakti", "multimedia", "stmk", "tmm", "program studi", "beasiswa", "fasilitas", "sejarah", "kerja sama", "akreditasi"])
     is_register = any(k in user_message for k in ["pendaftaran", "daftar", "registrasi", "cara daftar", "link pendaftaran"])
@@ -87,6 +88,7 @@ def chat():
         {"role": "user", "content": prompt}
     ]
 
+    # List model gratis dari OpenRouter
     models = [
         "deepseek/deepseek-chat:free",
         "mistralai/mistral-7b-instruct:free",
@@ -97,15 +99,19 @@ def chat():
 
     for model_id in models:
         result = try_openrouter_model(messages, model_id)
-        print(f"[DEBUG] {model_id}: {result}")
+        print(f"[DEBUG] Model {model_id}: {result}")
         if result["success"]:
             return jsonify({"reply": result["reply"]})
 
+    # Coba OpenAI
     openai_result = try_openai(messages)
+    print("[DEBUG] OpenAI Result:", openai_result)
     if openai_result["success"]:
         return jsonify({"reply": openai_result["reply"]})
 
+    # Coba Gemini
     gemini_result = try_gemini(messages)
+    print("[DEBUG] Gemini Result:", gemini_result)
     if gemini_result["success"]:
         return jsonify({"reply": gemini_result["reply"]})
 
@@ -177,6 +183,7 @@ def clean_output(text):
     text = text.replace("**", "").replace("#", "").strip()
     text = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?=(?:[^<]*>|[^>]*</a>))', '', text, count=1)
     return text.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
