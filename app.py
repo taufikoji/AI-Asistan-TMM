@@ -180,7 +180,7 @@ def chat():
             logger.error(f"Gagal terhubung ke API: {error_msg} (Detail: {error_detail}, Status: {response.status_code})")
             if response.status_code == 429:  # Too Many Requests
                 return jsonify({
-                    "reply": "Maaf, kuota API telah mencapai batas. Silakan coba lagi nanti atau periksa langganan Anda di OpenRouter."
+                    "reply": "Maaf, kuota telah mencapai batas maksimal, silahkan coba kembali nanti setelah server melakukan refresh. atau kunjungi langsung situs resmi kami di trisaktimultimedia.ac.id."
                 })
             return jsonify({
                 "error": "Gagal terhubung ke API.",
