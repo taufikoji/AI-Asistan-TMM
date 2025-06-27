@@ -178,6 +178,7 @@
       white-space: pre-wrap;
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--ai-msg));
       color: var(--text-light);
+      word-break: break-word;
     }
 
     .user .text {
@@ -192,14 +193,15 @@
     }
 
     .text a {
-      color: #00d4ff; /* Neon biru */
+      color: #00d4ff;
       text-decoration: underline;
       text-shadow: 0 0 5px var(--neon-accent);
       transition: var(--transition);
+      word-break: break-all;
     }
 
     .text a:hover {
-      color: #ff00ff; /* Neon ungu */
+      color: #ff00ff;
       text-shadow: 0 0 10px var(--neon-accent);
     }
 
@@ -403,9 +405,11 @@
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
-      // Bersihin markdown dan ganti URL jadi link klikabel
+      // Bersihin markdown dan ganti URL jadi link klikabel, hindari duplikasi
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
-      cleanContent = cleanContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+      const urlRegex = new RegExp(`(${REGISTRATION_LINK})`, 'g'); // Fokus ke URL spesifik
+      cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+      console.log('Rendered content:', cleanContent); // Debug
       bubble.innerHTML = cleanContent.replace(/\n/g, '<br>');
 
       if (role === 'ai') {
@@ -413,7 +417,7 @@
         copyBtn.classList.add('copy-button');
         copyBtn.textContent = 'Salin';
         copyBtn.onclick = () => {
-          navigator.clipboard.writeText(content); // Salin teks asli, bukan HTML
+          navigator.clipboard.writeText(content);
           copyBtn.textContent = 'Tersalin!';
           setTimeout(() => copyBtn.textContent = 'Salin', 2000);
         };
