@@ -2,10 +2,11 @@ import os
 import json
 import re
 import logging
-import requests
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from flask_cors import CORS
+import google.generativeai as genai
+from google.api_core import exceptions as google_exceptions
 
 # Konfigurasi logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename='app.log')
@@ -16,10 +17,13 @@ CORS(app)
 
 # Load environment variables
 load_dotenv()
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-if not OPENROUTER_API_KEY:
-    logger.critical("OPENROUTER_API_KEY tidak ditemukan di .env. Aplikasi tidak akan berjalan.")
-    raise ValueError("OPENROUTER_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    logger.critical("GEMINI_API_KEY tidak ditemukan di .env. Aplikasi tidak akan berjalan.")
+    raise ValueError("GEMINI_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
+
+# Konfigurasi Gemini API
+genai.configure(api_key=GEMINI_API_KEY)
 
 # Load Trisakti info from JSON dengan validasi
 TRISAKTI_INFO_FULL = None
@@ -28,7 +32,6 @@ try:
         TRISAKTI_INFO_FULL = json.load(f)
     if not TRISAKTI_INFO_FULL or not isinstance(TRISAKTI_INFO_FULL, dict):
         raise ValueError("Konten trisakti_info.json tidak valid.")
-    # Buat salinan tanpa registration_link untuk dikirim ke AI
     TRISAKTI_INFO = TRISAKTI_INFO_FULL.copy()
     if "registration_link" in TRISAKTI_INFO:
         del TRISAKTI_INFO["registration_link"]
@@ -77,14 +80,6 @@ def chat():
     is_campus_info_request = any(keyword in user_message.lower() for keyword in [
         "kampus apa ini", "tentang kampus", "apa itu trisakti", "sejarah kampus", "identitas kampus"
     ])
-
-    # Header untuk OpenRouter API
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://example.com",
-        "X-Title": "Chatbot-STMK-Trisakti"
-    }
 
     # System prompt sebagai asisten resmi Trisakti Multimedia
     system_message = (
@@ -138,61 +133,42 @@ def chat():
             "Mohon konfirmasi: Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat."
         )
 
-    # Payload untuk OpenRouter API
-    payload = {
-        "model": "deepseek/deepseek-chat-v3-0324:free",
-        "messages": [
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.7
-    }
-
-    # Kirim request ke OpenRouter
+    # Inisialisasi model Gemini
     try:
-        logger.info(f"Mengirim permintaan ke API dengan pesan: {user_message}")
-        response = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=10
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            generation_config={
+                "temperature": 0.7,
+                "max_output_tokens": 1000  # Batas panjang respons, sesuaikan jika perlu
+            }
         )
-        logger.info(f"Status respons API: {response.status_code}")
+        # Kirim prompt ke Gemini API
+        logger.info(f"Mengirim permintaan ke Gemini API dengan pesan: {user_message}")
+        response = model.generate_content(f"{system_message}\n\n{prompt}")
+        logger.info(f"Respons mentah dari Gemini API: {response.text}")
 
-        response_data = response.json()
-        if response.status_code == 200:
-            reply = response_data["choices"][0]["message"]["content"]
-            logger.info(f"Respons mentah dari API: {reply}")
-            # Bersihkan dan validasi link
-            clean_reply = reply.replace("**", "").replace("#", "").strip()
-            # Pastikan hanya satu link resmi yang digunakan
-            if REGISTRATION_LINK in clean_reply:
-                clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)  # Hapus link lain
-                clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?![\w/])', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
-            clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
-            logger.info(f"Respons setelah pembersihan: {clean_reply}")
-            return jsonify({"reply": clean_reply})
-        else:
-            error_msg = response_data.get("error", response.text)
-            error_detail = response_data.get("detail", "Tidak ada detail tambahan")
-            logger.error(f"Gagal terhubung ke API: {error_msg} (Detail: {error_detail}, Status: {response.status_code})")
-            if response.status_code == 429:  # Too Many Requests
-                return jsonify({
-                    "reply": "Maaf, kuota API telah mencapai batas. Silakan coba lagi nanti atau periksa langganan Anda di OpenRouter."
-                })
+        # Bersihkan dan validasi respons
+        clean_reply = response.text.replace("**", "").replace("#", "").strip()
+        if REGISTRATION_LINK in clean_reply:
+            clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)  # Hapus link lain
+            clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?![\w/])', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
+        clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
+        logger.info(f"Respons setelah pembersihan: {clean_reply}")
+        return jsonify({"reply": clean_reply})
+
+    except google_exceptions.GoogleAPIError as e:
+        logger.error(f"Error dari Gemini API: {str(e)}")
+        if "Quota exceeded" in str(e):
             return jsonify({
-                "error": "Gagal terhubung ke API.",
-                "details": f"{error_msg} - {error_detail}"
-            }), response.status_code
-
-    except requests.RequestException as e:
-        logger.error(f"Error jaringan atau API: {str(e)}, URL: {e.request.url}, Response: {getattr(e.response, 'text', 'Tidak ada respons')}")
+                "error": "Kuota API Gemini telah mencapai batas.",
+                "message": "Silakan coba lagi nanti atau periksa kuota Anda di Google AI Studio."
+            }), 429
         return jsonify({
-            "error": "Terjadi kesalahan jaringan atau API.",
+            "error": "Gagal memproses permintaan ke Gemini API.",
             "message": str(e)
         }), 500
     except Exception as e:
-        logger.error(f"Error tak terduga pada server: {str(e)}, Traceback: {str(e)}")
+        logger.error(f"Error tak terduga pada server: {str(e)}")
         return jsonify({
             "error": "Terjadi kesalahan pada server.",
             "message": str(e)
@@ -200,7 +176,7 @@ def chat():
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))  # Sesuaikan dengan port 5001
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
     except Exception as e:
         logger.critical(f"Gagal menjalankan server: {str(e)}")
         raise
