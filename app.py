@@ -171,7 +171,7 @@ def chat():
             "message": str(e)
         }), 500
     except Exception as e:
-        logger.error(f"Error tak terduga pada server: {str(e)}")
+        logger.error(f"Error tak terduga pada server silahkan coba kembali setlah 00:00: {str(e)}")
         return jsonify({
             "error": "Terjadi kesalahan pada server. Silahkan coba kembali setelah 00:00.",
             "message": str(e)
