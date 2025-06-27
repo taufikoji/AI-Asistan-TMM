@@ -17,7 +17,7 @@ CORS(app)
 # Load environment variables
 load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-SECOND_API_KEY = os.getenv("SECOND_API_KEY")  # Tambahkan kunci API kedua
+SECOND_API_KEY = os.getenv("SECOND_API_KEY")
 if not OPENROUTER_API_KEY or not SECOND_API_KEY:
     logger.critical("Salah satu atau kedua kunci API (OPENROUTER_API_KEY atau SECOND_API_KEY) tidak ditemukan di .env. Aplikasi tidak akan berjalan.")
     raise ValueError("Kunci API tidak lengkap, silakan periksa .env.")
@@ -49,10 +49,10 @@ if not REGISTRATION_LINK or REGISTRATION_LINK != "https://trisaktimultimedia.eca
     logger.warning(f"Link pendaftaran tidak valid: {REGISTRATION_LINK}. Diganti dengan yang benar.")
     REGISTRATION_LINK = "https://trisaktimultimedia.ecampuz.com/eadmisi/"
 
-# Konfigurasi API
+# Konfigurasi API (dua kunci OpenRouter)
 API_CONFIG = [
     {
-        "name": "OpenRouter",
+        "name": "OpenRouter1",
         "api_key": OPENROUTER_API_KEY,
         "url": "https://openrouter.ai/api/v1/chat/completions",
         "model": "deepseek/deepseek-chat-v3-0324:free",
@@ -64,13 +64,15 @@ API_CONFIG = [
         }
     },
     {
-        "name": "Grok",  # Ganti dengan nama API kedua yang Anda pilih (misalnya, "Anthropic" untuk Claude)
+        "name": "OpenRouter2",
         "api_key": SECOND_API_KEY,
-        "url": "https://api.xai.com/v1/chat/completions",  # Ganti dengan URL API kedua (contoh untuk Grok)
-        "model": "grok",  # Ganti dengan model yang sesuai (contoh untuk Grok)
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "model": "deepseek/deepseek-chat-v3-0324:free",  # Gunakan model yang sama atau sesuaikan
         "headers": {
             "Authorization": f"Bearer {SECOND_API_KEY}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://example.com",
+            "X-Title": "Chatbot-STMK-Trisakti"
         }
     }
 ]
@@ -217,7 +219,7 @@ def chat():
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))  # Untuk pengujian lokal
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))  # Untuk pengujian lokal
     except Exception as e:
         logger.critical(f"Gagal menjalankan server: {str(e)}")
         raise
