@@ -407,10 +407,10 @@
       bubble.classList.add('text');
       // Bersihkan markdown dan ubah URL menjadi link klikable
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
-      const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/g; // Spesifik ke URL pendaftaran
+      const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/; // Hanya ganti satu instance
       cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
       console.log('Rendered content:', cleanContent); // Debug
-      bubble.innerHTML = cleanContent.replace(/\n/g, '<br>');
+      bubble.innerHTML = DOMPurify.sanitize(cleanContent.replace(/\n/g, '<br>'));
 
       if (role === 'ai') {
         const copyBtn = document.createElement('button');
