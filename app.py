@@ -17,10 +17,9 @@ CORS(app)
 # Load environment variables
 load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-SECOND_API_KEY = os.getenv("SECOND_API_KEY")
-if not OPENROUTER_API_KEY or not SECOND_API_KEY:
-    logger.critical("Salah satu atau kedua kunci API (OPENROUTER_API_KEY atau SECOND_API_KEY) tidak ditemukan di .env. Aplikasi tidak akan berjalan.")
-    raise ValueError("Kunci API tidak lengkap, silakan periksa .env.")
+if not OPENROUTER_API_KEY:
+    logger.critical("OPENROUTER_API_KEY tidak ditemukan di .env. Aplikasi tidak akan berjalan.")
+    raise ValueError("OPENROUTER_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
 
 # Load Trisakti info from JSON dengan validasi
 TRISAKTI_INFO_FULL = None
@@ -48,34 +47,6 @@ REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link")
 if not REGISTRATION_LINK or REGISTRATION_LINK != "https://trisaktimultimedia.ecampuz.com/eadmisi/":
     logger.warning(f"Link pendaftaran tidak valid: {REGISTRATION_LINK}. Diganti dengan yang benar.")
     REGISTRATION_LINK = "https://trisaktimultimedia.ecampuz.com/eadmisi/"
-
-# Konfigurasi API (dua kunci OpenRouter dengan model berbeda)
-API_CONFIG = [
-    {
-        "name": "OpenRouter1",
-        "api_key": OPENROUTER_API_KEY,
-        "url": "https://openrouter.ai/api/v1/chat/completions",
-        "model": "deepseek/deepseek-chat-v3-0324:free",
-        "headers": {
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://example.com",
-            "X-Title": "Chatbot-STMK-Trisakti"
-        }
-    },
-    {
-        "name": "OpenRouter2",
-        "api_key": SECOND_API_KEY,
-        "url": "https://openrouter.ai/api/v1/chat/completions",
-        "model": "deepseek/r1-0528:free",  # Model kedua yang Anda pilih
-        "headers": {
-            "Authorization": f"Bearer {SECOND_API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://example.com",
-            "X-Title": "Chatbot-STMK-Trisakti"
-        }
-    }
-]
 
 @app.route('/')
 def index():
@@ -107,6 +78,14 @@ def chat():
         "kampus apa ini", "tentang kampus", "apa itu trisakti", "sejarah kampus", "identitas kampus"
     ])
 
+    # Header untuk OpenRouter API
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://example.com",
+        "X-Title": "Chatbot-STMK-Trisakti"
+    }
+
     # System prompt sebagai asisten resmi Trisakti Multimedia
     system_message = (
         "Anda adalah asisten resmi dari Trisakti School of Multimedia (https://trisaktimultimedia.ac.id), "
@@ -115,8 +94,7 @@ def chat():
         "Jangan gunakan markdown seperti **, ###, atau *. "
         "Untuk pertanyaan ambigu (misalnya, 'Apa ini?', 'Berapa biaya?', atau pertanyaan umum tanpa konteks), "
         "tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
-        "Untuk pertanyaan terkait pendaftaran (seperti 'link pendaftaran', 'kapan pendaftaran'), wajib sertakan link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ "
-        "di awal atau akhir respons, dan pastikan hanya satu instance link tersebut yang digunakan."
+        "Hanya gunakan link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/, dan pastikan hanya satu instance digunakan."
     )
 
     # Buat prompt berdasarkan jenis permintaan
@@ -135,10 +113,10 @@ def chat():
         prompt = (
             f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi tentang pendaftaran berdasarkan data: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
-            "Wajib sertakan link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ (sebutkan sebagai 'situs pendaftaran resmi') "
-            "di awal atau akhir respons. Sertakan program studi yang tersedia, syarat pendaftaran, jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang) "
-            "dengan periode pendaftaran berdasarkan data terbaru (Gelombang 2: 01 April 2025 - 30 Juni 2025, Gelombang 3: 01 Juli 2025 - 31 Juli 2025), "
-            "dan kontak untuk informasi lebih lanjut. Pastikan hanya satu instance link pendaftaran resmi yang digunakan."
+            "Gunakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ (sebutkan sebagai 'situs pendaftaran resmi'). "
+            "Sertakan program studi yang tersedia, syarat pendaftaran, jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang) dengan periode pendaftaran "
+            "berdasarkan data terbaru (Gelombang 2: 01 April 2025 - 30 Juni 2025, Gelombang 3: 01 Juli 2025 - 31 Juli 2025), dan kontak untuk informasi lebih lanjut. "
+            "Jangan tambahkan atau ulang link pendaftaran dari sumber lain."
         )
     elif is_campus_info_request:
         prompt = (
@@ -160,9 +138,9 @@ def chat():
             "Mohon konfirmasi: Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat."
         )
 
-    # Payload untuk API
+    # Payload untuk OpenRouter API
     payload = {
-        "model": API_CONFIG[0]["model"],  # Gunakan model dari API pertama
+        "model": "deepseek/deepseek-chat-v3-0324:free",
         "messages": [
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt}
@@ -170,56 +148,59 @@ def chat():
         "temperature": 0.7
     }
 
-    # Coba kedua API dengan failover
-    for api in API_CONFIG:
-        try:
-            logger.info(f"Menggunakan API: {api['name']} untuk pesan: {user_message}")
-            response = requests.post(
-                api["url"],
-                headers=api["headers"],
-                json=payload,
-                timeout=10
-            )
-            logger.info(f"Status respons dari {api['name']}: {response.status_code}")
+    # Kirim request ke OpenRouter
+    try:
+        logger.info(f"Mengirim permintaan ke API dengan pesan: {user_message}")
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
+        logger.info(f"Status respons API: {response.status_code}")
 
-            response_data = response.json()
-            if response.status_code == 200:
-                reply = response_data["choices"][0]["message"]["content"]
-                logger.info(f"Respons mentah dari {api['name']}: {reply}")
-                # Bersihkan dan validasi link
-                clean_reply = reply.replace("**", "").replace("#", "").strip()
-                if is_registration_request and REGISTRATION_LINK not in clean_reply:
-                    clean_reply = f"Silakan kunjungi situs pendaftaran resmi: {REGISTRATION_LINK} {clean_reply}"
-                elif REGISTRATION_LINK in clean_reply:
-                    clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)  # Hapus link lain
-                    clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}\s*(?![\w/])', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
-                clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
-                logger.info(f"Respons setelah pembersihan dari {api['name']}: {clean_reply}")
-                return jsonify({"reply": clean_reply})
-            elif response.status_code == 429:  # Too Many Requests
-                logger.warning(f"API {api['name']} mencapai batas kuota. Beralih ke API berikutnya.")
-                continue
-            else:
-                error_msg = response_data.get("error", response.text)
-                error_detail = response_data.get("detail", "Tidak ada detail tambahan")
-                logger.error(f"Gagal terhubung ke {api['name']}: {error_msg} (Detail: {error_detail}, Status: {response.status_code})")
-                continue
-        except requests.RequestException as e:
-            logger.error(f"Error jaringan dari {api['name']}: {str(e)}, URL: {e.request.url}, Response: {getattr(e.response, 'text', 'Tidak ada respons')}")
-            continue
-        except Exception as e:
-            logger.error(f"Error tak terduga dari {api['name']}: {str(e)}")
-            continue
+        response_data = response.json()
+        if response.status_code == 200:
+            reply = response_data["choices"][0]["message"]["content"]
+            logger.info(f"Respons mentah dari API: {reply}")
+            # Bersihkan dan validasi link
+            clean_reply = reply.replace("**", "").replace("#", "").strip()
+            # Pastikan hanya satu link resmi yang digunakan
+            if REGISTRATION_LINK in clean_reply:
+                clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)  # Hapus link lain
+                clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?![\w/])', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
+            clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
+            logger.info(f"Respons setelah pembersihan: {clean_reply}")
+            return jsonify({"reply": clean_reply})
+        else:
+            error_msg = response_data.get("error", response.text)
+            error_detail = response_data.get("detail", "Tidak ada detail tambahan")
+            logger.error(f"Gagal terhubung ke API: {error_msg} (Detail: {error_detail}, Status: {response.status_code})")
+            if response.status_code == 429:  # Too Many Requests
+                return jsonify({
+                    "reply": "Maaf, kuota API telah mencapai batas. Silakan coba lagi nanti atau periksa langganan Anda di OpenRouter."
+                })
+            return jsonify({
+                "error": "Gagal terhubung ke API.",
+                "details": f"{error_msg} - {error_detail}"
+            }), response.status_code
 
-    # Jika kedua API gagal
-    logger.error("Kedua API gagal. Mengembalikan respons default.")
-    return jsonify({
-        "reply": "Maaf, kedua layanan AI sedang tidak tersedia. Silakan coba lagi nanti atau hubungi info@trisaktimultimedia.ac.id untuk bantuan."
-    })
+    except requests.RequestException as e:
+        logger.error(f"Error jaringan atau API: {str(e)}, URL: {e.request.url}, Response: {getattr(e.response, 'text', 'Tidak ada respons')}")
+        return jsonify({
+            "error": "Terjadi kesalahan jaringan atau API.",
+            "message": str(e)
+        }), 500
+    except Exception as e:
+        logger.error(f"Error tak terduga pada server: {str(e)}, Traceback: {str(e)}")
+        return jsonify({
+            "error": "Terjadi kesalahan pada server.",
+            "message": str(e)
+        }), 500
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))  # Untuk pengujian lokal
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))  # Sesuaikan dengan port 5001
     except Exception as e:
         logger.critical(f"Gagal menjalankan server: {str(e)}")
         raise
