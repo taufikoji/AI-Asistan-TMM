@@ -23,6 +23,9 @@ except FileNotFoundError:
 except json.JSONDecodeError:
     raise ValueError("Format JSON di trisakti_info.json salah, bro!")
 
+# Ambil link pendaftaran dari JSON
+REGISTRATION_LINK = TRISAKTI_INFO.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -44,6 +47,9 @@ def chat():
     is_trisakti_request = any(keyword in user_message for keyword in [
         "trisakti", "multimedia", "stmk", "tmm", "program studi", "beasiswa", 
         "fasilitas", "sejarah", "kerja sama", "akreditasi"
+    ])
+    is_registration_request = any(keyword in user_message for keyword in [
+        "pendaftaran", "daftar", "registrasi", "cara daftar", "link pendaftaran"
     ])
 
     # Header untuk OpenRouter API
@@ -72,6 +78,15 @@ def chat():
             "1. Judul (Title) - Singkat, jelas, dan mencerminkan inti penelitian. - Mengandung kata kunci (keywords) yang relevan. "
             "2. Abstrak (Abstract) - Ringkasan singkat (biasanya 150-250 kata) yang mencakup latar belakang, tujuan, metode, dan hasil. "
             f"Gunakan topik '{user_message}' jika ada topik spesifik, atau gunakan 'Pengembangan AI di Pendidikan' jika tidak ada topik spesifik."
+        )
+    elif is_registration_request:
+        prompt = (
+            f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia. "
+            f"Link pendaftaran resmi adalah: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
+            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
+            f"Pertanyaan user: {user_message}. "
+            "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (Non Reguler, Reguler, Alih Jenjang), periode pendaftaran untuk masing-masing jalur, dan kontak untuk informasi lebih lanjut. "
+            "Jawaban harus singkat, relevan, dan menggunakan bahasa Indonesia yang profesional."
         )
     elif is_trisakti_request:
         prompt = (
