@@ -88,8 +88,8 @@ def chat():
         "Untuk pertanyaan ambigu, tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
         "Untuk pertanyaan terkait pendaftaran, wajib menyertakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ "
         "(sebutkan sebagai 'situs pendaftaran resmi') di akhir respons, tanpa terkecuali. "
-        "Untuk pertanyaan tentang informasi kampus, hanya gunakan data dari trisakti_info.json (seperti alamat, sejarah, program studi) "
-        "dan jangan mengarang informasi tambahan seperti peta atau fasilitas sekitar, serta jangan sertakan link pendaftaran kecuali diminta."
+        "Untuk pertanyaan tentang informasi kampus, gunakan hanya data dari trisakti_info.json (seperti alamat: {ADDRESS}, sejarah, program studi) "
+        "dan jangan mengarang informasi tambahan atau menyertakan link pendaftaran kecuali diminta."
     )
 
     # Buat prompt berdasarkan jenis permintaan
@@ -113,7 +113,7 @@ def chat():
             f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi berdasarkan data: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)} saja. "
             f"Pertanyaan user: {user_message}. "
             "Gunakan hanya data seperti nama kampus, alamat ({ADDRESS}), tahun pendirian, sejarah, visi, misi, program studi, fasilitas, akreditasi, atau kontak. "
-            "Jangan mengarang informasi tambahan dan jangan sertakan link pendaftaran kecuali diminta."
+            "Jika pertanyaan tentang alamat, prioritaskan alamat: {ADDRESS}. Jangan mengarang informasi tambahan dan jangan sertakan link pendaftaran kecuali diminta."
         )
     elif is_trisakti_request:
         prompt = (
@@ -133,7 +133,7 @@ def chat():
         model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             generation_config={
-                "temperature": 0.4,  # Lebih ketat untuk akurasi
+                "temperature": 0.4,  # Maksimal akurasi
                 "top_p": 0.9,
                 "max_output_tokens": 1000
             }
@@ -150,11 +150,11 @@ def chat():
             else:
                 clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)
                 clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}\s+', ' ', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
-        elif is_campus_info_request and REGISTRATION_LINK in clean_reply:
-            clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}', '', clean_reply)
-        # Pastikan alamat sesuai jika ada di respons
-        if is_campus_info_request and "beralamat di mana" in user_message.lower() and ADDRESS not in clean_reply:
-            clean_reply = f"Saya adalah asisten resmi Trisakti School of Multimedia. Kampus ini beralamat di {ADDRESS}."
+        elif is_campus_info_request:
+            if "beralamat di mana" in user_message.lower() and ADDRESS not in clean_reply:
+                clean_reply = f"Saya adalah asisten resmi Trisakti School of Multimedia. Kampus ini beralamat di {ADDRESS}."
+            elif REGISTRATION_LINK in clean_reply:
+                clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}', '', clean_reply)
         clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}").strip()
         logger.info(f"Respons setelah pembersihan: {clean_reply}")
         return jsonify({"reply": clean_reply})
