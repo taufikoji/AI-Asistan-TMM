@@ -1,12 +1,12 @@
 {
   "name": "Trisakti School of Multimedia",
   "foundation_year": 1985,
-  "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATG)...",
-  "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global...",
+  "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATG) oleh Cosmos Sutiyono, B.Sc., dengan dukungan Rektor Universitas Trisakti, Prof. Dr. Ir. P. Haryasudirdja. Pada 2008, melalui Surat Keputusan Kemendikbud, ATG berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti (STMK Trisakti). Pada 2018, rebranding menjadi Trisakti School of Multimedia (TMM) dengan fokus pada industri kreatif. Pada 26 Mei 2025, menjalin kerja sama dengan Politeknik Harapan Bersama (Poltek HarBer) untuk program D3 ke S1 dan kuliah umum strategi digital branding.",
+  "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
   "mission": [
-    "Penyebarluasan ilmu pengetahuan, teknologi, dan seni...",
-    "Menghasilkan lulusan profesional dan berdaya saing...",
-    "Mengembangkan penelitian serta inovasi di bidang multimedia..."
+    "Penyebarluasan ilmu pengetahuan, teknologi, dan seni khususnya di bidang media komunikasi.",
+    "Menghasilkan lulusan profesional dan berdaya saing di industri kreatif.",
+    "Mengembangkan penelitian serta inovasi di bidang multimedia dengan fokus pada teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI)."
   ],
   "programs": [
     "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
@@ -47,21 +47,50 @@
       "description": "Kerja sama untuk program kuliah ahli jenjang D3 ke S1 dan kuliah umum tentang strategi digital branding."
     },
     {
-      "partner": "",
-      "date": "",
-      "description": ""
-    },
-    {
       "partner": "PT. Guava Production",
       "date": "02 Februari 2022",
       "description": "Kerja sama dalam produksi multimedia seperti music video dan film."
     }
   ],
-  "Beasiswa": [
+  "beasiswa": [
     "Beasiswa KIP Kuliah",
     "Yayasan Beasiswa Trisakti",
     "Beasiswa Bulan Pendidikan",
     "Beasiswa EX-UTBK",
     "Beasiswa Kerja Sama Sekolah"
-  ]
+  ],
+  "registration_link": "https://trisaktimultimedia.ecampuz.com/eadmisi/",
+  "registration_details": {
+    "requirements": [
+      "Fotokopi ijazah SMA/SMK sederajat yang dilegalisir",
+      "Transkrip nilai SMA/SMK sederajat",
+      "Pas foto ukuran 3x4 (2 lembar)",
+      "Fotokopi KTP dan kartu keluarga",
+      "Sertifikat prestasi akademik/non-akademik (jika ada)"
+    ],
+    "paths": [
+      {
+        "name": "Non Reguler (NR)",
+        "waves": [
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
+        ]
+      },
+      {
+        "name": "Reguler (REG)",
+        "waves": [
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
+        ]
+      },
+      {
+        "name": "Alih Jenjang (AJ) - Ekstensi",
+        "waves": [
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
+        ]
+      }
+    ],
+    "process": "Pendaftaran dilakukan secara online melalui link resmi. Calon mahasiswa mengisi formulir, mengunggah dokumen, dan mengikuti tes seleksi (jika ada). Pilih jalur masuk (Non Reguler, Reguler, atau Alih Jenjang) sesuai kualifikasi. Informasi lebih lanjut dapat menghubungi kontak resmi."
+  }
 }
