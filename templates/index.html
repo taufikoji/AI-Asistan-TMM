@@ -405,13 +405,14 @@
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
-      // Bersihkan markdown dan ubah URL menjadi link klikable
+      // Bersihkan dan pastikan link pendaftaran selalu dirender
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
-      const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/; // Hanya ganti satu instance
-      cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+      const regLink = 'https://trisaktimultimedia.ecampuz.com/eadmisi/';
+      if (cleanContent.includes('situs pendaftaran resmi')) {
+        cleanContent = cleanContent.replace(/situs pendaftaran resmi(?![\w/])/i, `<a href="${regLink}" target="_blank">situs pendaftaran resmi: ${regLink}</a>`);
+      }
       // Hapus link lain yang bukan resmi
-      cleanContent = cleanContent.replace(/https?:\/\/[^\s]+(?<!trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/g, '');
-      console.log('Rendered content:', cleanContent); // Debug
+      cleanContent = cleanContent.replace(/https?:\/\/[^\s]+(?<!${regLink})/g, '');
       bubble.innerHTML = DOMPurify.sanitize(cleanContent.replace(/\n/g, '<br>'));
 
       if (role === 'ai') {
