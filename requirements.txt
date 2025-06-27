@@ -2,7 +2,7 @@ Flask
 requests
 python-dotenv
 flask-cors
-google-generativeai
+#google-generativeai
 #beautifulsoup4
 #sentence-transformers
 #faiss-cpu
