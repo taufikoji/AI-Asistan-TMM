@@ -89,7 +89,8 @@ def chat():
         "Jangan gunakan markdown seperti **, ###, atau *. "
         "Untuk pertanyaan ambigu (misalnya, 'Apa ini?', 'Berapa biaya?', atau pertanyaan umum tanpa konteks), "
         "tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
-        "Hanya gunakan link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/, dan pastikan hanya satu instance digunakan."
+        "Untuk pertanyaan terkait pendaftaran, selalu sertakan link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ (sebutkan sebagai 'situs pendaftaran resmi') "
+        "dan pastikan link ini muncul tepat satu kali dalam respons."
     )
 
     # Buat prompt berdasarkan jenis permintaan
@@ -108,7 +109,7 @@ def chat():
         prompt = (
             f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi tentang pendaftaran berdasarkan data: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
-            "Gunakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ (sebutkan sebagai 'situs pendaftaran resmi'). "
+            "Wajib sertakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ (sebutkan sebagai 'situs pendaftaran resmi'). "
             "Sertakan program studi yang tersedia, syarat pendaftaran, jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang) dengan periode pendaftaran "
             "berdasarkan data terbaru (Gelombang 2: 01 April 2025 - 30 Juni 2025, Gelombang 3: 01 Juli 2025 - 31 Juli 2025), dan kontak untuk informasi lebih lanjut. "
             "Jangan tambahkan atau ulang link pendaftaran dari sumber lain."
@@ -149,8 +150,13 @@ def chat():
 
         # Bersihkan dan validasi respons
         clean_reply = response.text.replace("**", "").replace("#", "").strip()
-        if REGISTRATION_LINK in clean_reply:
-            clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)  # Hapus link lain
+        if is_registration_request and REGISTRATION_LINK not in clean_reply:
+            # Jika pertanyaan terkait pendaftaran tetapi link tidak ada, tambahkan secara paksa
+            clean_reply += f" Silakan daftar melalui situs pendaftaran resmi: {REGISTRATION_LINK}."
+        elif REGISTRATION_LINK in clean_reply:
+            # Hanya hapus link lain selain REGISTRATION_LINK
+            clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)
+            # Pastikan hanya satu instance REGISTRATION_LINK
             clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?![\w/])', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
         clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
         logger.info(f"Respons setelah pembersihan: {clean_reply}")
