@@ -463,6 +463,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message })
         });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
         console.log('Status respons:', res.status);
         const data = await res.json();
         typingIndicator.remove();
@@ -478,7 +481,7 @@
       } catch (err) {
         typingIndicator.remove();
         console.error('Error fetch:', err);
-        appendMessage('ai', 'Terjadi kesalahan jaringan atau server.');
+        appendMessage('ai', `Terjadi kesalahan: ${err.message}. Silakan coba lagi atau periksa koneksi Anda.`);
       }
     });
   </script>
