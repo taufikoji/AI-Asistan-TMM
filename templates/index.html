@@ -405,14 +405,11 @@
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
-      // Bersihkan dan pastikan link pendaftaran selalu dirender
+      // Bersihkan markdown dan ubah URL menjadi link klikable
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
-      const regLink = 'https://trisaktimultimedia.ecampuz.com/eadmisi/';
-      if (cleanContent.toLowerCase().includes('situs pendaftaran resmi')) {
-        cleanContent = cleanContent.replace(/situs pendaftaran resmi[\s:]*(\S*)?/i, `<a href="${regLink}" target="_blank">situs pendaftaran resmi: ${regLink}</a>`);
-      }
-      // Hapus semua link lain yang bukan resmi
-      cleanContent = cleanContent.replace(/https?:\/\/[^\s]+(?<!${regLink.replace(/\//g, '\\/')})?/g, '');
+      const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/; // Hanya ganti satu instance
+      cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+      console.log('Rendered content:', cleanContent); // Debug
       bubble.innerHTML = DOMPurify.sanitize(cleanContent.replace(/\n/g, '<br>'));
 
       if (role === 'ai') {
@@ -463,15 +460,12 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message })
         });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
         console.log('Status respons:', res.status);
         const data = await res.json();
         typingIndicator.remove();
 
         if (data.reply) {
-          console.log('Data respons:', data.reply);
+          console.log('Data respons:', data);
           appendMessage('ai', data.reply);
         } else if (data.error) {
           appendMessage('ai', `Error: ${data.error} - ${data.message}`);
@@ -481,7 +475,7 @@
       } catch (err) {
         typingIndicator.remove();
         console.error('Error fetch:', err);
-        appendMessage('ai', `Terjadi kesalahan: ${err.message}. Silakan coba lagi atau periksa koneksi Anda.`);
+        appendMessage('ai', 'Terjadi kesalahan jaringan atau server.');
       }
     });
   </script>
