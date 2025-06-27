@@ -1,0 +1,67 @@
+{
+  "name": "Trisakti School of Multimedia",
+  "foundation_year": 1985,
+  "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATG)...",
+  "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global...",
+  "mission": [
+    "Penyebarluasan ilmu pengetahuan, teknologi, dan seni...",
+    "Menghasilkan lulusan profesional dan berdaya saing...",
+    "Mengembangkan penelitian serta inovasi di bidang multimedia..."
+  ],
+  "programs": [
+    "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
+    "Sarjana Desain Animasi dan Games (S1)",
+    "Sarjana Desain Kreatif Visual Periklanan (S1)",
+    "Sarjana Desain Multimedia Broadcasting (S1)"
+  ],
+  "facilities": [
+    "Perpustakaan (SLiMS & Digilib)",
+    "Laboratorium",
+    "Podcast Studio",
+    "Ruang Kolaborasi Interaktif",
+    "Aula Pertemuan"
+  ],
+  "accreditation": {
+    "overall": "A",
+    "programs": {
+      "Desain Komunikasi Visual": "A",
+      "Teknologi Grafika": "A"
+    }
+  },
+  "contact": {
+    "whatsapp": "+62 877 4299 7808",
+    "email": "info@trisaktimultimedia.ac.id",
+    "phone": ["+62-21-4895787", "+62-21-4701842"]
+  },
+  "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
+  "website": "https://trisaktimultimedia.ac.id",
+  "values": [
+    "Kreativitas",
+    "Teknologi",
+    "Budaya"
+  ],
+  "collaborations": [
+    {
+      "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
+      "date": "26 Mei 2025",
+      "description": "Kerja sama untuk program kuliah ahli jenjang D3 ke S1 dan kuliah umum tentang strategi digital branding."
+    },
+    {
+      "partner": "",
+      "date": "",
+      "description": ""
+    },
+    {
+      "partner": "PT. Guava Production",
+      "date": "02 Februari 2022",
+      "description": "Kerja sama dalam produksi multimedia seperti music video dan film."
+    }
+  ],
+  "Beasiswa": [
+    "Beasiswa KIP Kuliah",
+    "Yayasan Beasiswa Trisakti",
+    "Beasiswa Bulan Pendidikan",
+    "Beasiswa EX-UTBK",
+    "Beasiswa Kerja Sama Sekolah"
+  ]
+}
