@@ -82,11 +82,11 @@ def chat():
     elif is_registration_request:
         prompt = (
             f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia. "
-            f"Link pendaftaran resmi adalah: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
-            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
+            f"Gunakan hanya satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
+            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False).replace(f'\"{REGISTRATION_LINK}\"', '\"[LINK_DAFTAR]\"')}. "  # Ganti URL di JSON biar ga diulang
             f"Pertanyaan user: {user_message}. "
             "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (Non Reguler, Reguler, Alih Jenjang), periode pendaftaran untuk masing-masing jalur, dan kontak untuk informasi lebih lanjut. "
-            "Jawaban harus singkat, relevan, dan menggunakan bahasa Indonesia yang profesional."
+            "Hindari duplikasi link pendaftaran dalam jawaban."
         )
     elif is_trisakti_request:
         prompt = (
@@ -118,8 +118,10 @@ def chat():
 
         if response.status_code == 200:
             reply = response.json()["choices"][0]["message"]["content"]
-            # Bersihin markdown
+            # Bersihin markdown dan whitespace
             clean_reply = reply.replace("**", "").replace("#", "").strip()
+            # Pastiin URL ga ada whitespace di sekitar
+            clean_reply = clean_reply.replace(f" {REGISTRATION_LINK} ", f" {REGISTRATION_LINK} ")
             return jsonify({"reply": clean_reply})
         else:
             error_msg = response.json().get("error", response.text)
