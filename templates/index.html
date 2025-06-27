@@ -408,11 +408,11 @@
       // Bersihkan dan pastikan link pendaftaran selalu dirender
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
       const regLink = 'https://trisaktimultimedia.ecampuz.com/eadmisi/';
-      if (cleanContent.includes('situs pendaftaran resmi')) {
-        cleanContent = cleanContent.replace(/situs pendaftaran resmi(?![\w/])/i, `<a href="${regLink}" target="_blank">situs pendaftaran resmi: ${regLink}</a>`);
+      if (cleanContent.toLowerCase().includes('situs pendaftaran resmi')) {
+        cleanContent = cleanContent.replace(/situs pendaftaran resmi[\s:]*(\S*)?/i, `<a href="${regLink}" target="_blank">situs pendaftaran resmi: ${regLink}</a>`);
       }
-      // Hapus link lain yang bukan resmi
-      cleanContent = cleanContent.replace(/https?:\/\/[^\s]+(?<!${regLink})/g, '');
+      // Hapus semua link lain yang bukan resmi
+      cleanContent = cleanContent.replace(/https?:\/\/[^\s]+(?<!${regLink.replace(/\//g, '\\/')})?/g, '');
       bubble.innerHTML = DOMPurify.sanitize(cleanContent.replace(/\n/g, '<br>'));
 
       if (role === 'ai') {
@@ -468,7 +468,7 @@
         typingIndicator.remove();
 
         if (data.reply) {
-          console.log('Data respons:', data);
+          console.log('Data respons:', data.reply);
           appendMessage('ai', data.reply);
         } else if (data.error) {
           appendMessage('ai', `Error: ${data.error} - ${data.message}`);
