@@ -45,11 +45,9 @@ except Exception as e:
     logger.critical(f"Error tak terduga saat memuat trisakti_info.json: {str(e)}")
     raise
 
-# Ambil dan validasi link pendaftaran
-REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link")
-if not REGISTRATION_LINK or REGISTRATION_LINK != "https://trisaktimultimedia.ecampuz.com/eadmisi/":
-    logger.warning(f"Link pendaftaran tidak valid: {REGISTRATION_LINK}. Diganti dengan yang benar.")
-    REGISTRATION_LINK = "https://trisaktimultimedia.ecampuz.com/eadmisi/"
+# Ambil dan validasi data kunci
+ADDRESS = TRISAKTI_INFO_FULL.get("address", "Alamat tidak tersedia")
+REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
 
 @app.route('/')
 def index():
@@ -90,8 +88,8 @@ def chat():
         "Untuk pertanyaan ambigu, tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
         "Untuk pertanyaan terkait pendaftaran, wajib menyertakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ "
         "(sebutkan sebagai 'situs pendaftaran resmi') di akhir respons, tanpa terkecuali. "
-        "Untuk pertanyaan tentang informasi kampus, hanya berikan informasi berdasarkan data yang tersedia dari trisakti_info.json "
-        "dan jangan mengarang atau menyertakan link pendaftaran kecuali diminta."
+        "Untuk pertanyaan tentang informasi kampus, hanya gunakan data dari trisakti_info.json (seperti alamat, sejarah, program studi) "
+        "dan jangan mengarang informasi tambahan seperti peta atau fasilitas sekitar, serta jangan sertakan link pendaftaran kecuali diminta."
     )
 
     # Buat prompt berdasarkan jenis permintaan
@@ -108,15 +106,14 @@ def chat():
             f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi tentang pendaftaran berdasarkan data: {json.dumps(TRISAKTI_INFO_FULL['registration_details'], ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
             "Wajib sertakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ (sebutkan sebagai 'situs pendaftaran resmi') "
-            "di akhir respons. Sertakan jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang) dengan periode pendaftaran, "
-            "syarat pendaftaran, dan proses pendaftaran berdasarkan data. Jangan tambahkan atau ulang link pendaftaran dari sumber lain."
+            "di akhir respons. Sertakan jalur masuk, periode pendaftaran, syarat, dan proses berdasarkan data. Jangan tambahkan atau ulang link lain."
         )
     elif is_campus_info_request:
         prompt = (
             f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi berdasarkan data: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)} saja. "
             f"Pertanyaan user: {user_message}. "
-            "Hanya sertakan nama kampus, alamat, tahun pendirian, sejarah singkat, visi, misi, program studi, fasilitas, akreditasi, atau kontak "
-            "jika tersedia dalam data. Jangan mengarang informasi tambahan seperti peta atau fasilitas sekitar, dan jangan sertakan link pendaftaran kecuali diminta."
+            "Gunakan hanya data seperti nama kampus, alamat ({ADDRESS}), tahun pendirian, sejarah, visi, misi, program studi, fasilitas, akreditasi, atau kontak. "
+            "Jangan mengarang informasi tambahan dan jangan sertakan link pendaftaran kecuali diminta."
         )
     elif is_trisakti_request:
         prompt = (
@@ -136,8 +133,8 @@ def chat():
         model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             generation_config={
-                "temperature": 0.5,  # Konsistensi tinggi
-                "top_p": 0.9,       # Batasi variasi
+                "temperature": 0.4,  # Lebih ketat untuk akurasi
+                "top_p": 0.9,
                 "max_output_tokens": 1000
             }
         )
@@ -149,15 +146,15 @@ def chat():
         clean_reply = response.text.replace("**", "").replace("#", "").strip()
         if is_registration_request:
             if REGISTRATION_LINK not in clean_reply:
-                # Tambahkan link secara paksa jika tidak ada
                 clean_reply += f" Silakan daftar melalui situs pendaftaran resmi: {REGISTRATION_LINK}."
             else:
-                # Pastikan hanya satu instance link dan hapus link lain
                 clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)
                 clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}\s+', ' ', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
         elif is_campus_info_request and REGISTRATION_LINK in clean_reply:
-            # Hapus link pendaftaran dari respons kampus info kecuali diminta
             clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}', '', clean_reply)
+        # Pastikan alamat sesuai jika ada di respons
+        if is_campus_info_request and "beralamat di mana" in user_message.lower() and ADDRESS not in clean_reply:
+            clean_reply = f"Saya adalah asisten resmi Trisakti School of Multimedia. Kampus ini beralamat di {ADDRESS}."
         clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}").strip()
         logger.info(f"Respons setelah pembersihan: {clean_reply}")
         return jsonify({"reply": clean_reply})
