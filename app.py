@@ -187,7 +187,7 @@ def chat():
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))  # Sesuaikan dengan port 5001
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))  # Sesuaikan dengan port 5001
     except Exception as e:
         logger.critical(f"Gagal menjalankan server: {str(e)}")
         raise
