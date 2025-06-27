@@ -116,7 +116,7 @@ def chat():
 
     # Payload untuk OpenRouter API
     payload = {
-        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "model": "deepseek/deepseek-chat:free",
         "messages": [
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt}
