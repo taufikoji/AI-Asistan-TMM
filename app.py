@@ -12,19 +12,23 @@ CORS(app)
 load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 if not OPENROUTER_API_KEY:
-    raise ValueError("OPENROUTER_API_KEY ga ada di .env, bro!")
+    raise ValueError("OPENROUTER_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
 
-# Load Trisakti info from JSON
+# Load Trisakti info from JSON, hapus registration_link dari data yang dikirim ke AI
 try:
     with open('trisakti_info.json', 'r', encoding='utf-8') as f:
-        TRISAKTI_INFO = json.load(f)
+        TRISAKTI_INFO_FULL = json.load(f)
+    # Buat salinan tanpa registration_link untuk dikirim ke AI
+    TRISAKTI_INFO = TRISAKTI_INFO_FULL.copy()
+    if "registration_link" in TRISAKTI_INFO:
+        del TRISAKTI_INFO["registration_link"]
 except FileNotFoundError:
-    raise ValueError("File trisakti_info.json ga ditemuin, bro!")
+    raise ValueError("File trisakti_info.json tidak ditemukan, silakan periksa direktori.")
 except json.JSONDecodeError:
-    raise ValueError("Format JSON di trisakti_info.json salah, bro!")
+    raise ValueError("Format JSON di trisakti_info.json salah, silakan periksa sintaksnya.")
 
-# Ambil link pendaftaran dari JSON
-REGISTRATION_LINK = TRISAKTI_INFO.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
+# Ambil link pendaftaran dari JSON untuk digunakan di prompt
+REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
 
 @app.route('/')
 def index():
@@ -36,8 +40,8 @@ def chat():
     data = request.get_json()
     if not data or not isinstance(data.get("message"), str) or not data["message"].strip():
         return jsonify({
-            "error": "Pesan ga valid, bro!",
-            "message": "Harus ada pesan dan bukan kosong!"
+            "error": "Pesan tidak valid.",
+            "message": "Harus ada pesan dan tidak boleh kosong."
         }), 400
 
     user_message = data.get("message", "").strip().lower()
@@ -64,7 +68,7 @@ def chat():
     system_message = (
         "Gunakan bahasa Indonesia yang profesional dan rapi. "
         "Jangan gunakan markdown seperti **, ###, atau *. "
-        "Jawaban harus jelas, sopan, dan enak dibaca."
+        "Jawaban harus jelas, sopan, dan enak dibaca. Pastikan hanya menggunakan satu instance dari link pendaftaran yang diberikan."
     )
 
     # Buat prompt berdasarkan jenis permintaan
@@ -83,10 +87,11 @@ def chat():
         prompt = (
             f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia. "
             f"Gunakan hanya satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
-            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False).replace(f'\"{REGISTRATION_LINK}\"', '\"[LINK_DAFTAR]\"')}. "
+            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
-            "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (Non Reguler, Reguler, Alih Jenjang), periode pendaftaran untuk masing-masing jalur, dan kontak untuk informasi lebih lanjut. "
-            "Hindari duplikasi link pendaftaran dalam jawaban."
+            "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (Non Reguler, Reguler, Alih Jenjang), "
+            "periode pendaftaran untuk masing-masing jalur, dan kontak untuk informasi lebih lanjut. "
+            "Hindari duplikasi link pendaftaran dalam jawaban dan pastikan hanya menggunakan link yang diberikan di prompt."
         )
     elif is_trisakti_request:
         prompt = (
@@ -118,21 +123,19 @@ def chat():
 
         if response.status_code == 200:
             reply = response.json()["choices"][0]["message"]["content"]
-            # Bersihin markdown dan whitespace
+            # Bersihkan markdown dan whitespace
             clean_reply = reply.replace("**", "").replace("#", "").strip()
-            # Pastiin URL ga ada whitespace di sekitar
-            clean_reply = clean_reply.replace(f" {REGISTRATION_LINK} ", f" {REGISTRATION_LINK} ")
             return jsonify({"reply": clean_reply})
         else:
             error_msg = response.json().get("error", response.text)
             return jsonify({
-                "error": "Gagal konek ke API",
+                "error": "Gagal terhubung ke API.",
                 "details": error_msg
             }), response.status_code
 
     except Exception as e:
         return jsonify({
-            "error": "Ada masalah, bro!",
+            "error": "Terjadi kesalahan pada server.",
             "message": str(e)
         }), 500
 
