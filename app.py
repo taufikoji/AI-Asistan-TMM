@@ -42,8 +42,11 @@ except Exception as e:
     logger.critical(f"Error tak terduga saat memuat trisakti_info.json: {str(e)}")
     raise
 
-# Ambil link pendaftaran dari JSON
-REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
+# Ambil link pendaftaran dari JSON dengan validasi
+REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link")
+if not REGISTRATION_LINK or not REGISTRATION_LINK.startswith("https://trisaktimultimedia.ecampuz.com/eadmisi/"):
+    logger.warning(f"Link pendaftaran tidak valid atau tidak sesuai: {REGISTRATION_LINK}. Menggunakan default.")
+    REGISTRATION_LINK = "https://trisaktimultimedia.ecampuz.com/eadmisi/"
 
 @app.route('/')
 def index():
@@ -112,8 +115,8 @@ def chat():
             f"Gunakan tepat satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
             f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
-            "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (Non Reguler, Reguler, Alih Jenjang), "
-            "periode pendaftaran untuk masing-masing jalur, dan kontak untuk informasi lebih lanjut. "
+            "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang), "
+            "periode pendaftaran untuk masing-masing gelombang berdasarkan data terbaru, dan kontak untuk informasi lebih lanjut. "
             "Pastikan hanya menggunakan link yang diberikan sekali, dan jangan tambahkan atau ulang link pendaftaran dari sumber lain."
         )
     elif is_campus_info_request:
@@ -163,7 +166,7 @@ def chat():
             logger.info(f"Respons mentah dari API: {reply}")
             # Bersihkan markdown dan whitespace
             clean_reply = reply.replace("**", "").replace("#", "").strip()
-            # Filter duplikasi URL
+            # Filter duplikasi URL dengan validasi ketat
             if REGISTRATION_LINK in clean_reply:
                 clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?![\w/])', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
             clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
