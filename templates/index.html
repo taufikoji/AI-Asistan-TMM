@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asisten AI Trisakti School Of Multimedia</title>
+  <title>Asisten AI STMK Trisakti</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap">
   <style>
     :root {
@@ -409,6 +409,8 @@
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
       const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/; // Hanya ganti satu instance
       cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+      // Hapus link lain yang bukan resmi
+      cleanContent = cleanContent.replace(/https?:\/\/[^\s]+(?<!trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/g, '');
       console.log('Rendered content:', cleanContent); // Debug
       bubble.innerHTML = DOMPurify.sanitize(cleanContent.replace(/\n/g, '<br>'));
 
