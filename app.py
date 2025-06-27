@@ -79,8 +79,8 @@ def chat():
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://example.com",
-        "X-Title": "Chatbot-STMK-Trisakti"
+        "HTTP-Referer": "https://trisaktimultimedia.ac.id",
+        "X-Title": "ChatbotAI-Trisakti School Of Multimedia"
     }
 
     # System prompt
