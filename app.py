@@ -90,7 +90,8 @@ def chat():
         "Untuk pertanyaan ambigu, tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
         "Untuk pertanyaan terkait pendaftaran, wajib menyertakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ "
         "(sebutkan sebagai 'situs pendaftaran resmi') di akhir respons, tanpa terkecuali. "
-        "Untuk pertanyaan tentang informasi kampus, hanya berikan informasi berdasarkan data yang tersedia dan jangan menyertakan link pendaftaran kecuali diminta."
+        "Untuk pertanyaan tentang informasi kampus, hanya berikan informasi berdasarkan data yang tersedia dari trisakti_info.json "
+        "dan jangan mengarang atau menyertakan link pendaftaran kecuali diminta."
     )
 
     # Buat prompt berdasarkan jenis permintaan
@@ -107,15 +108,15 @@ def chat():
             f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi tentang pendaftaran berdasarkan data: {json.dumps(TRISAKTI_INFO_FULL['registration_details'], ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
             "Wajib sertakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ (sebutkan sebagai 'situs pendaftaran resmi') "
-            "di akhir respons. Sertakan jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang) dengan periode pendaftaran "
-            "berdasarkan data terbaru, syarat pendaftaran, dan proses pendaftaran. Jangan tambahkan atau ulang link pendaftaran dari sumber lain."
+            "di akhir respons. Sertakan jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang) dengan periode pendaftaran, "
+            "syarat pendaftaran, dan proses pendaftaran berdasarkan data. Jangan tambahkan atau ulang link pendaftaran dari sumber lain."
         )
     elif is_campus_info_request:
         prompt = (
-            f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi berdasarkan data: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)}. "
+            f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi berdasarkan data: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)} saja. "
             f"Pertanyaan user: {user_message}. "
-            "Sertakan nama kampus, alamat, tahun pendirian, sejarah singkat, visi, misi, program studi yang ditawarkan, fasilitas, atau akreditasi "
-            "jika tersedia dalam data. Jawaban harus singkat, informatif, dan profesional. Jangan menyertakan link pendaftaran kecuali diminta."
+            "Hanya sertakan nama kampus, alamat, tahun pendirian, sejarah singkat, visi, misi, program studi, fasilitas, akreditasi, atau kontak "
+            "jika tersedia dalam data. Jangan mengarang informasi tambahan seperti peta atau fasilitas sekitar, dan jangan sertakan link pendaftaran kecuali diminta."
         )
     elif is_trisakti_request:
         prompt = (
@@ -135,7 +136,8 @@ def chat():
         model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             generation_config={
-                "temperature": 0.5,  # Dikurangi untuk konsistensi
+                "temperature": 0.5,  # Konsistensi tinggi
+                "top_p": 0.9,       # Batasi variasi
                 "max_output_tokens": 1000
             }
         )
