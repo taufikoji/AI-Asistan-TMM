@@ -49,7 +49,7 @@ if not REGISTRATION_LINK or REGISTRATION_LINK != "https://trisaktimultimedia.eca
     logger.warning(f"Link pendaftaran tidak valid: {REGISTRATION_LINK}. Diganti dengan yang benar.")
     REGISTRATION_LINK = "https://trisaktimultimedia.ecampuz.com/eadmisi/"
 
-# Konfigurasi API (dua kunci OpenRouter)
+# Konfigurasi API (dua kunci OpenRouter dengan model berbeda)
 API_CONFIG = [
     {
         "name": "OpenRouter1",
@@ -67,7 +67,7 @@ API_CONFIG = [
         "name": "OpenRouter2",
         "api_key": SECOND_API_KEY,
         "url": "https://openrouter.ai/api/v1/chat/completions",
-        "model": "deepseek/deepseek-chat-v3-0324:free",  # Gunakan model yang sama atau sesuaikan
+        "model": "deepseek/r1-0528:free",  # Model kedua yang Anda pilih
         "headers": {
             "Authorization": f"Bearer {SECOND_API_KEY}",
             "Content-Type": "application/json",
