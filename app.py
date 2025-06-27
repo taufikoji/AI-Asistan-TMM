@@ -1,16 +1,27 @@
 import os
-from flask import Flask, request, jsonify, render_template
+import json
 import requests
+from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  
+CORS(app)
 
+# Load environment variables
 load_dotenv()
-
-
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+if not OPENROUTER_API_KEY:
+    raise ValueError("OPENROUTER_API_KEY ga ada di .env, bro!")
+
+# Load Trisakti info from JSON
+try:
+    with open('trisakti_info.json', 'r', encoding='utf-8') as f:
+        TRISAKTI_INFO = json.load(f)
+except FileNotFoundError:
+    raise ValueError("File trisakti_info.json ga ditemuin, bro!")
+except json.JSONDecodeError:
+    raise ValueError("Format JSON di trisakti_info.json salah, bro!")
 
 @app.route('/')
 def index():
@@ -18,12 +29,24 @@ def index():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
+    # Validasi input
     data = request.get_json()
+    if not data or not isinstance(data.get("message"), str) or not data["message"].strip():
+        return jsonify({
+            "error": "Pesan ga valid, bro!",
+            "message": "Harus ada pesan dan bukan kosong!"
+        }), 400
+
     user_message = data.get("message", "").strip().lower()
-
-    # Deteksi jika pengguna meminta outline
+    
+    # Deteksi jenis permintaan
     is_outline_request = any(keyword in user_message for keyword in ["outline", "struktur", "kerangka", "buat outline"])
+    is_trisakti_request = any(keyword in user_message for keyword in [
+        "trisakti", "multimedia", "stmk", "tmm", "program studi", "beasiswa", 
+        "fasilitas", "sejarah", "kerja sama", "akreditasi"
+    ])
 
+    # Header untuk OpenRouter API
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
@@ -31,23 +54,36 @@ def chat():
         "X-Title": "Chatbot-STMK-Trisakti"
     }
 
-    # Prompt sistem dan pengguna disesuaikan berdasarkan permintaan
-    system_message = "Gunakan bahasa Indonesia yang profesional dan rapi. Jangan gunakan markdown seperti **, ###, atau *. Jawaban harus jelas, sopan, dan enak dibaca."
-    
-   
-        
+    # System prompt
+    system_message = (
+        "Gunakan bahasa Indonesia yang profesional dan rapi. "
+        "Jangan gunakan markdown seperti **, ###, atau *. "
+        "Jawaban harus jelas, sopan, dan enak dibaca."
+    )
+
+    # Buat prompt berdasarkan jenis permintaan
     if is_outline_request:
         prompt = (
-            f"Buat outline standar untuk jurnal akademik dalam format terstruktur menggunakan nomor urut (1., 2., dll.) dan poin-poin dengan tanda '- ' untuk setiap detail, tanpa teks naratif awal. "
-            f"Hindari penggunaan simbol seperti **, #, atau *. Pastikan setiap bagian memiliki judul dan penjelasan singkat. Contoh format: "
-            f"1. Judul (Title) - Singkat, jelas, dan mencerminkan inti penelitian. - Mengandung kata kunci (keywords) yang relevan. "
-            f"2. Abstrak (Abstract) - Ringkasan singkat (biasanya 150-250 kata) yang mencakup latar belakang, tujuan, metode, dan hasil. "
-            f"Gunakan topik '{user_message}' jika ada topik spesifik, atau gunakan 'Pengembangan AI di Pendidikan' jika tidak ada topik spesifik. Jaga penjelasan singkat dan langsung ke inti."
-            
+            "Buat outline standar untuk jurnal akademik dalam format terstruktur menggunakan nomor urut (1., 2., dll.) "
+            "dan poin-poin dengan tanda '- ' untuk setiap detail, tanpa teks naratif awal. "
+            "Hindari penggunaan simbol seperti **, #, atau *. "
+            "Pastikan setiap bagian memiliki judul dan penjelasan singkat. "
+            "Contoh format: "
+            "1. Judul (Title) - Singkat, jelas, dan mencerminkan inti penelitian. - Mengandung kata kunci (keywords) yang relevan. "
+            "2. Abstrak (Abstract) - Ringkasan singkat (biasanya 150-250 kata) yang mencakup latar belakang, tujuan, metode, dan hasil. "
+            f"Gunakan topik '{user_message}' jika ada topik spesifik, atau gunakan 'Pengembangan AI di Pendidikan' jika tidak ada topik spesifik."
+        )
+    elif is_trisakti_request:
+        prompt = (
+            f"Berikan jawaban berdasarkan informasi berikut tentang Trisakti School of Multimedia: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
+            f"Pertanyaan user: {user_message}. "
+            "Jika pertanyaan tidak relevan dengan informasi yang diberikan, jawab secara umum dengan bahasa Indonesia yang profesional. "
+            "Fokus pada informasi yang relevan dan hindari penjelasan berlebihan."
         )
     else:
         prompt = user_message
 
+    # Payload untuk OpenRouter API
     payload = {
         "model": "deepseek/deepseek-chat-v3-0324:free",
         "messages": [
@@ -57,6 +93,7 @@ def chat():
         "temperature": 0.7
     }
 
+    # Kirim request ke OpenRouter
     try:
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
@@ -66,17 +103,21 @@ def chat():
 
         if response.status_code == 200:
             reply = response.json()["choices"][0]["message"]["content"]
-            # Membersihkan tanda ** dan # jika ada
+            # Bersihin markdown
             clean_reply = reply.replace("**", "").replace("#", "").strip()
             return jsonify({"reply": clean_reply})
         else:
+            error_msg = response.json().get("error", response.text)
             return jsonify({
-                "error": "API Error",
-                "details": response.text
+                "error": "Gagal konek ke API",
+                "details": error_msg
             }), response.status_code
 
     except Exception as e:
-        return jsonify({"error": "Exception", "message": str(e)}), 500
+        return jsonify({
+            "error": "Ada masalah, bro!",
+            "message": str(e)
+        }), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
