@@ -70,27 +70,27 @@
     ],
     "paths": [
       {
-        "name": "Non Reguler (NR)",
+        "name": "NR - Non Reguler",
         "waves": [
           {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
           {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       },
       {
-        "name": "Reguler (REG)",
+        "name": "REG - Reguler",
         "waves": [
           {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
           {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       },
       {
-        "name": "Alih Jenjang (AJ) - Ekstensi",
+        "name": "AJ - Alih Jenjang (Ekstensi)",
         "waves": [
           {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
           {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       }
     ],
-    "process": "Pendaftaran dilakukan secara online melalui link resmi. Calon mahasiswa mengisi formulir, mengunggah dokumen, dan mengikuti tes seleksi (jika ada). Pilih jalur masuk (Non Reguler, Reguler, atau Alih Jenjang) sesuai kualifikasi. Informasi lebih lanjut dapat menghubungi kontak resmi."
+    "process": "Pendaftaran dilakukan secara online melalui link resmi https://trisaktimultimedia.ecampuz.com/eadmisi/ . Calon mahasiswa mengisi formulir, mengunggah dokumen, dan mengikuti tes seleksi (jika ada). Pilih jalur masuk (Non Reguler, Reguler, atau Alih Jenjang) sesuai kualifikasi. Informasi lebih lanjut dapat menghubungi kontak resmi."
   }
 }
