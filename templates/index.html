@@ -405,14 +405,25 @@
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
-      // Bersihin markdown dan ganti URL jadi link klikabel, hindari duplikasi
+      // Bersihin markdown dan ganti URL jadi link klikabel
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
-      const urlRegex = new RegExp(`(${REGISTRATION_LINK})`, 'g'); // Fokus ke URL spesifik
-      cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-      console.log('Rendered content:', cleanContent); // Debug
-      bubble.innerHTML = cleanContent.replace(/\n/g, '<br>');
+      bubble.innerHTML = cleanContent.replace(/\n/g, '<br>'); // Lepasin regex dulu buat debug
 
+      console.log('Raw content:', cleanContent); // Debug raw content
       if (role === 'ai') {
+        const urlRegex = /(https?:\/\/[\w\-\.\/]+[^\s]*)/g;
+        let match;
+        const urls = new Set(); // Set buat hindari duplikasi
+        while ((match = urlRegex.exec(cleanContent)) !== null) {
+          urls.add(match[0]);
+        }
+        if (urls.size > 0) {
+          cleanContent = cleanContent.replace(urlRegex, (url) => {
+            return urls.size === 1 ? `<a href="${url}" target="_blank">${url}</a>` : url; // Cuma ganti satu URL
+          });
+          bubble.innerHTML = cleanContent.replace(/\n/g, '<br>');
+        }
+
         const copyBtn = document.createElement('button');
         copyBtn.classList.add('copy-button');
         copyBtn.textContent = 'Salin';
@@ -442,7 +453,10 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const message = input.value.trim();
-      if (!message) return;
+      if (!message) {
+        console.log('Pesan kosong, bro!');
+        return;
+      }
 
       appendMessage('user', message);
       input.value = '';
@@ -451,21 +465,27 @@
       const typingIndicator = showTypingIndicator();
 
       try {
+        console.log('Sending request with message:', message); // Debug
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message })
         });
+        console.log('Response status:', res.status); // Debug status
         const data = await res.json();
         typingIndicator.remove();
 
         if (data.reply) {
+          console.log('Response data:', data); // Debug data
           appendMessage('ai', data.reply);
+        } else if (data.error) {
+          appendMessage('ai', `Error: ${data.error} - ${data.message}`);
         } else {
           appendMessage('ai', 'Maaf, terjadi kesalahan dalam mendapatkan jawaban. Ini adalah versi gratis dan saat ini sudah mencapai batas, mohon tunggu hingga reset kembali 🙏🏻');
         }
       } catch (err) {
         typingIndicator.remove();
+        console.error('Fetch error:', err); // Debug error
         appendMessage('ai', 'Terjadi kesalahan jaringan atau server.');
       }
     });
