@@ -42,10 +42,10 @@ except Exception as e:
     logger.critical(f"Error tak terduga saat memuat trisakti_info.json: {str(e)}")
     raise
 
-# Ambil link pendaftaran dari JSON dengan validasi
+# Ambil dan validasi link pendaftaran
 REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link")
-if not REGISTRATION_LINK or not REGISTRATION_LINK.startswith("https://trisaktimultimedia.ecampuz.com/eadmisi/"):
-    logger.warning(f"Link pendaftaran tidak valid atau tidak sesuai: {REGISTRATION_LINK}. Menggunakan default.")
+if not REGISTRATION_LINK or REGISTRATION_LINK != "https://trisaktimultimedia.ecampuz.com/eadmisi/":
+    logger.warning(f"Link pendaftaran tidak valid: {REGISTRATION_LINK}. Diganti dengan yang benar.")
     REGISTRATION_LINK = "https://trisaktimultimedia.ecampuz.com/eadmisi/"
 
 @app.route('/')
@@ -72,7 +72,7 @@ def chat():
         "fasilitas", "sejarah", "kerja sama", "akreditasi"
     ])
     is_registration_request = any(keyword in user_message.lower() for keyword in [
-        "pendaftaran", "daftar", "registrasi", "cara daftar", "link pendaftaran"
+        "pendaftaran", "daftar", "registrasi", "cara daftar", "link pendaftaran", "kapan pendaftaran"
     ])
     is_campus_info_request = any(keyword in user_message.lower() for keyword in [
         "kampus apa ini", "tentang kampus", "apa itu trisakti", "sejarah kampus", "identitas kampus"
@@ -94,7 +94,7 @@ def chat():
         "Jangan gunakan markdown seperti **, ###, atau *. "
         "Untuk pertanyaan ambigu (misalnya, 'Apa ini?', 'Berapa biaya?', atau pertanyaan umum tanpa konteks), "
         "tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
-        "Hanya gunakan satu instance dari link pendaftaran yang diberikan di prompt, dan jangan duplikasi atau tambahkan link lain terkait pendaftaran."
+        "Hanya gunakan link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/, dan pastikan hanya satu instance digunakan."
     )
 
     # Buat prompt berdasarkan jenis permintaan
@@ -111,32 +111,31 @@ def chat():
         )
     elif is_registration_request:
         prompt = (
-            f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia sebagai asisten resmi. "
-            f"Gunakan tepat satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
-            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
+            f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi tentang pendaftaran berdasarkan data: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
-            "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang), "
-            "periode pendaftaran untuk masing-masing gelombang berdasarkan data terbaru, dan kontak untuk informasi lebih lanjut. "
-            "Pastikan hanya menggunakan link yang diberikan sekali, dan jangan tambahkan atau ulang link pendaftaran dari sumber lain."
+            "Gunakan tepat satu kali link pendaftaran resmi: https://trisaktimultimedia.ecampuz.com/eadmisi/ (sebutkan sebagai 'situs pendaftaran resmi'). "
+            "Sertakan program studi yang tersedia, syarat pendaftaran, jalur masuk (NR - Non Reguler, REG - Reguler, AJ - Alih Jenjang) dengan periode pendaftaran "
+            "berdasarkan data terbaru (Gelombang 2: 01 April 2025 - 30 Juni 2025, Gelombang 3: 01 Juli 2025 - 31 Juli 2025), dan kontak untuk informasi lebih lanjut. "
+            "Jangan tambahkan atau ulang link pendaftaran dari sumber lain."
         )
     elif is_campus_info_request:
         prompt = (
-            f"Berikan informasi tentang Trisakti School of Multimedia berdasarkan data berikut sebagai asisten resmi: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)}. "
+            f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi berdasarkan data: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
             "Sertakan nama kampus, tahun pendirian, sejarah singkat, visi, misi, program studi yang ditawarkan, dan fasilitas utama. "
-            "Jawaban harus singkat, informatif, dan menggunakan bahasa Indonesia yang profesional. Jangan sertakan link pendaftaran kecuali diminta secara eksplisit."
+            "Jawaban harus singkat, informatif, dan profesional. Jangan sertakan link pendaftaran kecuali diminta secara eksplisit."
         )
     elif is_trisakti_request:
         prompt = (
-            f"Berikan jawaban berdasarkan informasi berikut tentang Trisakti School of Multimedia sebagai asisten resmi: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
+            f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan jawaban berdasarkan data: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
-            "Jika pertanyaan tidak relevan dengan informasi yang diberikan, tanyakan konfirmasi: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
-            "Fokus pada informasi yang relevan dan hindari penjelasan berlebihan."
+            "Jika pertanyaan tidak relevan dengan data, tanyakan: 'Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat.' "
+            "Fokus pada informasi relevan dan hindari penjelasan berlebihan."
         )
     else:
         prompt = (
-            f"Sebagai asisten resmi Trisakti School of Multimedia, saya menerima pertanyaan: '{user_message}'. "
-            "Karena pertanyaannya ambigu, mohon konfirmasi: Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat."
+            f"Saya adalah asisten resmi Trisakti School of Multimedia. Pertanyaan Anda: '{user_message}' bersifat ambigu. "
+            "Mohon konfirmasi: Apakah Anda mengacu pada Trisakti School of Multimedia? Silakan konfirmasi agar saya dapat membantu Anda dengan tepat."
         )
 
     # Payload untuk OpenRouter API
@@ -164,10 +163,11 @@ def chat():
         if response.status_code == 200:
             reply = response_data["choices"][0]["message"]["content"]
             logger.info(f"Respons mentah dari API: {reply}")
-            # Bersihkan markdown dan whitespace
+            # Bersihkan dan validasi link
             clean_reply = reply.replace("**", "").replace("#", "").strip()
-            # Filter duplikasi URL dengan validasi ketat
+            # Pastikan hanya satu link resmi yang digunakan
             if REGISTRATION_LINK in clean_reply:
+                clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)  # Hapus link lain
                 clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?![\w/])', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
             clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
             logger.info(f"Respons setelah pembersihan: {clean_reply}")
@@ -176,6 +176,10 @@ def chat():
             error_msg = response_data.get("error", response.text)
             error_detail = response_data.get("detail", "Tidak ada detail tambahan")
             logger.error(f"Gagal terhubung ke API: {error_msg} (Detail: {error_detail}, Status: {response.status_code})")
+            if response.status_code == 429:  # Too Many Requests
+                return jsonify({
+                    "reply": "Maaf, kuota API telah mencapai batas. Silakan coba lagi nanti atau periksa langganan Anda di OpenRouter."
+                })
             return jsonify({
                 "error": "Gagal terhubung ke API.",
                 "details": f"{error_msg} - {error_detail}"
