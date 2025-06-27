@@ -409,10 +409,7 @@
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
       const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/; // Hanya ganti satu instance
       cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-      // Pastikan link resmi ada jika relevan dan hapus link lain
-      if (cleanContent.toLowerCase().includes('pendaftaran') && !cleanContent.includes(urlRegex)) {
-        cleanContent = `Silakan kunjungi situs pendaftaran resmi: <a href="https://trisaktimultimedia.ecampuz.com/eadmisi/" target="_blank">https://trisaktimultimedia.ecampuz.com/eadmisi/</a> ${cleanContent}`;
-      }
+      // Hapus link lain yang bukan resmi
       cleanContent = cleanContent.replace(/https?:\/\/[^\s]+(?<!trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/g, '');
       console.log('Rendered content:', cleanContent); // Debug
       bubble.innerHTML = DOMPurify.sanitize(cleanContent.replace(/\n/g, '<br>'));
