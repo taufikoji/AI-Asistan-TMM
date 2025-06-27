@@ -1,6 +1,6 @@
 import os
 import json
-import requests
+import re
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -55,6 +55,9 @@ def chat():
     is_registration_request = any(keyword in user_message for keyword in [
         "pendaftaran", "daftar", "registrasi", "cara daftar", "link pendaftaran"
     ])
+    is_campus_info_request = any(keyword in user_message for keyword in [
+        "kampus apa ini", "tentang kampus", "apa itu trisakti", "sejarah kampus", "identitas kampus"
+    ])
 
     # Header untuk OpenRouter API
     headers = {
@@ -68,7 +71,8 @@ def chat():
     system_message = (
         "Gunakan bahasa Indonesia yang profesional dan rapi. "
         "Jangan gunakan markdown seperti **, ###, atau *. "
-        "Jawaban harus jelas, sopan, dan enak dibaca. Pastikan hanya menggunakan satu instance dari link pendaftaran yang diberikan."
+        "Jawaban harus jelas, sopan, dan enak dibaca. "
+        "Hanya gunakan satu instance dari link pendaftaran yang diberikan di prompt, dan jangan duplikasi atau tambahkan link lain terkait pendaftaran."
     )
 
     # Buat prompt berdasarkan jenis permintaan
@@ -86,12 +90,19 @@ def chat():
     elif is_registration_request:
         prompt = (
             f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia. "
-            f"Gunakan hanya satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
+            f"Gunakan tepat satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
             f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
             f"Pertanyaan user: {user_message}. "
             "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (Non Reguler, Reguler, Alih Jenjang), "
             "periode pendaftaran untuk masing-masing jalur, dan kontak untuk informasi lebih lanjut. "
-            "Hindari duplikasi link pendaftaran dalam jawaban dan pastikan hanya menggunakan link yang diberikan di prompt."
+            "Pastikan hanya menggunakan link yang diberikan sekali, dan jangan tambahkan atau ulang link pendaftaran dari sumber lain."
+        )
+    elif is_campus_info_request:
+        prompt = (
+            f"Berikan informasi tentang Trisakti School of Multimedia berdasarkan data berikut: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)}. "
+            f"Pertanyaan user: {user_message}. "
+            "Sertakan nama kampus, tahun pendirian, sejarah singkat, visi, misi, program studi yang ditawarkan, dan fasilitas utama. "
+            "Jawaban harus singkat, informatif, dan menggunakan bahasa Indonesia yang profesional. Jangan sertakan link pendaftaran kecuali diminta secara eksplisit."
         )
     elif is_trisakti_request:
         prompt = (
@@ -125,6 +136,9 @@ def chat():
             reply = response.json()["choices"][0]["message"]["content"]
             # Bersihkan markdown dan whitespace
             clean_reply = reply.replace("**", "").replace("#", "").strip()
+            # Filter duplikasi URL
+            clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?=(?:[^<]*>|[^>]*</a>))', '', clean_reply, count=1)
+            clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
             return jsonify({"reply": clean_reply})
         else:
             error_msg = response.json().get("error", response.text)
