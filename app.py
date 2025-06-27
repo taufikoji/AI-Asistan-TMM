@@ -83,7 +83,7 @@ def chat():
         prompt = (
             f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia. "
             f"Gunakan hanya satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
-            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False).replace(f'\"{REGISTRATION_LINK}\"', '\"[LINK_DAFTAR]\"')}. "  # Ganti URL di JSON biar ga diulang
+            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False).replace(f'\"{REGISTRATION_LINK}\"', '\"[LINK_DAFTAR]\"')}. "
             f"Pertanyaan user: {user_message}. "
             "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (Non Reguler, Reguler, Alih Jenjang), periode pendaftaran untuk masing-masing jalur, dan kontak untuk informasi lebih lanjut. "
             "Hindari duplikasi link pendaftaran dalam jawaban."
