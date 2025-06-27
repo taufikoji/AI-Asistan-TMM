@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import requests
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -8,26 +9,23 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Load environment variables
+# Load API keys
 load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-if not OPENROUTER_API_KEY:
-    raise ValueError("OPENROUTER_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Load Trisakti info from JSON, hapus registration_link dari data yang dikirim ke AI
+if not OPENROUTER_API_KEY or not OPENAI_API_KEY:
+    raise ValueError("API key tidak lengkap. Harap set OPENROUTER_API_KEY dan OPENAI_API_KEY di .env")
+
+# Load Trisakti info
 try:
     with open('trisakti_info.json', 'r', encoding='utf-8') as f:
         TRISAKTI_INFO_FULL = json.load(f)
-    # Buat salinan tanpa registration_link untuk dikirim ke AI
     TRISAKTI_INFO = TRISAKTI_INFO_FULL.copy()
-    if "registration_link" in TRISAKTI_INFO:
-        del TRISAKTI_INFO["registration_link"]
-except FileNotFoundError:
-    raise ValueError("File trisakti_info.json tidak ditemukan, silakan periksa direktori.")
-except json.JSONDecodeError:
-    raise ValueError("Format JSON di trisakti_info.json salah, silakan periksa sintaksnya.")
+    TRISAKTI_INFO.pop("registration_link", None)
+except Exception as e:
+    raise ValueError(f"Error saat membaca trisakti_info.json: {str(e)}")
 
-# Ambil link pendaftaran dari JSON untuk digunakan di prompt
 REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
 
 @app.route('/')
@@ -36,122 +34,127 @@ def index():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    # Validasi input
     data = request.get_json()
     if not data or not isinstance(data.get("message"), str) or not data["message"].strip():
-        return jsonify({
-            "error": "Pesan tidak valid.",
-            "message": "Harus ada pesan dan tidak boleh kosong."
-        }), 400
+        return jsonify({"error": "Pesan tidak valid.", "message": "Harus ada pesan dan tidak boleh kosong."}), 400
 
-    user_message = data.get("message", "").strip().lower()
-    
-    # Deteksi jenis permintaan
-    is_outline_request = any(keyword in user_message for keyword in ["outline", "struktur", "kerangka", "buat outline"])
-    is_trisakti_request = any(keyword in user_message for keyword in [
-        "trisakti", "multimedia", "stmk", "tmm", "program studi", "beasiswa", 
-        "fasilitas", "sejarah", "kerja sama", "akreditasi"
-    ])
-    is_registration_request = any(keyword in user_message for keyword in [
-        "pendaftaran", "daftar", "registrasi", "cara daftar", "link pendaftaran"
-    ])
-    is_campus_info_request = any(keyword in user_message for keyword in [
-        "kampus apa ini", "tentang kampus", "apa itu trisakti", "sejarah kampus", "identitas kampus"
-    ])
+    user_message = data["message"].strip().lower()
 
-    # Header untuk OpenRouter API
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://example.com",
-        "X-Title": "Chatbot-STMK-Trisakti"
-    }
+    # Deteksi topik
+    is_outline_request = any(k in user_message for k in ["outline", "struktur", "kerangka", "buat outline"])
+    is_trisakti_request = any(k in user_message for k in ["trisakti", "multimedia", "stmk", "tmm", "program studi", "beasiswa", "fasilitas", "sejarah", "kerja sama", "akreditasi"])
+    is_registration_request = any(k in user_message for k in ["pendaftaran", "daftar", "registrasi", "cara daftar", "link pendaftaran"])
+    is_campus_info_request = any(k in user_message for k in ["kampus apa ini", "tentang kampus", "apa itu trisakti", "sejarah kampus", "identitas kampus"])
 
-    # System prompt
+    # Prompt sistem
     system_message = (
         "Gunakan bahasa Indonesia yang profesional dan rapi. "
         "Jangan gunakan markdown seperti **, ###, atau *. "
         "Jawaban harus jelas, sopan, dan enak dibaca. "
-        "Hanya gunakan satu instance dari link pendaftaran yang diberikan di prompt, dan jangan duplikasi atau tambahkan link lain terkait pendaftaran."
+        "Gunakan link pendaftaran hanya satu kali dari prompt, jangan duplikasi."
     )
 
-    # Buat prompt berdasarkan jenis permintaan
+    # Prompt user berdasarkan deteksi
     if is_outline_request:
         prompt = (
-            "Buat outline standar untuk jurnal akademik dalam format terstruktur menggunakan nomor urut (1., 2., dll.) "
-            "dan poin-poin dengan tanda '- ' untuk setiap detail, tanpa teks naratif awal. "
-            "Hindari penggunaan simbol seperti **, #, atau *. "
-            "Pastikan setiap bagian memiliki judul dan penjelasan singkat. "
-            "Contoh format: "
-            "1. Judul (Title) - Singkat, jelas, dan mencerminkan inti penelitian. - Mengandung kata kunci (keywords) yang relevan. "
-            "2. Abstrak (Abstract) - Ringkasan singkat (biasanya 150-250 kata) yang mencakup latar belakang, tujuan, metode, dan hasil. "
-            f"Gunakan topik '{user_message}' jika ada topik spesifik, atau gunakan 'Pengembangan AI di Pendidikan' jika tidak ada topik spesifik."
+            "Buat outline jurnal akademik dalam format terstruktur dengan nomor urut (1., 2., ...) dan poin-poin '- '. "
+            "Tanpa pengantar naratif. Gunakan topik '{user_message}' jika relevan, jika tidak, pakai 'Pengembangan AI di Pendidikan'."
         )
     elif is_registration_request:
         prompt = (
-            f"Berikan informasi tentang pendaftaran di Trisakti School of Multimedia. "
-            f"Gunakan tepat satu kali link pendaftaran resmi: {REGISTRATION_LINK} (sebutkan sebagai 'situs pendaftaran resmi'). "
-            f"Informasi tambahan tentang Trisakti: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
-            f"Pertanyaan user: {user_message}. "
-            "Sertakan link pendaftaran, jelaskan program studi yang tersedia, syarat pendaftaran, jalur masuk (Non Reguler, Reguler, Alih Jenjang), "
-            "periode pendaftaran untuk masing-masing jalur, dan kontak untuk informasi lebih lanjut. "
-            "Pastikan hanya menggunakan link yang diberikan sekali, dan jangan tambahkan atau ulang link pendaftaran dari sumber lain."
+            f"Berikan informasi pendaftaran Trisakti School of Multimedia. Gunakan satu kali link resmi: {REGISTRATION_LINK}. "
+            f"Informasi tambahan: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. Pertanyaan user: {user_message}."
         )
     elif is_campus_info_request:
         prompt = (
-            f"Berikan informasi tentang Trisakti School of Multimedia berdasarkan data berikut: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)}. "
-            f"Pertanyaan user: {user_message}. "
-            "Sertakan nama kampus, tahun pendirian, sejarah singkat, visi, misi, program studi yang ditawarkan, dan fasilitas utama. "
-            "Jawaban harus singkat, informatif, dan menggunakan bahasa Indonesia yang profesional. Jangan sertakan link pendaftaran kecuali diminta secara eksplisit."
+            f"Informasi lengkap tentang kampus berdasarkan data berikut: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)}. "
+            f"Pertanyaan user: {user_message}."
         )
     elif is_trisakti_request:
         prompt = (
-            f"Berikan jawaban berdasarkan informasi berikut tentang Trisakti School of Multimedia: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
-            f"Pertanyaan user: {user_message}. "
-            "Jika pertanyaan tidak relevan dengan informasi yang diberikan, jawab secara umum dengan bahasa Indonesia yang profesional. "
-            "Fokus pada informasi yang relevan dan hindari penjelasan berlebihan."
+            f"Jawaban berdasarkan informasi ini: {json.dumps(TRISAKTI_INFO, ensure_ascii=False)}. "
+            f"Pertanyaan user: {user_message}."
         )
     else:
         prompt = user_message
 
-    # Payload untuk OpenRouter API
-    payload = {
-        "model": "deepseek/deepseek-chat:free",
-        "messages": [
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.7
-    }
+    messages = [
+        {"role": "system", "content": system_message},
+        {"role": "user", "content": prompt}
+    ]
 
-    # Kirim request ke OpenRouter
+    # Urutan model-model gratis + fallback ke GPT-3.5
+    models = [
+        "deepseek/deepseek-chat:free",
+        "mistralai/mistral-7b-instruct:free",
+        "google/gemma-7b-it:free",
+        "cohere/command-r:free",
+        "nousresearch/nous-hermes-2-mixtral:free"
+    ]
+
+    for model_id in models:
+        result = try_openrouter_model(messages, model_id)
+        if result["success"]:
+            return jsonify({"reply": result["reply"]})
+
+    openai_result = try_openai(messages)
+    if openai_result["success"]:
+        return jsonify({"reply": openai_result["reply"]})
+
+    return jsonify({
+        "error": "Gagal mendapatkan respons dari semua model.",
+        "details": {
+            "openai": openai_result["error"]
+        }
+    }), 500
+
+
+def try_openrouter_model(messages, model_id):
     try:
-        response = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers=headers,
-            json=payload
-        )
-
-        if response.status_code == 200:
-            reply = response.json()["choices"][0]["message"]["content"]
-            # Bersihkan markdown dan whitespace
-            clean_reply = reply.replace("**", "").replace("#", "").strip()
-            # Filter duplikasi URL
-            clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?=(?:[^<]*>|[^>]*</a>))', '', clean_reply, count=1)
-            clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
-            return jsonify({"reply": clean_reply})
-        else:
-            error_msg = response.json().get("error", response.text)
-            return jsonify({
-                "error": "Gagal terhubung ke API.",
-                "details": error_msg
-            }), response.status_code
-
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json",
+            "Referer": "https://example.com",
+            "X-Title": "Chatbot-STMK-Trisakti"
+        }
+        payload = {
+            "model": model_id,
+            "messages": messages,
+            "temperature": 0.7
+        }
+        r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+        if r.status_code == 200:
+            reply = r.json()["choices"][0]["message"]["content"]
+            return {"success": True, "reply": clean_output(reply)}
+        return {"success": False, "error": r.text}
     except Exception as e:
-        return jsonify({
-            "error": "Terjadi kesalahan pada server.",
-            "message": str(e)
-        }), 500
+        return {"success": False, "error": str(e)}
+
+
+def try_openai(messages):
+    try:
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "gpt-3.5-turbo",
+            "messages": messages,
+            "temperature": 0.7
+        }
+        r = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        if r.status_code == 200:
+            reply = r.json()["choices"][0]["message"]["content"]
+            return {"success": True, "reply": clean_output(reply)}
+        return {"success": False, "error": r.text}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def clean_output(text):
+    text = text.replace("**", "").replace("#", "").strip()
+    text = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?=(?:[^<]*>|[^>]*</a>))', '', text, count=1)
+    return text.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
