@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asisten AI STMK Trisakti</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap"> <!-- Font futuristik Orbitron -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap">
   <style>
     :root {
-      --primary: linear-gradient(45deg, #00d4ff, #ff00ff); /* Gradien neon biru-ungu */
-      --secondary: #ffffff; /* Putih di mode terang */
+      --primary: linear-gradient(45deg, #00d4ff, #ff00ff);
+      --secondary: #ffffff;
       --user-msg: #a30000;
-      --ai-msg: #e0f7fa; /* Latar belakang AI terang dengan sentuhan futuristik */
-      --text-dark: #1e293b; /* Hitam tua untuk teks di mode terang */
-      --text-light: #00ffcc; /* Putih untuk teks di mode gelap */
-      --neon-accent: #00ffcc; /* Warna neon untuk aksen */
+      --ai-msg: #e0f7fa;
+      --text-dark: #1e293b;
+      --text-light: #00ffcc;
+      --neon-accent: #00ffcc;
       --border-radius: 12px;
       --shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
       --transition: all 0.3s ease;
@@ -21,17 +21,17 @@
 
     [data-theme="dark"] {
       --primary: linear-gradient(45deg, #00d4ff, #ff00ff);
-      --secondary: #000000; /* Hitam pekat di mode gelap */
+      --secondary: #000000;
       --user-msg: #dc2626;
-      --ai-msg: #0a0a1a; /* Latar belakang AI gelap futuristik */
-      --text-dark: #f1f5f9; /* Teks terang di mode gelap */
-      --text-light: #00ffcc; /* Neon hijau untuk teks di mode gelap */
+      --ai-msg: #0a0a1a;
+      --text-dark: #f1f5f9;
+      --text-light: #00ffcc;
       --neon-accent: #00ffcc;
     }
 
     * {
       box-sizing: border-box;
-      font-family: 'Orbitron', sans-serif; /* Font futuristik */
+      font-family: 'Orbitron', sans-serif;
       margin: 0;
       padding: 0;
     }
@@ -41,12 +41,11 @@
       flex-direction: column;
       min-height: 100vh;
       background: var(--secondary);
-      color: var(--text-dark); /* Teks utama mengikuti tema */
+      color: var(--text-dark);
       transition: var(--transition);
       overflow-x: hidden;
     }
 
-    /* Dekorasi latar belakang futuristik */
     body::before {
       content: '';
       position: fixed;
@@ -176,9 +175,9 @@
       line-height: 1.5;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
       transition: var(--transition);
-      white-space: pre-wrap; /* Menjaga indentasi dan baris baru */
+      white-space: pre-wrap;
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--ai-msg));
-      color: var(--text-light); /* Memastikan teks kontras dengan latar */
+      color: var(--text-light);
     }
 
     .user .text {
@@ -189,7 +188,19 @@
 
     .ai .text {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--ai-msg));
-      color: var(--text-light); /* Teks putih untuk kontras */
+      color: var(--text-light);
+    }
+
+    .text a {
+      color: #00d4ff; /* Neon biru */
+      text-decoration: underline;
+      text-shadow: 0 0 5px var(--neon-accent);
+      transition: var(--transition);
+    }
+
+    .text a:hover {
+      color: #ff00ff; /* Neon ungu */
+      text-shadow: 0 0 10px var(--neon-accent);
     }
 
     .copy-button {
@@ -249,7 +260,7 @@
       border: none;
       border-radius: 8px;
       background: transparent;
-      color: var(--text-light); /* Teks input mengikuti tema */
+      color: var(--text-light);
       resize: none;
       overflow-y: auto;
       max-height: 150px;
@@ -316,40 +327,14 @@
     }
 
     @media (max-width: 768px) {
-      header {
-        padding: 1rem;
-      }
-
-      header h1 {
-        font-size: 1.2rem;
-      }
-
-      #chat-container, #input-form {
-        padding: 1rem;
-      }
-
-      .text {
-        max-width: 85%;
-      }
-
-      .icon {
-        width: 30px;
-        height: 30px;
-      }
-
-      #input-container {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      #message-input {
-        width: 100%;
-      }
-
-      button {
-        width: 100%;
-        padding: 0.75rem;
-      }
+      header { padding: 1rem; }
+      header h1 { font-size: 1.2rem; }
+      #chat-container, #input-form { padding: 1rem; }
+      .text { max-width: 85%; }
+      .icon { width: 30px; height: 30px; }
+      #input-container { flex-direction: column; gap: 0.5rem; }
+      #message-input { width: 100%; }
+      button { width: 100%; padding: 0.75rem; }
     }
   </style>
 </head>
@@ -361,7 +346,7 @@
 
   <div id="chat-container">
     <div id="welcome-message">
-      Selamat datang! Saya Adalah Asisten AI Anda. 
+      Selamat datang! Saya Adalah Asisten AI Anda.
     </div>
   </div>
 
@@ -418,15 +403,17 @@
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
-      const cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
-      bubble.textContent = cleanContent;
+      // Bersihin markdown dan ganti URL jadi link klikabel
+      let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
+      cleanContent = cleanContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+      bubble.innerHTML = cleanContent.replace(/\n/g, '<br>');
 
       if (role === 'ai') {
         const copyBtn = document.createElement('button');
         copyBtn.classList.add('copy-button');
         copyBtn.textContent = 'Salin';
         copyBtn.onclick = () => {
-          navigator.clipboard.writeText(cleanContent);
+          navigator.clipboard.writeText(content); // Salin teks asli, bukan HTML
           copyBtn.textContent = 'Tersalin!';
           setTimeout(() => copyBtn.textContent = 'Salin', 2000);
         };
@@ -471,7 +458,7 @@
         if (data.reply) {
           appendMessage('ai', data.reply);
         } else {
-          appendMessage('ai', 'Maaf, terjadi kesalahan dalam mendapatkan jawaban. ini adalah versi gratis dan saat ini sudah mecapai batas, mohon tunggu hingga reset kembali 🙏🏻');
+          appendMessage('ai', 'Maaf, terjadi kesalahan dalam mendapatkan jawaban. Ini adalah versi gratis dan saat ini sudah mencapai batas, mohon tunggu hingga reset kembali 🙏🏻');
         }
       } catch (err) {
         typingIndicator.remove();
