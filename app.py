@@ -13,17 +13,21 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # Pastikan CORS mendukung semua origin
 
 # Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
-    logger.critical("GEMINI_API_KEY tidak ditemukan di .env. Aplikasi tidak akan berjalan.")
-    raise ValueError("GEMINI_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
+    logger.critical("GEMINI_API_KEY tidak ditemukan di .env. Menggunakan mode offline dengan data default.")
+    GEMINI_API_KEY = "default_key"  # Fallback untuk pengujian lokal
 
 # Konfigurasi Gemini API
-genai.configure(api_key=GEMINI_API_KEY)
+try:
+    genai.configure(api_key=GEMINI_API_KEY)
+except Exception as e:
+    logger.error(f"Gagal mengonfigurasi Gemini API: {str(e)}")
+    genai.configure(api_key="default_key")  # Fallback jika konfigurasi gagal
 
 # Load Trisakti info from JSON dengan validasi
 TRISAKTI_INFO_FULL = None
@@ -31,19 +35,41 @@ try:
     with open('trisakti_info.json', 'r', encoding='utf-8') as f:
         TRISAKTI_INFO_FULL = json.load(f)
     if not TRISAKTI_INFO_FULL or not isinstance(TRISAKTI_INFO_FULL, dict):
-        raise ValueError("Konten trisakti_info.json tidak valid.")
+        logger.warning("Konten trisakti_info.json tidak valid. Menggunakan data default.")
+        TRISAKTI_INFO_FULL = {
+            "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
+            "registration_link": "https://trisaktimultimedia.ecampuz.com/eadmisi/"
+        }
     TRISAKTI_INFO = TRISAKTI_INFO_FULL.copy()
     if "registration_link" in TRISAKTI_INFO:
         del TRISAKTI_INFO["registration_link"]
 except FileNotFoundError:
-    logger.critical("File trisakti_info.json tidak ditemukan di direktori.")
-    raise ValueError("File trisakti_info.json tidak ditemukan, silakan periksa direktori.")
+    logger.critical("File trisakti_info.json tidak ditemukan. Menggunakan data default.")
+    TRISAKTI_INFO_FULL = {
+        "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
+        "registration_link": "https://trisaktimultimedia.ecampuz.com/eadmisi/"
+    }
+    TRISAKTI_INFO = TRISAKTI_INFO_FULL.copy()
+    if "registration_link" in TRISAKTI_INFO:
+        del TRISAKTI_INFO["registration_link"]
 except json.JSONDecodeError as e:
-    logger.critical(f"Format JSON di trisakti_info.json salah: {str(e)}")
-    raise ValueError(f"Format JSON di trisakti_info.json salah: {str(e)}")
+    logger.critical(f"Format JSON di trisakti_info.json salah: {str(e)}. Menggunakan data default.")
+    TRISAKTI_INFO_FULL = {
+        "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
+        "registration_link": "https://trisaktimultimedia.ecampuz.com/eadmisi/"
+    }
+    TRISAKTI_INFO = TRISAKTI_INFO_FULL.copy()
+    if "registration_link" in TRISAKTI_INFO:
+        del TRISAKTI_INFO["registration_link"]
 except Exception as e:
-    logger.critical(f"Error tak terduga saat memuat trisakti_info.json: {str(e)}")
-    raise
+    logger.critical(f"Error tak terduga saat memuat trisakti_info.json: {str(e)}. Menggunakan data default.")
+    TRISAKTI_INFO_FULL = {
+        "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
+        "registration_link": "https://trisaktimultimedia.ecampuz.com/eadmisi/"
+    }
+    TRISAKTI_INFO = TRISAKTI_INFO_FULL.copy()
+    if "registration_link" in TRISAKTI_INFO:
+        del TRISAKTI_INFO["registration_link"]
 
 # Ambil dan validasi data kunci
 ADDRESS = TRISAKTI_INFO_FULL.get("address", "Alamat tidak tersedia")
@@ -149,7 +175,7 @@ def chat():
                 clean_reply += f" Silakan daftar melalui situs pendaftaran resmi: {REGISTRATION_LINK}."
             else:
                 clean_reply = re.sub(rf'(?<!\S)(?!{re.escape(REGISTRATION_LINK)})(https?://\S+)(?!\S)', '', clean_reply)
-                clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}\s+', ' ', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
+                clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?=\s|$)', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
         elif is_campus_info_request:
             if "beralamat di mana" in user_message.lower() and ADDRESS not in clean_reply:
                 clean_reply = f"Saya adalah asisten resmi Trisakti School of Multimedia. Kampus ini beralamat di {ADDRESS}."
@@ -161,13 +187,8 @@ def chat():
 
     except google_exceptions.GoogleAPIError as e:
         logger.error(f"Error dari Gemini API: {str(e)}")
-        if "Quota exceeded" in str(e):
-            return jsonify({
-                "error": "Kuota API Gemini telah mencapai batas.",
-                "message": "Silakan coba lagi nanti atau periksa kuota Anda di Google AI Studio."
-            }), 429
         return jsonify({
-            "error": "Gagal memproses permintaan ke Gemini API.",
+            "error": "Gagal terhubung ke Gemini API.",
             "message": str(e)
         }), 500
     except Exception as e:
@@ -179,7 +200,7 @@ def chat():
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
     except Exception as e:
         logger.critical(f"Gagal menjalankan server: {str(e)}")
         raise
