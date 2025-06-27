@@ -113,7 +113,7 @@ def chat():
             f"Saya adalah asisten resmi Trisakti School of Multimedia. Berikan informasi berdasarkan data: {json.dumps(TRISAKTI_INFO_FULL, ensure_ascii=False)} saja. "
             f"Pertanyaan user: {user_message}. "
             "Gunakan hanya data seperti nama kampus, alamat ({ADDRESS}), tahun pendirian, sejarah, visi, misi, program studi, fasilitas, akreditasi, atau kontak. "
-            "Jika pertanyaan tentang alamat, prioritaskan alamat: {ADDRESS}. Jangan mengarang informasi tambahan dan jangan sertakan link pendaftaran kecuali diminta."
+            "Jika pertanyaan tentang alamat, prioritaskan dan gunakan alamat: {ADDRESS}. Jangan mengarang informasi tambahan dan jangan sertakan link pendaftaran kecuali diminta."
         )
     elif is_trisakti_request:
         prompt = (
@@ -133,7 +133,7 @@ def chat():
         model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             generation_config={
-                "temperature": 0.4,  # Maksimal akurasi
+                "temperature": 0.3,  # Maksimal akurasi
                 "top_p": 0.9,
                 "max_output_tokens": 1000
             }
@@ -155,7 +155,7 @@ def chat():
                 clean_reply = f"Saya adalah asisten resmi Trisakti School of Multimedia. Kampus ini beralamat di {ADDRESS}."
             elif REGISTRATION_LINK in clean_reply:
                 clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}', '', clean_reply)
-        clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}").strip()
+        clean_reply = clean_reply.strip()
         logger.info(f"Respons setelah pembersihan: {clean_reply}")
         return jsonify({"reply": clean_reply})
 
