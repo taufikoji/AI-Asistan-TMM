@@ -2,12 +2,13 @@ import os
 import json
 import re
 import logging
+import requests
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from flask_cors import CORS
 
 # Konfigurasi logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename='app.log')
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
@@ -17,28 +18,31 @@ CORS(app)
 load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 if not OPENROUTER_API_KEY:
-    logger.error("OPENROUTER_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
+    logger.critical("OPENROUTER_API_KEY tidak ditemukan di .env. Aplikasi tidak akan berjalan.")
     raise ValueError("OPENROUTER_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
 
-# Load Trisakti info from JSON, hapus registration_link dari data yang dikirim ke AI
+# Load Trisakti info from JSON dengan validasi
+TRISAKTI_INFO_FULL = None
 try:
     with open('trisakti_info.json', 'r', encoding='utf-8') as f:
         TRISAKTI_INFO_FULL = json.load(f)
+    if not TRISAKTI_INFO_FULL or not isinstance(TRISAKTI_INFO_FULL, dict):
+        raise ValueError("Konten trisakti_info.json tidak valid.")
     # Buat salinan tanpa registration_link untuk dikirim ke AI
     TRISAKTI_INFO = TRISAKTI_INFO_FULL.copy()
     if "registration_link" in TRISAKTI_INFO:
         del TRISAKTI_INFO["registration_link"]
 except FileNotFoundError:
-    logger.error("File trisakti_info.json tidak ditemukan, silakan periksa direktori.")
+    logger.critical("File trisakti_info.json tidak ditemukan di direktori.")
     raise ValueError("File trisakti_info.json tidak ditemukan, silakan periksa direktori.")
-except json.JSONDecodeError:
-    logger.error("Format JSON di trisakti_info.json salah, silakan periksa sintaksnya.")
-    raise ValueError("Format JSON di trisakti_info.json salah, silakan periksa sintaksnya.")
+except json.JSONDecodeError as e:
+    logger.critical(f"Format JSON di trisakti_info.json salah: {str(e)}")
+    raise ValueError(f"Format JSON di trisakti_info.json salah: {str(e)}")
 except Exception as e:
-    logger.error(f"Error saat memuat trisakti_info.json: {str(e)}")
+    logger.critical(f"Error tak terduga saat memuat trisakti_info.json: {str(e)}")
     raise
 
-# Ambil link pendaftaran dari JSON untuk digunakan di prompt
+# Ambil link pendaftaran dari JSON
 REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
 
 @app.route('/')
@@ -56,18 +60,18 @@ def chat():
             "message": "Harus ada pesan dan tidak boleh kosong."
         }), 400
 
-    user_message = data.get("message", "").strip().lower()
+    user_message = data.get("message", "").strip()
     
     # Deteksi jenis permintaan
-    is_outline_request = any(keyword in user_message for keyword in ["outline", "struktur", "kerangka", "buat outline"])
-    is_trisakti_request = any(keyword in user_message for keyword in [
+    is_outline_request = any(keyword in user_message.lower() for keyword in ["outline", "struktur", "kerangka", "buat outline"])
+    is_trisakti_request = any(keyword in user_message.lower() for keyword in [
         "trisakti", "multimedia", "stmk", "tmm", "program studi", "beasiswa", 
         "fasilitas", "sejarah", "kerja sama", "akreditasi"
     ])
-    is_registration_request = any(keyword in user_message for keyword in [
+    is_registration_request = any(keyword in user_message.lower() for keyword in [
         "pendaftaran", "daftar", "registrasi", "cara daftar", "link pendaftaran"
     ])
-    is_campus_info_request = any(keyword in user_message for keyword in [
+    is_campus_info_request = any(keyword in user_message.lower() for keyword in [
         "kampus apa ini", "tentang kampus", "apa itu trisakti", "sejarah kampus", "identitas kampus"
     ])
 
@@ -142,40 +146,48 @@ def chat():
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers=headers,
-            json=payload
+            json=payload,
+            timeout=10
         )
         logger.info(f"Status respons API: {response.status_code}")
 
+        response_data = response.json()
         if response.status_code == 200:
-            reply = response.json()["choices"][0]["message"]["content"]
+            reply = response_data["choices"][0]["message"]["content"]
             logger.info(f"Respons mentah dari API: {reply}")
             # Bersihkan markdown dan whitespace
             clean_reply = reply.replace("**", "").replace("#", "").strip()
             # Filter duplikasi URL
-            clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?=(?:[^<]*>|[^>]*</a>))', '', clean_reply, count=1)
+            if REGISTRATION_LINK in clean_reply:
+                clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?![\w/])', '', clean_reply, count=clean_reply.count(REGISTRATION_LINK) - 1)
             clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
             logger.info(f"Respons setelah pembersihan: {clean_reply}")
             return jsonify({"reply": clean_reply})
         else:
-            error_msg = response.json().get("error", response.text)
-            logger.error(f"Gagal terhubung ke API: {error_msg}")
+            error_msg = response_data.get("error", response.text)
+            error_detail = response_data.get("detail", "Tidak ada detail tambahan")
+            logger.error(f"Gagal terhubung ke API: {error_msg} (Detail: {error_detail}, Status: {response.status_code})")
             return jsonify({
                 "error": "Gagal terhubung ke API.",
-                "details": error_msg
+                "details": f"{error_msg} - {error_detail}"
             }), response.status_code
 
     except requests.RequestException as e:
-        logger.error(f"Error jaringan atau API: {str(e)}")
+        logger.error(f"Error jaringan atau API: {str(e)}, URL: {e.request.url}, Response: {getattr(e.response, 'text', 'Tidak ada respons')}")
         return jsonify({
             "error": "Terjadi kesalahan jaringan atau API.",
             "message": str(e)
         }), 500
     except Exception as e:
-        logger.error(f"Error tak terduga pada server silahkan coba kembali setlah 00:00: {str(e)}")
+        logger.error(f"Error tak terduga pada server: {str(e)}, Traceback: {str(e)}")
         return jsonify({
-            "error": "Terjadi kesalahan pada server. Silahkan coba kembali setelah 00:00.",
+            "error": "Terjadi kesalahan pada server.",
             "message": str(e)
         }), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))
+    try:
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))  # Sesuaikan dengan port 5001
+    except Exception as e:
+        logger.critical(f"Gagal menjalankan server: {str(e)}")
+        raise
