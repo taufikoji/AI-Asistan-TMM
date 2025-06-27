@@ -1,9 +1,14 @@
 import os
 import json
 import re
+import logging
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from flask_cors import CORS
+
+# Konfigurasi logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app)
@@ -12,6 +17,7 @@ CORS(app)
 load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 if not OPENROUTER_API_KEY:
+    logger.error("OPENROUTER_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
     raise ValueError("OPENROUTER_API_KEY tidak ditemukan di .env, silakan periksa konfigurasi.")
 
 # Load Trisakti info from JSON, hapus registration_link dari data yang dikirim ke AI
@@ -23,9 +29,14 @@ try:
     if "registration_link" in TRISAKTI_INFO:
         del TRISAKTI_INFO["registration_link"]
 except FileNotFoundError:
+    logger.error("File trisakti_info.json tidak ditemukan, silakan periksa direktori.")
     raise ValueError("File trisakti_info.json tidak ditemukan, silakan periksa direktori.")
 except json.JSONDecodeError:
+    logger.error("Format JSON di trisakti_info.json salah, silakan periksa sintaksnya.")
     raise ValueError("Format JSON di trisakti_info.json salah, silakan periksa sintaksnya.")
+except Exception as e:
+    logger.error(f"Error saat memuat trisakti_info.json: {str(e)}")
+    raise
 
 # Ambil link pendaftaran dari JSON untuk digunakan di prompt
 REGISTRATION_LINK = TRISAKTI_INFO_FULL.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
@@ -39,6 +50,7 @@ def chat():
     # Validasi input
     data = request.get_json()
     if not data or not isinstance(data.get("message"), str) or not data["message"].strip():
+        logger.warning("Permintaan tidak valid: pesan kosong atau format salah.")
         return jsonify({
             "error": "Pesan tidak valid.",
             "message": "Harus ada pesan dan tidak boleh kosong."
@@ -126,28 +138,40 @@ def chat():
 
     # Kirim request ke OpenRouter
     try:
+        logger.info(f"Mengirim permintaan ke API dengan pesan: {user_message}")
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers=headers,
             json=payload
         )
+        logger.info(f"Status respons API: {response.status_code}")
 
         if response.status_code == 200:
             reply = response.json()["choices"][0]["message"]["content"]
+            logger.info(f"Respons mentah dari API: {reply}")
             # Bersihkan markdown dan whitespace
             clean_reply = reply.replace("**", "").replace("#", "").strip()
             # Filter duplikasi URL
             clean_reply = re.sub(rf'{re.escape(REGISTRATION_LINK)}(?=(?:[^<]*>|[^>]*</a>))', '', clean_reply, count=1)
             clean_reply = clean_reply.replace(f" {REGISTRATION_LINK}", f" {REGISTRATION_LINK}")
+            logger.info(f"Respons setelah pembersihan: {clean_reply}")
             return jsonify({"reply": clean_reply})
         else:
             error_msg = response.json().get("error", response.text)
+            logger.error(f"Gagal terhubung ke API: {error_msg}")
             return jsonify({
                 "error": "Gagal terhubung ke API.",
                 "details": error_msg
             }), response.status_code
 
+    except requests.RequestException as e:
+        logger.error(f"Error jaringan atau API: {str(e)}")
+        return jsonify({
+            "error": "Terjadi kesalahan jaringan atau API.",
+            "message": str(e)
+        }), 500
     except Exception as e:
+        logger.error(f"Error tak terduga pada server: {str(e)}")
         return jsonify({
             "error": "Terjadi kesalahan pada server.",
             "message": str(e)
