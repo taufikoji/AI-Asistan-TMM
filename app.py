@@ -219,7 +219,7 @@ def chat():
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))  # Untuk pengujian lokal
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))  # Untuk pengujian lokal
     except Exception as e:
         logger.critical(f"Gagal menjalankan server: {str(e)}")
         raise
