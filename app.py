@@ -53,7 +53,11 @@ KEYWORDS.update({
     "misi": ["misi", "langkah strategis"],
     "kerjasama": ["kerja sama", "partner", "kolaborasi", "mitra industri", "dengan siapa"],
     "keunggulan": ["manfaat kuliah", "kenapa pilih trisakti", "keunggulan kampus", "mengapa trisakti", "apa bagusnya"],
-    "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum", "event kampus"]
+    "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum", "event kampus"],
+    "identitas_kampus": [
+        "jelaskan kampus apa ini", "apa itu trisakti multimedia", "tentang kampus", 
+        "seputar kampus", "identitas kampus", "profil kampus", "kampusnya seperti apa"
+    ]
 })
 
 GREETINGS = ["halo", "hai", "assalamualaikum", "selamat pagi", "selamat siang", "selamat malam", "test"]
@@ -138,7 +142,7 @@ def chat():
         return jsonify({"reply": reply})
 
     category = match_keyword(user_message, KEYWORDS)
-    program = find_program_by_keyword(user_message)
+    program = find_program_by_keyword(user_message) if not category else None
 
     system_message = (
         "Anda adalah asisten resmi Trisakti School of Multimedia. "
@@ -155,6 +159,19 @@ def chat():
             f"Akreditasi: {program['accreditation']}. "
             f"Peluang karier: {', '.join(program['career_prospects'])}. "
             "Jika ada detail lain yang relevan dari pertanyaan pengguna, sertakan juga."
+        )
+    elif category == "identitas_kampus":
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            f"Berikan gambaran umum tentang Trisakti School of Multimedia berdasarkan data berikut: "
+            f"Nama: {TRISAKTI.get('name', 'Trisakti School of Multimedia')}, "
+            f"Sejarah: {TRISAKTI.get('history', '')}, "
+            f"Lokasi: {ADDRESS}, "
+            f"Visi: {TRISAKTI.get('vision', '')}, "
+            f"Misi: {json.dumps(TRISAKTI.get('mission', []), ensure_ascii=False)}, "
+            f"Keunggulan: {TRISAKTI.get('why_trisakti', '')}, "
+            f"Program Studi Unggulan (contoh): {json.dumps([p['name'] for p in PROGRAMS[:2]], ensure_ascii=False)}. "
+            "Jawaban harus singkat, informatif, dan ramah, dengan ajakan untuk bertanya lebih lanjut jika diperlukan."
         )
     elif category == "alamat":
         prompt = (
