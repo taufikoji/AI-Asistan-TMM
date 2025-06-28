@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek-chat")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "mistralai/mistral-7b-instruct:free")
 
 # Setup Flask
 app = Flask(__name__)
@@ -54,6 +54,11 @@ KEYWORDS.update({
     "keunggulan": ["kenapa", "keunggulan"],
     "berita": ["berita", "event"],
     "identitas_kampus": ["apa itu trisakti", "tentang kampus"],
+    "alamat": ["alamat", "lokasi", "dimana"],
+    "fasilitas": ["fasilitas", "gedung", "laboratorium"],
+    "pendaftaran": ["daftar", "pendaftaran", "registrasi"],
+    "beasiswa": ["beasiswa", "kip kuliah"],
+    "kontak": ["kontak", "hubungi", "whatsapp", "nomor"],
 })
 GREETINGS = ["halo", "hai", "assalamualaikum", "selamat pagi", "selamat malam"]
 
@@ -146,7 +151,7 @@ def chat():
     try:
         reply = ask_gemini(system_message, prompt)
     except Exception:
-        logger.info("Fallback ke OpenRouter (DeepSeek)")
+        logger.info("Fallback ke OpenRouter (DeepSeek/Mistral)")
         reply = ask_openrouter(system_message, prompt)
 
     save_chat(user_message, reply)
