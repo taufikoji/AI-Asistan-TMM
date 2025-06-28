@@ -1,3 +1,4 @@
+<!-- Salinan dari file sebelumnya, tanpa fitur copy -->
 <!DOCTYPE html>
 <html lang="id" data-theme="light">
 <head>
@@ -134,25 +135,6 @@
       text-decoration: underline;
     }
 
-    .copy-button {
-      position: absolute;
-      bottom: 5px;
-      right: 10px;
-      font-size: 0.75rem;
-      background: var(--button-bg);
-      color: white;
-      border: none;
-      padding: 0.3rem 0.6rem;
-      border-radius: 5px;
-      cursor: pointer;
-      opacity: 0.6;
-    }
-
-    .copy-button:hover {
-      opacity: 1;
-      background: var(--button-hover);
-    }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -285,17 +267,6 @@
       const bubble = document.createElement("div");
       bubble.className = "text";
       bubble.innerHTML = DOMPurify.sanitize(text.replace(/\n/g, "<br>"));
-      if (role === "ai") {
-        const btn = document.createElement("button");
-        btn.className = "copy-button";
-        btn.textContent = "Salin";
-        btn.onclick = () => {
-          navigator.clipboard.writeText(text);
-          btn.textContent = "Tersalin!";
-          setTimeout(() => btn.textContent = "Salin", 2000);
-        };
-        bubble.appendChild(btn);
-      }
       msg.appendChild(icon);
       msg.appendChild(bubble);
       chat.appendChild(msg);
