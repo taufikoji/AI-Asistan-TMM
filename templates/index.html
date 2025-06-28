@@ -2,7 +2,7 @@
 <html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Asisten AI Trisakti School of Multimedia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
@@ -49,6 +49,8 @@
       font-family: 'Orbitron', sans-serif;
       margin: 0;
       padding: 0;
+      -webkit-text-size-adjust: 100%; /* Mencegah zoom teks di iOS */
+      -ms-text-size-adjust: 100%;
     }
 
     body {
@@ -92,6 +94,7 @@
       scroll-behavior: smooth;
       max-width: 900px;
       margin: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .message {
@@ -122,6 +125,7 @@
       color: var(--text);
       position: relative;
       box-shadow: var(--shadow);
+      word-wrap: break-word;
     }
 
     .user .text {
@@ -151,11 +155,12 @@
       width: 100%;
       max-width: 700px;
       padding: 0.8rem 1rem;
-      font-size: 1rem;
+      font-size: 16px;
       border-radius: var(--radius);
       border: 1px solid #ccc;
       background: var(--input-bg);
       color: var(--text);
+      touch-action: manipulation; /* Mencegah gesture zoom */
     }
 
     button {
@@ -168,6 +173,7 @@
       cursor: pointer;
       font-weight: bold;
       transition: var(--transition);
+      touch-action: manipulation; /* Mencegah gesture zoom */
     }
 
     button:hover {
@@ -178,11 +184,16 @@
       #message-input, button {
         width: 100%;
         margin: 0.3rem 0;
+        font-size: 16px;
       }
 
       #input-form {
         flex-direction: column;
         align-items: center;
+      }
+
+      .message .text {
+        max-width: 85%;
       }
     }
   </style>
@@ -239,6 +250,15 @@
       chat.appendChild(msg);
       chat.scrollTop = chat.scrollHeight;
     }
+
+    // Tambahkan pencegahan zoom
+    document.addEventListener('touchmove', function (e) {
+        if (e.scale !== 1) { e.preventDefault(); }
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function (e) {
+        e.preventDefault();
+    });
 
     form.onsubmit = async (e) => {
       e.preventDefault();
