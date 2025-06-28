@@ -54,11 +54,6 @@ KEYWORDS.update({
     "keunggulan": ["kenapa", "keunggulan"],
     "berita": ["berita", "event"],
     "identitas_kampus": ["apa itu trisakti", "tentang kampus"],
-    "alamat": ["alamat", "lokasi", "dimana"],
-    "fasilitas": ["fasilitas", "gedung", "laboratorium"],
-    "pendaftaran": ["daftar", "pendaftaran", "registrasi"],
-    "beasiswa": ["beasiswa", "kip kuliah"],
-    "kontak": ["kontak", "hubungi", "whatsapp", "nomor"],
 })
 GREETINGS = ["halo", "hai", "assalamualaikum", "selamat pagi", "selamat malam"]
 
@@ -99,6 +94,8 @@ def ask_gemini(system_message, prompt):
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(f"{system_message}\n\n{prompt}")
         return response.text.strip()
+    except google_exceptions.ResourceExhausted:
+        raise google_exceptions.ResourceExhausted("Kuota Gemini habis.")
     except Exception as e:
         logger.error(f"Gemini error: {e}")
         raise
@@ -110,7 +107,7 @@ def ask_openrouter(system_message, prompt):
             "Content-Type": "application/json",
         }
         payload = {
-            "model": f"openrouter/{OPENROUTER_MODEL}",
+            "model": OPENROUTER_MODEL,
             "messages": [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
@@ -122,7 +119,7 @@ def ask_openrouter(system_message, prompt):
         return data["choices"][0]["message"]["content"]
     except Exception as e:
         logger.error(f"OpenRouter error: {e}")
-        return "Maaf, saya tidak dapat memproses permintaan Anda saat ini."
+        raise
 
 # Routes
 @app.route("/")
@@ -150,9 +147,18 @@ def chat():
     # Coba Gemini dulu
     try:
         reply = ask_gemini(system_message, prompt)
+    except google_exceptions.ResourceExhausted:
+        logger.warning("Kuota Gemini habis. Fallback ke OpenRouter.")
+        try:
+            reply = ask_openrouter(system_message, prompt)
+        except Exception:
+            return jsonify({"error": "Semua model AI sedang sibuk. Silakan coba beberapa saat lagi."}), 503
     except Exception:
-        logger.info("Fallback ke OpenRouter (DeepSeek/Mistral)")
-        reply = ask_openrouter(system_message, prompt)
+        logger.warning("Gemini gagal, fallback ke OpenRouter.")
+        try:
+            reply = ask_openrouter(system_message, prompt)
+        except Exception:
+            return jsonify({"error": "Semua model AI sedang sibuk. Silakan coba beberapa saat lagi."}), 503
 
     save_chat(user_message, reply)
     return jsonify({"reply": reply})
