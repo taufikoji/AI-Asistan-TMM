@@ -9,10 +9,22 @@
     "Mengembangkan penelitian serta inovasi di bidang multimedia dengan fokus pada teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI)."
   ],
   "programs": [
-    "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
-    "Sarjana Desain Animasi dan Games (S1)",
-    "Sarjana Desain Kreatif Visual Periklanan (S1)",
-    "Sarjana Desain Multimedia Broadcasting (S1)"
+    {
+      "name": "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
+      "description": "Fokus pada pengembangan desain kemasan produk yang inovatif, ramah lingkungan, dan siap industri. Mahasiswa akan belajar menciptakan kemasan fungsional dan menarik, serta memahami teknologi produksi kemasan modern."
+    },
+    {
+      "name": "Sarjana Desain Animasi dan Games (S1)",
+      "description": "Mempersiapkan mahasiswa dalam bidang animasi 2D/3D dan pengembangan video game. Kurikulum mencakup storytelling, ilustrasi digital, pemrograman game, dan visual effects (VFX)."
+    },
+    {
+      "name": "Sarjana Desain Kreatif Visual Periklanan (S1)",
+      "description": "Mengembangkan keterampilan dalam menciptakan visual iklan yang kreatif dan strategis. Fokus pada branding, desain grafis, komunikasi visual, dan media digital."
+    },
+    {
+      "name": "Sarjana Desain Multimedia Broadcasting (S1)",
+      "description": "Membekali mahasiswa dengan keterampilan dalam produksi konten audio-visual seperti podcast, video YouTube, dan siaran digital. Fokus pada sinematografi, penyiaran, dan editing."
+    }
   ],
   "facilities": [
     "Perpustakaan (SLiMS & Digilib)",
@@ -35,7 +47,11 @@
   },
   "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
   "website": "https://trisaktimultimedia.ac.id",
-  "values": ["Kreativitas", "Teknologi", "Budaya"],
+  "values": [
+    "Kreativitas",
+    "Teknologi",
+    "Budaya"
+  ],
   "collaborations": [
     {
       "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
@@ -68,22 +84,22 @@
       {
         "name": "NR - Non Reguler",
         "waves": [
-          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
-          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       },
       {
         "name": "REG - Reguler",
         "waves": [
-          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
-          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       },
       {
         "name": "AJ - Alih Jenjang (Ekstensi)",
         "waves": [
-          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
-          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       }
     ],
