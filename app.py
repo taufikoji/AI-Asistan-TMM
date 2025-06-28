@@ -157,7 +157,12 @@ def chat():
             "Jika ada detail lain yang relevan dari pertanyaan pengguna, sertakan juga."
         )
     elif category == "alamat":
-        prompt = f"Pengguna bertanya: '{user_message}'. Alamat resmi: {ADDRESS}."
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            f"Alamat resmi Trisakti School of Multimedia adalah: {ADDRESS}. "
+            "Berikan respons yang informatif dan ramah, sertakan saran untuk mengunjungi website resmi "
+            f"({TRISAKTI.get('website', 'https://trisaktimultimedia.ac.id')}) untuk detail lokasi dan peta kampus."
+        )
     elif category == "pendaftaran":
         prompt = (
             f"Pengguna bertanya: '{user_message}'. "
