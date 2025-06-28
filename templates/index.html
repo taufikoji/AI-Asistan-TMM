@@ -1,4 +1,3 @@
-<!-- Salinan dari file sebelumnya, tanpa fitur copy -->
 <!DOCTYPE html>
 <html lang="id" data-theme="light">
 <head>
@@ -157,6 +156,7 @@
       border: 1px solid #ccc;
       background: var(--input-bg);
       color: var(--text);
+      resize: vertical;
     }
 
     button {
@@ -221,7 +221,7 @@
 
   <main id="chat-container">
     <div class="message ai">
-      <img class="icon" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" alt="ai">
+      <img class="icon" src="/static/ai.png" alt="AI">
       <div class="text">Halo! Saya siap membantu Anda seputar pendidikan di STMK Trisakti.</div>
     </div>
   </main>
@@ -247,15 +247,17 @@
     const chat = document.getElementById("chat-container");
     const themeToggle = document.getElementById("theme-toggle");
 
+    // Tema awal
     const theme = localStorage.getItem("theme") || "light";
     document.documentElement.setAttribute("data-theme", theme);
     themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
 
     themeToggle.onclick = () => {
-      const now = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", now);
-      localStorage.setItem("theme", now);
-      themeToggle.textContent = now === "dark" ? "🌙" : "☀️";
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      themeToggle.textContent = next === "dark" ? "🌙" : "☀️";
     };
 
     function append(role, text) {
@@ -263,7 +265,7 @@
       msg.className = `message ${role}`;
       const icon = document.createElement("img");
       icon.className = "icon";
-      icon.src = role === "user" ? "https://cdn-icons-png.flaticon.com/512/1077/1077114.png" : "/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png";
+      icon.src = role === "user" ? "https://cdn-icons-png.flaticon.com/512/1077/1077114.png" : "/static/ai.png";
       const bubble = document.createElement("div");
       bubble.className = "text";
       bubble.innerHTML = DOMPurify.sanitize(text.replace(/\n/g, "<br>"));
@@ -281,14 +283,19 @@
       input.value = "";
 
       append("ai", "AI sedang mengetik...");
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ message: msg })
-      });
-      const data = await res.json();
-      chat.lastChild.remove();
-      append("ai", data.reply || "Terjadi kesalahan.");
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        chat.lastChild.remove();
+        append("ai", data.reply || "Terjadi kesalahan.");
+      } catch (err) {
+        chat.lastChild.remove();
+        append("ai", "Maaf, terjadi gangguan koneksi.");
+      }
     };
 
     document.querySelectorAll(".quick-btn").forEach(btn => {
