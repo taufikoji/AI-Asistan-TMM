@@ -35,11 +35,7 @@
   },
   "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
   "website": "https://trisaktimultimedia.ac.id",
-  "values": [
-    "Kreativitas",
-    "Teknologi",
-    "Budaya"
-  ],
+  "values": ["Kreativitas", "Teknologi", "Budaya"],
   "collaborations": [
     {
       "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
@@ -72,22 +68,22 @@
       {
         "name": "NR - Non Reguler",
         "waves": [
-          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
-          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
+          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
+          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
         ]
       },
       {
         "name": "REG - Reguler",
         "waves": [
-          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
-          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
+          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
+          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
         ]
       },
       {
         "name": "AJ - Alih Jenjang (Ekstensi)",
         "waves": [
-          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
-          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
+          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
+          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
         ]
       }
     ],
