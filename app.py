@@ -8,7 +8,7 @@ import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 from datetime import datetime
 
-# Logging setup
+# Logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "default_key")
 
-# Flask setup
+# Inisialisasi Flask
 app = Flask(__name__)
 CORS(app)
 
@@ -30,7 +30,7 @@ try:
 except Exception as e:
     logger.error(f"Gagal konfigurasi Gemini: {e}")
 
-# Load data kampus
+# Muat data kampus
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -45,12 +45,17 @@ REGISTRATION_LINK = TRISAKTI.get("registration_link", "#")
 REGISTRATION_DETAILS = TRISAKTI.get("registration_details", {})
 PROGRAMS = TRISAKTI.get("programs", [])
 PROGRAM_KEYWORDS = {p["short"].lower(): p for p in PROGRAMS}
+
+# Kata kunci utama
 KEYWORDS = TRISAKTI.get("faq_keywords", {})
+
+# Tambahan kata kunci internal
 KEYWORDS.update({
     "visi": ["visi", "tujuan utama"],
     "misi": ["misi", "langkah strategis"],
     "kerjasama": ["kerja sama", "partner", "kolaborasi", "mitra industri", "dengan siapa"]
 })
+
 GREETINGS = ["halo", "hai", "assalamualaikum", "selamat pagi", "selamat siang", "selamat malam", "test"]
 
 def match_keyword(message, category_keywords):
@@ -71,8 +76,14 @@ def is_greeting(msg):
     return any(greet in msg.lower() for greet in GREETINGS)
 
 def is_educational_question(msg):
-    keywords = ["kuliah", "kampus", "mahasiswa", "program", "akademik", "pendidikan", "studi", "jurusan", "dosen", "belajar"]
+    keywords = ["kuliah", "kampus", "mahasiswa", "program", "akademik", "pendidikan", "studi"]
     return any(k in msg.lower() for k in keywords)
+
+def is_joking_or_casual(message):
+    jokes = ["becanda", "bercanda", "ngakak", "kocak", "lucu", "garing", "ketawa", "joke"]
+    casual = ["ngopi", "nongkrong", "gabut", "btw", "lagi apa", "udah makan", "mager", "santai", "curhat"]
+    msg = message.lower()
+    return any(word in msg for word in jokes + casual)
 
 def save_chat(user_msg, ai_reply):
     try:
@@ -103,50 +114,57 @@ def chat():
     if not user_message:
         return jsonify({"error": "Pesan tidak boleh kosong."}), 400
 
-    # Deteksi sapaan
+    # Respons sapaan
     if is_greeting(user_message):
-        reply = "Halo, saya adalah TIMU. Saya siap membantu Anda dalam memberikan informasi seputar Trisakti School of Multimedia."
+        reply = "Halo! 👋 Saya adalah TIMU, Asisten AI dari Trisakti School of Multimedia. Silakan ajukan pertanyaan seputar kampus kami ya!"
         save_chat(user_message, reply)
         return jsonify({"reply": reply})
 
-    # Deteksi kategori & program studi
+    # Respons candaan atau diskusi ringan
+    if is_joking_or_casual(user_message):
+        reply = "Hehe, saya memang bukan komedian, tapi saya bisa bantu cari info kampus! 😄"
+        save_chat(user_message, reply)
+        return jsonify({"reply": reply})
+
+    # Deteksi topik
     category = match_keyword(user_message, KEYWORDS)
     program = find_program_by_keyword(user_message)
 
-    # System message
+    # Prompt sistem
     system_message = (
-        "Anda adalah asisten AI bernama TIMU dari Trisakti School of Multimedia. "
-        "Berikan jawaban yang ramah, sopan, edukatif, dan profesional. "
-        "Jawaban hanya seputar topik pendidikan, program studi, beasiswa, fasilitas, akreditasi, pendaftaran, sejarah kampus. "
-        "Jika pertanyaan di luar topik, tetap bantu arahkan pengguna secara sopan. "
-        "Hindari penggunaan simbol markdown seperti ** atau #."
+        "Anda adalah asisten resmi Trisakti School of Multimedia. "
+        "Jawablah dengan gaya sopan, edukatif, dan profesional. "
+        "Jawaban hanya seputar pendidikan, program studi, beasiswa, fasilitas, akreditasi, pendaftaran, dan sejarah kampus. "
+        "Jangan gunakan markdown atau simbol seperti ** atau #. Gunakan bahasa Indonesia formal dan mudah dimengerti."
     )
 
     # Bangun prompt
     if program:
         prompt = (
             f"Pengguna bertanya: '{user_message}'. "
-            f"Program studi: {program['name']}. Deskripsi: {program['description']}. "
-            f"Akreditasi: {program['accreditation']}. Peluang karier: {', '.join(program['career_prospects'])}."
+            f"Berikan penjelasan lengkap tentang program studi {program['name']}. "
+            f"Deskripsi: {program['description']}. "
+            f"Akreditasi: {program['accreditation']}. "
+            f"Peluang karier: {', '.join(program['career_prospects'])}."
         )
     elif category == "alamat":
-        prompt = f"Pengguna bertanya: '{user_message}'. Jawab berdasarkan alamat resmi kampus: {ADDRESS}."
+        prompt = f"Pengguna bertanya: '{user_message}'. Jawablah berdasarkan alamat resmi: {ADDRESS}."
     elif category == "pendaftaran":
         prompt = (
-            f"Pengguna bertanya: '{user_message}'. Info pendaftaran: {json.dumps(REGISTRATION_DETAILS, ensure_ascii=False)}. "
-            f"Akhiri dengan link resmi: {REGISTRATION_LINK}."
+            f"Pengguna bertanya: '{user_message}'. Informasi pendaftaran: {json.dumps(REGISTRATION_DETAILS, ensure_ascii=False)}. "
+            f"Akhiri dengan link: {REGISTRATION_LINK}."
         )
     elif category == "beasiswa":
-        prompt = f"Pengguna bertanya: '{user_message}'. Info beasiswa kampus: {json.dumps(TRISAKTI.get('beasiswa', []), ensure_ascii=False)}."
+        prompt = f"Pengguna bertanya: '{user_message}'. Daftar beasiswa: {json.dumps(TRISAKTI.get('beasiswa', []), ensure_ascii=False)}."
     elif category == "prodi":
         prompt = (
-            f"Pengguna bertanya: '{user_message}'. Berikut daftar program studi: {json.dumps(PROGRAMS, ensure_ascii=False)}. "
-            "Jelaskan masing-masing program secara singkat dan menarik."
+            f"Pengguna bertanya: '{user_message}'. Daftar program studi: {json.dumps(PROGRAMS, ensure_ascii=False)}. "
+            "Jelaskan singkat setiap program secara ringkas."
         )
     elif category == "fasilitas":
-        prompt = f"Pengguna bertanya: '{user_message}'. Info fasilitas kampus: {json.dumps(TRISAKTI.get('facilities', []), ensure_ascii=False)}."
+        prompt = f"Pengguna bertanya: '{user_message}'. Fasilitas kampus: {json.dumps(TRISAKTI.get('facilities', []), ensure_ascii=False)}."
     elif category == "akreditasi":
-        prompt = f"Pengguna bertanya: '{user_message}'. Info akreditasi kampus dan program: {json.dumps(TRISAKTI.get('accreditation', {}), ensure_ascii=False)}."
+        prompt = f"Pengguna bertanya: '{user_message}'. Akreditasi kampus dan program studi: {json.dumps(TRISAKTI.get('accreditation', {}), ensure_ascii=False)}."
     elif category == "sejarah":
         prompt = f"Pengguna bertanya: '{user_message}'. Sejarah kampus: {TRISAKTI.get('history', '')}."
     elif category == "visi":
@@ -154,21 +172,15 @@ def chat():
     elif category == "misi":
         prompt = f"Pengguna bertanya: '{user_message}'. Misi kampus: {json.dumps(TRISAKTI.get('mission', []), ensure_ascii=False)}."
     elif category == "kerjasama":
-        prompt = f"Pengguna bertanya: '{user_message}'. Kerja sama kampus: {json.dumps(TRISAKTI.get('collaborations', []), ensure_ascii=False)}."
+        prompt = f"Pengguna bertanya: '{user_message}'. Kerja sama strategis: {json.dumps(TRISAKTI.get('collaborations', []), ensure_ascii=False)}."
     elif is_educational_question(user_message):
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. Pertanyaan ini bersifat edukatif. "
-            "Jawablah sebaik mungkin dengan informasi pendidikan yang relevan."
-        )
+        prompt = f"Pengguna bertanya: '{user_message}'. Jawablah seputar dunia pendidikan dengan sopan dan profesional."
     else:
-        reply = (
-            "Terima kasih atas pertanyaannya. Saat ini saya hanya dapat membantu seputar dunia pendidikan dan informasi resmi kampus Trisakti School of Multimedia. "
-            "Silakan ajukan pertanyaan seperti jurusan, pendaftaran, beasiswa, atau fasilitas kampus."
-        )
+        reply = "Maaf, saya hanya dapat membantu seputar informasi pendidikan dan kampus Trisakti School of Multimedia."
         save_chat(user_message, reply)
         return jsonify({"reply": reply})
 
-    # Kirim ke Gemini
+    # Proses AI
     try:
         model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
@@ -182,9 +194,8 @@ def chat():
         response = model.generate_content(f"{system_message}\n\n{prompt}")
         reply = response.text.strip()
 
-        # Tambahkan link pendaftaran jika perlu
         if category == "pendaftaran" and REGISTRATION_LINK not in reply:
-            reply += f"\n\nSilakan mendaftar di situs resmi: {REGISTRATION_LINK}"
+            reply += f"\n\nSilakan daftar di situs resmi: {REGISTRATION_LINK}"
 
         save_chat(user_message, reply)
         return jsonify({"reply": reply})
