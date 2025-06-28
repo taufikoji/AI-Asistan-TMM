@@ -1,37 +1,37 @@
 {
   "name": "Trisakti School of Multimedia",
   "foundation_year": 1985,
-  "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATG) oleh Cosmos Sutiyono, B.Sc., dengan dukungan Rektor Universitas Trisakti, Prof. Dr. Ir. P. Haryasudirdja. Pada 2008, melalui Surat Keputusan Kemendikbud, ATG berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti (STMK Trisakti). Pada 2018, rebranding menjadi Trisakti School of Multimedia (TMM) dengan fokus pada industri kreatif. Pada 26 Mei 2025, menjalin kerja sama dengan Politeknik Harapan Bersama (Poltek HarBer) untuk program D3 ke S1 dan kuliah umum strategi digital branding.",
+  "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATG) oleh Cosmos Sutiyono, B.Sc., dan pada tahun 2008 menjadi STMK Trisakti. Sejak 2018 berganti nama menjadi Trisakti School of Multimedia (TMM). Fokus utama kampus ini adalah pada pengembangan industri kreatif.",
   "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
   "mission": [
-    "Penyebarluasan ilmu pengetahuan, teknologi, dan seni khususnya di bidang media komunikasi.",
-    "Menghasilkan lulusan profesional dan berdaya saing di industri kreatif.",
-    "Mengembangkan penelitian serta inovasi di bidang multimedia dengan fokus pada teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI)."
+    "Penyebarluasan ilmu pengetahuan, teknologi, dan seni di bidang media komunikasi.",
+    "Menghasilkan lulusan profesional dan berdaya saing tinggi di industri kreatif.",
+    "Mengembangkan penelitian serta inovasi multimedia berbasis teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI)."
   ],
   "programs": [
     {
       "name": "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
-      "description": "Fokus pada pengembangan desain kemasan produk yang inovatif, ramah lingkungan, dan siap industri. Mahasiswa akan belajar menciptakan kemasan fungsional dan menarik, serta memahami teknologi produksi kemasan modern."
+      "description": "Program yang mempelajari desain grafis untuk kemasan produk, teknologi cetak, serta strategi branding visual untuk industri kemasan modern."
     },
     {
       "name": "Sarjana Desain Animasi dan Games (S1)",
-      "description": "Mempersiapkan mahasiswa dalam bidang animasi 2D/3D dan pengembangan video game. Kurikulum mencakup storytelling, ilustrasi digital, pemrograman game, dan visual effects (VFX)."
+      "description": "Fokus pada pembuatan animasi 2D/3D, game development, storytelling visual, serta produksi konten digital interaktif."
     },
     {
       "name": "Sarjana Desain Kreatif Visual Periklanan (S1)",
-      "description": "Mengembangkan keterampilan dalam menciptakan visual iklan yang kreatif dan strategis. Fokus pada branding, desain grafis, komunikasi visual, dan media digital."
+      "description": "Mempelajari komunikasi visual untuk periklanan, desain promosi, copywriting kreatif, dan strategi kampanye digital."
     },
     {
       "name": "Sarjana Desain Multimedia Broadcasting (S1)",
-      "description": "Membekali mahasiswa dengan keterampilan dalam produksi konten audio-visual seperti podcast, video YouTube, dan siaran digital. Fokus pada sinematografi, penyiaran, dan editing."
+      "description": "Konsentrasi pada produksi video, siaran TV, content creation untuk platform digital, dan teknik broadcast multimedia."
     }
   ],
   "facilities": [
     "Perpustakaan (SLiMS & Digilib)",
-    "Laboratorium",
-    "Podcast Studio",
+    "Laboratorium Komputer dan Desain",
+    "Podcast & Broadcasting Studio",
     "Ruang Kolaborasi Interaktif",
-    "Aula Pertemuan"
+    "Aula Serbaguna dan Mini Theater"
   ],
   "accreditation": {
     "overall": "A",
@@ -40,6 +40,25 @@
       "Teknologi Grafika": "A"
     }
   },
+  "beasiswa": [
+    "Beasiswa KIP Kuliah",
+    "Beasiswa Yayasan Trisakti",
+    "Beasiswa Bulan Pendidikan",
+    "Beasiswa EX-UTBK",
+    "Beasiswa Kerja Sama Sekolah"
+  ],
+  "collaborations": [
+    {
+      "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
+      "date": "26 Mei 2025",
+      "description": "Kolaborasi untuk alih jenjang D3 ke S1 dan kuliah umum digital branding."
+    },
+    {
+      "partner": "PT. Guava Production",
+      "date": "02 Februari 2022",
+      "description": "Kerja sama dalam produksi film, music video, dan konten digital."
+    }
+  ],
   "contact": {
     "whatsapp": "+62 877 4299 7808",
     "email": "info@trisaktimultimedia.ac.id",
@@ -47,62 +66,43 @@
   },
   "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
   "website": "https://trisaktimultimedia.ac.id",
-  "values": [
-    "Kreativitas",
-    "Teknologi",
-    "Budaya"
-  ],
-  "collaborations": [
-    {
-      "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
-      "date": "26 Mei 2025",
-      "description": "Kerja sama untuk program kuliah ahli jenjang D3 ke S1 dan kuliah umum tentang strategi digital branding."
-    },
-    {
-      "partner": "PT. Guava Production",
-      "date": "02 Februari 2022",
-      "description": "Kerja sama dalam produksi multimedia seperti music video dan film."
-    }
-  ],
-  "beasiswa": [
-    "Beasiswa KIP Kuliah",
-    "Yayasan Beasiswa Trisakti",
-    "Beasiswa Bulan Pendidikan",
-    "Beasiswa EX-UTBK",
-    "Beasiswa Kerja Sama Sekolah"
-  ],
   "registration_link": "https://trisaktimultimedia.ecampuz.com/eadmisi/",
   "registration_details": {
     "requirements": [
       "Fotokopi ijazah SMA/SMK sederajat yang dilegalisir",
-      "Transkrip nilai SMA/SMK sederajat",
+      "Transkrip nilai",
       "Pas foto ukuran 3x4 (2 lembar)",
       "Fotokopi KTP dan kartu keluarga",
-      "Sertifikat prestasi akademik/non-akademik (jika ada)"
+      "Sertifikat prestasi (jika ada)"
     ],
     "paths": [
       {
-        "name": "NR - Non Reguler",
+        "name": "Non Reguler (NR)",
         "waves": [
           {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
           {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       },
       {
-        "name": "REG - Reguler",
+        "name": "Reguler (REG)",
         "waves": [
           {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
           {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       },
       {
-        "name": "AJ - Alih Jenjang (Ekstensi)",
+        "name": "Alih Jenjang (AJ)",
         "waves": [
           {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025"},
           {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025"}
         ]
       }
     ],
-    "process": "Pendaftaran dilakukan secara online melalui link resmi. Calon mahasiswa mengisi formulir, mengunggah dokumen, dan mengikuti tes seleksi (jika ada). Pilih jalur masuk (Non Reguler, Reguler, atau Alih Jenjang) sesuai kualifikasi. Informasi lebih lanjut dapat menghubungi kontak resmi."
-  }
+    "process": "Pendaftaran dilakukan online melalui situs resmi. Calon mahasiswa mengisi formulir, mengunggah dokumen, dan mengikuti seleksi (jika ada)."
+  },
+  "values": [
+    "Kreativitas",
+    "Teknologi",
+    "Budaya"
+  ]
 }
