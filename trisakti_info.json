@@ -9,49 +9,34 @@
     "Menghasilkan lulusan yang profesional dan memiliki daya saing tinggi di industri kreatif.",
     "Mengembangkan riset dan inovasi berbasis teknologi mutakhir seperti Internet of Things (IoT) dan Artificial Intelligence (AI)."
   ],
+  "why_trisakti": "Trisakti School of Multimedia berkomitmen menghasilkan lulusan berkualitas yang mampu bersaing di industri kreatif dan digital, dengan fokus pada teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI). Kami menawarkan pendidikan yang relevan dengan kebutuhan industri, kerja sama strategis, fasilitas modern, dan dukungan beasiswa untuk mahasiswa berprestasi.",
   "programs": [
     {
       "name": "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
       "short": "D4 Kemasan",
       "description": "Program ini menggabungkan keahlian desain grafis dengan teknologi kemasan modern. Mahasiswa belajar menciptakan solusi kemasan yang kreatif, fungsional, dan ramah lingkungan untuk produk komersial.",
-      "career_prospects": [
-        "Packaging Designer",
-        "Branding Consultant",
-        "Packaging Production Supervisor"
-      ],
+      "career_prospects": ["Packaging Designer", "Branding Consultant", "Packaging Production Supervisor"],
       "accreditation": "B"
     },
     {
       "name": "Sarjana Desain Animasi dan Games (S1)",
       "short": "S1 Animasi",
       "description": "Fokus pada pengembangan animasi digital dan desain permainan (games). Mahasiswa dibekali dengan kemampuan storytelling, animasi 2D/3D, hingga pengembangan game interaktif.",
-      "career_prospects": [
-        "Animator",
-        "Game Developer",
-        "Storyboard Artist"
-      ],
+      "career_prospects": ["Animator", "Game Developer", "Storyboard Artist"],
       "accreditation": "B"
     },
     {
       "name": "Sarjana Desain Kreatif Visual Periklanan (S1)",
       "short": "S1 Iklan",
       "description": "Membekali mahasiswa dengan kemampuan merancang kampanye iklan visual yang efektif dan kreatif. Fokus pada komunikasi visual, branding, dan strategi pemasaran visual.",
-      "career_prospects": [
-        "Creative Director",
-        "Visual Branding Specialist",
-        "Art Director"
-      ],
+      "career_prospects": ["Creative Director", "Visual Branding Specialist", "Art Director"],
       "accreditation": "B"
     },
     {
       "name": "Sarjana Desain Multimedia Broadcasting (S1)",
       "short": "S1 Broadcasting",
       "description": "Mengembangkan keahlian di bidang media penyiaran digital, produksi konten multimedia, dan teknologi siaran terkini.",
-      "career_prospects": [
-        "Multimedia Producer",
-        "Content Creator",
-        "Broadcast Technician"
-      ],
+      "career_prospects": ["Multimedia Producer", "Content Creator", "Broadcast Technician"],
       "accreditation": "B"
     }
   ],
@@ -61,7 +46,9 @@
     "Studio Podcast & Broadcasting",
     "Ruang Kolaborasi Mahasiswa",
     "Aula Pertemuan Kreatif",
-    "Ruang Editing Audio Visual"
+    "Ruang Editing Audio Visual",
+    "Wi-Fi Gratis di Seluruh Kampus",
+    "Kantin Mahasiswa"
   ],
   "accreditation": {
     "overall": "B",
@@ -75,7 +62,12 @@
   "contact": {
     "whatsapp": "+62 877 4299 7808",
     "email": "info@trisaktimultimedia.ac.id",
-    "phone": ["+62-21-4895787", "+62-21-4701842"]
+    "phone": ["+62-21-4895787", "+62-21-4701842"],
+    "office_hours": "Senin-Jumat, 08:00-16:00 WIB",
+    "social_media": {
+      "instagram": "@trisaktimultimedia",
+      "facebook": "TrisaktiMultimediaOfficial"
+    }
   },
   "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
   "website": "https://trisaktimultimedia.ac.id",
@@ -93,11 +85,57 @@
     }
   ],
   "beasiswa": [
-    "Beasiswa KIP Kuliah",
-    "Yayasan Beasiswa Trisakti",
-    "Beasiswa Bulan Pendidikan",
-    "Beasiswa EX-UTBK",
-    "Beasiswa Kerja Sama Sekolah"
+    {
+      "name": "Beasiswa KIP Kuliah",
+      "description": "Beasiswa pemerintah untuk mahasiswa berprestasi dari keluarga kurang mampu.",
+      "requirements": [
+        "Fotokopi KTP dan KK",
+        "Surat keterangan tidak mampu dari kelurahan",
+        "Transkrip nilai SMA/SMK",
+        "Pendaftaran melalui situs resmi KIP Kuliah (https://kip-kuliah.kemdikbud.go.id)"
+      ],
+      "process": "Pendaftaran online melalui situs resmi KIP Kuliah, seleksi berdasarkan nilai dan dokumen pendukung."
+    },
+    {
+      "name": "Yayasan Beasiswa Trisakti",
+      "description": "Beasiswa internal untuk mahasiswa berprestasi akademik.",
+      "requirements": [
+        "IPK minimal 3.0",
+        "Surat rekomendasi dari dosen",
+        "Esai motivasi (maks. 500 kata)"
+      ],
+      "process": "Pengajuan melalui bagian akademik kampus, seleksi tahap wawancara."
+    },
+    {
+      "name": "Beasiswa Bulan Pendidikan",
+      "description": "Beasiswa tahunan untuk mahasiswa dengan prestasi non-akademik (olahraga, seni, dll.).",
+      "requirements": [
+        "Sertifikat prestasi non-akademik",
+        "Surat rekomendasi dari pelatih/mentor",
+        "Transkrip nilai semester terakhir"
+      ],
+      "process": "Pengajuan via email ke info@trisaktimultimedia.ac.id, pengumuman setiap Juli."
+    },
+    {
+      "name": "Beasiswa EX-UTBK",
+      "description": "Beasiswa untuk mahasiswa baru dengan nilai UTBK tinggi.",
+      "requirements": [
+        "Nilai UTBK minimal 600",
+        "Fotokopi sertifikat UTBK",
+        "Surat pernyataan bermaterai"
+      ],
+      "process": "Otomatis diberikan saat pendaftaran jika memenuhi syarat."
+    },
+    {
+      "name": "Beasiswa Kerja Sama Sekolah",
+      "description": "Beasiswa untuk lulusan sekolah mitra Trisakti.",
+      "requirements": [
+        "Surat rekomendasi dari sekolah",
+        "Transkrip nilai SMA/SMK",
+        "Fotokopi ijazah"
+      ],
+      "process": "Koordinasi dengan sekolah mitra, pengajuan melalui kantor admisi."
+    }
   ],
   "registration_link": "https://trisaktimultimedia.ecampuz.com/eadmisi/",
   "registration_details": {
@@ -133,14 +171,68 @@
     ],
     "process": "Pendaftaran dilakukan secara online melalui situs pendaftaran resmi. Calon mahasiswa mengisi formulir, mengunggah dokumen, dan mengikuti seleksi (jika ada)."
   },
+  "academic_calendar": {
+    "semester_1_2025": {
+      "start": "15 Agustus 2025",
+      "end": "20 Desember 2025",
+      "holidays": ["25 Desember 2025 - Natal"]
+    },
+    "semester_2_2025": {
+      "start": "12 Januari 2026",
+      "end": "30 Mei 2026",
+      "holidays": ["1 Februari 2026 - Imlek", "1 Mei 2026 - Hari Buruh"]
+    }
+  },
+  "campus_events": [
+    {
+      "title": "Diseminasi Permendikbudristek No. 53 Tahun 2023",
+      "date": "25 Juni 2025",
+      "description": "Acara untuk meningkatkan standar mutu pendidikan tinggi, selaras dengan regulasi nasional tentang penjaminan mutu dan akreditasi."
+    },
+    {
+      "title": "Workshop Desain Digital",
+      "date": "10 Juli 2025",
+      "description": "Pelatihan intensif untuk mahasiswa tentang desain digital dan animasi."
+    }
+  ],
+  "alumni_testimonials": [
+    {
+      "name": "Andi Pratama",
+      "program": "S1 Animasi",
+      "year": 2020,
+      "testimonial": "Pendidikan di Trisakti Multimedia membuka jalan bagi saya menjadi Animator profesional di studio ternama. Fasilitas lab dan bimbingan dosen sangat membantu!"
+    },
+    {
+      "name": "Rina Sari",
+      "program": "D4 Kemasan",
+      "year": 2021,
+      "testimonial": "Saya belajar banyak tentang teknologi kemasan modern di sini. Sekarang saya bekerja sebagai Packaging Designer di perusahaan multinasional."
+    }
+  ],
   "faq_keywords": {
-    "alamat": ["alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana", "di mana kampus"],
-    "prodi": ["jurusan", "program studi", "ada jurusan apa saja", "apa saja jurusannya", "fokus studi", "s1 apa saja", "d4 apa"],
-    "beasiswa": ["beasiswa apa saja", "ada beasiswa", "syarat beasiswa", "kip kuliah", "bantuan biaya"],
-    "pendaftaran": ["cara daftar", "pendaftaran", "jalur masuk", "link daftar", "formulir", "gelombang"],
-    "fasilitas": ["fasilitas kampus", "lab nya apa", "ada studio", "tempat belajar", "gedung", "ruang kelas"],
-    "sejarah": ["sejarah kampus", "didirikan kapan", "asal usul kampus", "riwayat kampus"],
-    "akreditasi": ["akreditasi kampus", "akreditasi jurusan", "nilai akreditasi", "sertifikasi ban-pt"],
-    "kontak": ["nomor telepon", "hubungi siapa", "whatsapp kampus", "email kampus"]
-  }
+    "alamat": ["alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana", "di mana kampus", "alamat trisakti"],
+    "prodi": ["jurusan", "program studi", "ada jurusan apa saja", "apa saja jurusannya", "fokus studi", "s1 apa saja", "d4 apa", "animasi digital", "kemasan", "iklan", "broadcasting"],
+    "beasiswa": ["beasiswa apa saja", "ada beasiswa", "syarat beasiswa", "kip kuliah", "bantuan biaya", "bantuan kuliah", "scholarship", "cara mendapatkan beasiswa", "beasiswa tersedia"],
+    "pendaftaran": ["cara daftar", "pendaftaran", "jalur masuk", "link daftar", "formulir", "gelombang", "daftar kuliah", "mendaftar"],
+    "fasilitas": ["fasilitas kampus", "lab nya apa", "ada studio", "tempat belajar", "gedung", "ruang kelas", "perpustakaan", "laboratorium"],
+    "sejarah": ["sejarah kampus", "didirikan kapan", "asal usul kampus", "riwayat kampus", "sejarah trisakti"],
+    "akreditasi": ["akreditasi kampus", "akreditasi jurusan", "nilai akreditasi", "sertifikasi ban-pt", "akreditasi prodi"],
+    "kontak": ["nomor telepon", "hubungi siapa", "whatsapp kampus", "email kampus", "kontak trisakti", "ada kontak", "bagaimana menghubungi", "kontak yang dapat saya hubungi"],
+    "keunggulan": ["manfaat kuliah", "kenapa pilih trisakti", "keunggulan kampus", "mengapa trisakti", "apa bagusnya"],
+    "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum", "event kampus"],
+    "jadwal": ["jadwal kuliah", "kalender akademik", "kapan semester", "libur kampus"],
+    "testimoni": ["pengalaman alumni", "testimoni mahasiswa", "cerita alumni", "kisah sukses"]
+  },
+  "news": [
+    {
+      "title": "Diseminasi Permendikbudristek No. 53 Tahun 2023",
+      "date": "25 Juni 2025",
+      "description": "Acara untuk meningkatkan standar mutu pendidikan tinggi, selaras dengan regulasi nasional tentang penjaminan mutu dan akreditasi."
+    },
+    {
+      "title": "Kerja Sama dengan Poltek Harapan Bersama",
+      "date": "26 Mei 2025",
+      "description": "Penandatanganan kerja sama untuk program ekstensi D3 ke S1 dan kuliah umum strategi digital branding."
+    }
+  ]
 }
