@@ -2,20 +2,20 @@
 <html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asisten AI STMK Trisakti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asisten AI Trisakti School of Multimedia</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap">
   <style>
     :root {
-      --primary: #3b82f6; /* Biru profesional sebagai warna utama */
-      --secondary: #f9fafb; /* Abu-abu muda untuk latar belakang */
-      --user-msg: #ef4444; /* Merah lembut untuk pesan pengguna */
-      --ai-msg: #e0e7ff; /* Biru muda untuk pesan AI */
-      --text-dark: #1f2937; /* Hitam keabu-abuan untuk teks utama */
-      --text-light: #4b5563; /* Abu-abu gelap untuk teks sekunder */
-      --neon-accent: #3b82f6; /* Biru sebagai aksen */
-      --border-radius: 8px; /* Radius lebih kecil untuk kesan modern */
-      --shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bayangan halus */
+      --primary: #3b82f6;
+      --secondary: #f9fafb;
+      --user-msg: #ef4444;
+      --ai-msg: #e0e7ff;
+      --text-dark: #1f2937;
+      --text-light: #4b5563;
+      --neon-accent: #3b82f6;
+      --border-radius: 8px;
+      --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       --transition: all 0.3s ease;
     }
 
@@ -27,16 +27,6 @@
       --text-dark: #f1f5f9;
       --text-light: #00ffcc;
       --neon-accent: #00ffcc;
-    }
-
-    [data-theme="light"] {
-      --primary: #3b82f6;
-      --secondary: #f9fafb;
-      --user-msg: #ef4444;
-      --ai-msg: #e0e7ff;
-      --text-dark: #1f2937;
-      --text-light: #4b5563;
-      --neon-accent: #3b82f6;
     }
 
     * {
@@ -54,10 +44,6 @@
       color: var(--text-dark);
       transition: var(--transition);
       overflow-x: hidden;
-    }
-
-    body::before {
-      content: none; /* Hapus animasi latar belakang */
     }
 
     header {
@@ -78,7 +64,6 @@
       font-size: 1.5rem;
       font-weight: 700;
       letter-spacing: 1px;
-      text-shadow: none;
     }
 
     #theme-toggle {
@@ -110,10 +95,6 @@
       position: relative;
     }
 
-    #chat-container::after {
-      content: none; /* Hapus efek garis pulse */
-    }
-
     #welcome-message {
       text-align: center;
       color: var(--text-dark);
@@ -131,13 +112,8 @@
       animation: slideIn 0.3s ease forwards;
     }
 
-    .user {
-      flex-direction: row-reverse;
-    }
-
-    .ai {
-      flex-direction: row;
-    }
+    .user { flex-direction: row-reverse; }
+    .ai { flex-direction: row; }
 
     .icon {
       width: 40px;
@@ -145,8 +121,7 @@
       margin: 0 12px;
       border-radius: 50%;
       border: 2px solid var(--neon-accent);
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      transition: var(--transition);
+      object-fit: cover;
     }
 
     .text {
@@ -167,20 +142,9 @@
       border-radius: var(--border-radius) var(--border-radius) 0 var(--border-radius);
     }
 
-    .ai .text {
-      background: var(--ai-msg);
-      color: var(--text-dark);
-    }
-
     .text a {
       color: #3b82f6;
       text-decoration: underline;
-      transition: var(--transition);
-      word-break: break-all;
-    }
-
-    .text a:hover {
-      color: #1d4ed8;
     }
 
     .copy-button {
@@ -210,11 +174,6 @@
       max-width: 1000px;
       margin: 0 auto;
       width: 100%;
-      position: relative;
-    }
-
-    #input-form::before {
-      content: none; /* Hapus efek garis */
     }
 
     #input-container {
@@ -235,13 +194,7 @@
       background: #ffffff;
       color: var(--text-dark);
       resize: none;
-      overflow-y: auto;
       max-height: 150px;
-    }
-
-    #message-input:focus {
-      outline: none;
-      border-color: var(--primary);
     }
 
     button {
@@ -255,12 +208,6 @@
       transition: var(--transition);
     }
 
-    button:hover {
-      filter: brightness(1.1);
-      transform: translateY(-2px);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
     #typing-indicator {
       font-style: italic;
       color: var(--text-light);
@@ -269,35 +216,43 @@
       opacity: 0.7;
     }
 
+    .quick-btn {
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      background: #e5e7eb;
+      color: var(--text-dark);
+      border: 1px solid #d1d5db;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .quick-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
     @keyframes slideIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 768px) {
       header { padding: 1rem; }
-      header h1 { font-size: 1.2rem; }
       #chat-container, #input-form { padding: 1rem; }
       .text { max-width: 85%; }
       .icon { width: 30px; height: 30px; }
       #input-container { flex-direction: column; gap: 0.5rem; }
-      #message-input { width: 100%; }
-      button { width: 100%; padding: 0.75rem; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Asisten AI Trisakti School Of Multimedia</h1>
+    <h1>Asisten AI Trisakti School of Multimedia</h1>
     <button id="theme-toggle" title="Ganti Tema">☀️</button>
   </header>
 
   <div id="chat-container">
-    <div id="welcome-message">
-      Selamat datang! Saya Adalah Asisten AI Anda.
-    </div>
+    <div id="welcome-message">Selamat datang! Saya adalah Asisten AI Anda.</div>
   </div>
 
   <form id="input-form">
@@ -307,6 +262,16 @@
     </div>
   </form>
 
+  <div style="max-width: 1000px; margin: 1rem auto; padding: 0 1.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+    <button class="quick-btn" data-question="Dimana lokasi kampusnya?">📍 Alamat</button>
+    <button class="quick-btn" data-question="Apa saja jurusan atau program studi yang tersedia?">🎓 Jurusan</button>
+    <button class="quick-btn" data-question="Ada beasiswa apa saja di kampus ini?">💰 Beasiswa</button>
+    <button class="quick-btn" data-question="Bagaimana cara daftar kuliah di Trisakti School of Multimedia?">📝 Daftar</button>
+    <button class="quick-btn" data-question="Kampus ini terakreditasi apa?">🏅 Akreditasi</button>
+    <button class="quick-btn" data-question="Fasilitas apa saja yang tersedia?">🏫 Fasilitas</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
   <script>
     const chatContainer = document.getElementById('chat-container');
     const form = document.getElementById('input-form');
@@ -314,53 +279,42 @@
     const themeToggle = document.getElementById('theme-toggle');
     const welcomeMessage = document.getElementById('welcome-message');
 
-    // Theme toggle
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      themeToggle.textContent = newTheme === 'light' ? '☀️' : '🌙';
-      localStorage.setItem('theme', newTheme);
-    });
+    themeToggle.onclick = () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      themeToggle.textContent = next === 'light' ? '☀️' : '🌙';
+      localStorage.setItem('theme', next);
+    };
 
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    themeToggle.textContent = savedTheme === 'light' ? '☀️' : '🌙';
+    const saved = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    themeToggle.textContent = saved === 'light' ? '☀️' : '🌙';
 
-    // Auto-resize textarea
-    input.addEventListener('input', () => {
+    input.oninput = () => {
       input.style.height = 'auto';
       input.style.height = `${Math.min(input.scrollHeight, 150)}px`;
-      if (input.value.trim()) {
-        welcomeMessage.style.display = 'none';
-      } else {
-        welcomeMessage.style.display = 'block';
-      }
-    });
+      welcomeMessage.style.display = input.value.trim() ? 'none' : 'block';
+    };
 
     function appendMessage(role, content) {
       welcomeMessage.style.display = 'none';
       const msg = document.createElement('div');
-      msg.classList.add('message', role);
-
+      msg.className = `message ${role}`;
       const icon = document.createElement('img');
-      icon.classList.add('icon');
-      icon.src = role === 'user'
-        ? 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
-        : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png';
-      icon.alt = `${role} icon`;
+      icon.className = 'icon';
+      icon.src = role === 'user' ? 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png' : '/static/ai-avatar.png';
+      icon.alt = role;
 
       const bubble = document.createElement('div');
-      bubble.classList.add('text');
-      let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
-      const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/;
-      cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-      bubble.innerHTML = DOMPurify.sanitize(cleanContent.replace(/\n/g, '<br>'));
+      bubble.className = 'text';
+      const url = /(https?:\/\/[^\s]+)/g;
+      content = content.replace(/\*\*/g, '').replace(/#/g, '').replace(url, '<a href="$1" target="_blank">$1</a>');
+      bubble.innerHTML = DOMPurify.sanitize(content.replace(/\n/g, '<br>'));
 
       if (role === 'ai') {
         const copyBtn = document.createElement('button');
-        copyBtn.classList.add('copy-button');
+        copyBtn.className = 'copy-button';
         copyBtn.textContent = 'Salin';
         copyBtn.onclick = () => {
           navigator.clipboard.writeText(content);
@@ -377,54 +331,46 @@
     }
 
     function showTypingIndicator() {
-      const typingIndicator = document.createElement('div');
-      typingIndicator.id = 'typing-indicator';
-      typingIndicator.innerHTML = 'AI sedang mengetik';
-      chatContainer.appendChild(typingIndicator);
+      const typing = document.createElement('div');
+      typing.id = 'typing-indicator';
+      typing.textContent = 'AI sedang mengetik...';
+      chatContainer.appendChild(typing);
       chatContainer.scrollTop = chatContainer.scrollHeight;
-      return typingIndicator;
+      return typing;
     }
 
-    form.addEventListener('submit', async (e) => {
+    form.onsubmit = async (e) => {
       e.preventDefault();
-      const message = input.value.trim();
-      if (!message) {
-        console.log('Pesan kosong, silakan isi.');
-        return;
-      }
+      const msg = input.value.trim();
+      if (!msg) return;
 
-      appendMessage('user', message);
+      appendMessage('user', msg);
       input.value = '';
       input.style.height = 'auto';
 
-      const typingIndicator = showTypingIndicator();
+      const typing = showTypingIndicator();
 
       try {
-        console.log('Mengirim permintaan dengan pesan:', message);
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
+          body: JSON.stringify({ message: msg })
         });
-        console.log('Status respons:', res.status);
         const data = await res.json();
-        typingIndicator.remove();
-
-        if (data.reply) {
-          console.log('Data respons:', data);
-          appendMessage('ai', data.reply);
-        } else if (data.error) {
-          appendMessage('ai', `Error: ${data.error} - ${data.message}`);
-        } else {
-          appendMessage('ai', 'Maaf, terjadi kesalahan dalam mendapatkan jawaban. Ini adalah versi gratis dan saat ini sudah mencapai batas, mohon tunggu hingga reset kembali 🙏🏻');
-        }
-      } catch (err) {
-        typingIndicator.remove();
-        console.error('Error fetch:', err);
-        appendMessage('ai', 'Terjadi kesalahan jaringan atau server.');
+        typing.remove();
+        data.reply ? appendMessage('ai', data.reply) : appendMessage('ai', 'Terjadi kesalahan.');
+      } catch (e) {
+        typing.remove();
+        appendMessage('ai', 'Kesalahan koneksi.');
       }
+    };
+
+    document.querySelectorAll('.quick-btn').forEach(btn => {
+      btn.onclick = () => {
+        input.value = btn.dataset.question;
+        form.dispatchEvent(new Event('submit'));
+      };
     });
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
 </body>
 </html>
