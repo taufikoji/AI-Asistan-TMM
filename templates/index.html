@@ -7,15 +7,15 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap">
   <style>
     :root {
-      --primary: linear-gradient(45deg, #00d4ff, #ff00ff);
-      --secondary: #ffffff;
-      --user-msg: #a30000;
-      --ai-msg: #e0f7fa;
-      --text-dark: #1e293b;
-      --text-light: #00ffcc;
-      --neon-accent: #00ffcc;
-      --border-radius: 12px;
-      --shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      --primary: #3b82f6; /* Biru profesional sebagai warna utama */
+      --secondary: #f9fafb; /* Abu-abu muda untuk latar belakang */
+      --user-msg: #ef4444; /* Merah lembut untuk pesan pengguna */
+      --ai-msg: #e0e7ff; /* Biru muda untuk pesan AI */
+      --text-dark: #1f2937; /* Hitam keabu-abuan untuk teks utama */
+      --text-light: #4b5563; /* Abu-abu gelap untuk teks sekunder */
+      --neon-accent: #3b82f6; /* Biru sebagai aksen */
+      --border-radius: 8px; /* Radius lebih kecil untuk kesan modern */
+      --shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bayangan halus */
       --transition: all 0.3s ease;
     }
 
@@ -27,6 +27,16 @@
       --text-dark: #f1f5f9;
       --text-light: #00ffcc;
       --neon-accent: #00ffcc;
+    }
+
+    [data-theme="light"] {
+      --primary: #3b82f6;
+      --secondary: #f9fafb;
+      --user-msg: #ef4444;
+      --ai-msg: #e0e7ff;
+      --text-dark: #1f2937;
+      --text-light: #4b5563;
+      --neon-accent: #3b82f6;
     }
 
     * {
@@ -47,20 +57,7 @@
     }
 
     body::before {
-      content: '';
-      position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, rgba(255, 0, 255, 0.1) 100%);
-      animation: rotate 20s linear infinite;
-      z-index: -1;
-    }
-
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      content: none; /* Hapus animasi latar belakang */
     }
 
     header {
@@ -74,14 +71,14 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      border-bottom: 2px solid var(--neon-accent);
+      border-bottom: 1px solid var(--neon-accent);
     }
 
     header h1 {
       font-size: 1.5rem;
       font-weight: 700;
-      text-shadow: 0 0 10px var(--neon-accent);
-      letter-spacing: 2px;
+      letter-spacing: 1px;
+      text-shadow: none;
     }
 
     #theme-toggle {
@@ -92,13 +89,12 @@
       cursor: pointer;
       padding: 0.5rem;
       border-radius: 50%;
-      text-shadow: 0 0 5px var(--neon-accent);
       transition: var(--transition);
     }
 
     #theme-toggle:hover {
       transform: scale(1.2);
-      text-shadow: 0 0 15px var(--neon-accent);
+      color: #ffffff;
     }
 
     #chat-container {
@@ -115,20 +111,7 @@
     }
 
     #chat-container::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(to right, transparent, var(--neon-accent), transparent);
-      animation: pulseLine 3s infinite;
-    }
-
-    @keyframes pulseLine {
-      0% { opacity: 0.3; }
-      50% { opacity: 1; }
-      100% { opacity: 0.3; }
+      content: none; /* Hapus efek garis pulse */
     }
 
     #welcome-message {
@@ -137,7 +120,6 @@
       padding: 1rem;
       font-style: italic;
       opacity: 0.7;
-      text-shadow: 0 0 3px var(--neon-accent);
     }
 
     .message {
@@ -162,8 +144,8 @@
       height: 40px;
       margin: 0 12px;
       border-radius: 50%;
-      border: 3px solid var(--neon-accent);
-      box-shadow: 0 0 10px var(--neon-accent);
+      border: 2px solid var(--neon-accent);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
       transition: var(--transition);
     }
 
@@ -172,44 +154,40 @@
       padding: 1rem 1.2rem;
       border-radius: var(--border-radius);
       position: relative;
-      line-height: 1.5;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      transition: var(--transition);
-      white-space: pre-wrap;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--ai-msg));
-      color: var(--text-light);
+      line-height: 1.6;
+      box-shadow: var(--shadow);
+      background: var(--ai-msg);
+      color: var(--text-dark);
       word-break: break-word;
     }
 
     .user .text {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--user-msg));
+      background: var(--user-msg);
       color: var(--text-light);
       border-radius: var(--border-radius) var(--border-radius) 0 var(--border-radius);
     }
 
     .ai .text {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--ai-msg));
-      color: var(--text-light);
+      background: var(--ai-msg);
+      color: var(--text-dark);
     }
 
     .text a {
-      color: #00d4ff;
+      color: #3b82f6;
       text-decoration: underline;
-      text-shadow: 0 0 5px var(--neon-accent);
       transition: var(--transition);
       word-break: break-all;
     }
 
     .text a:hover {
-      color: #ff00ff;
-      text-shadow: 0 0 10px var(--neon-accent);
+      color: #1d4ed8;
     }
 
     .copy-button {
       position: absolute;
       bottom: 6px;
       right: 10px;
-      background: rgba(0, 255, 204, 0.2);
+      background: rgba(59, 130, 246, 0.1);
       border: 1px solid var(--neon-accent);
       border-radius: 6px;
       color: var(--text-light);
@@ -218,7 +196,6 @@
       font-size: 0.8rem;
       opacity: 0;
       transition: var(--transition);
-      text-shadow: 0 0 3px var(--neon-accent);
     }
 
     .text:hover .copy-button {
@@ -229,7 +206,7 @@
     #input-form {
       padding: 1.5rem;
       background: var(--secondary);
-      border-top: 2px solid var(--neon-accent);
+      border-top: 1px solid var(--neon-accent);
       max-width: 1000px;
       margin: 0 auto;
       width: 100%;
@@ -237,60 +214,51 @@
     }
 
     #input-form::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(to right, transparent, var(--neon-accent), transparent);
+      content: none; /* Hapus efek garis */
     }
 
     #input-container {
       display: flex;
       gap: 0.75rem;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), var(--ai-msg));
+      background: #ffffff;
       padding: 0.75rem;
       border-radius: var(--border-radius);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow);
     }
 
     #message-input {
       flex: 1;
       padding: 0.75rem;
       font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--text-light);
+      border: 1px solid #d1d5db;
+      border-radius: var(--border-radius);
+      background: #ffffff;
+      color: var(--text-dark);
       resize: none;
       overflow-y: auto;
       max-height: 150px;
-      border: 1px solid var(--neon-accent);
-      box-shadow: inset 0 0 5px var(--neon-accent);
     }
 
     #message-input:focus {
       outline: none;
-      box-shadow: inset 0 0 10px var(--neon-accent);
+      border-color: var(--primary);
     }
 
     button {
       background: var(--primary);
       color: var(--text-light);
-      border: none;
+      border: 1px solid rgba(0, 0, 0, 0.1);
       padding: 0.75rem 1.5rem;
-      border-radius: 8px;
+      border-radius: var(--border-radius);
       cursor: pointer;
-      font-weight: 700;
-      text-shadow: 0 0 5px var(--neon-accent);
+      font-weight: 600;
       transition: var(--transition);
     }
 
     button:hover {
-      filter: brightness(1.2);
-      transform: translateY(-3px);
-      box-shadow: 0 0 15px var(--neon-accent);
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     #typing-indicator {
@@ -299,26 +267,6 @@
       font-size: 0.9rem;
       margin: 0.5rem 0;
       opacity: 0.7;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      text-shadow: 0 0 3px var(--neon-accent);
-    }
-
-    .dot {
-      width: 6px;
-      height: 6px;
-      background-color: var(--neon-accent);
-      border-radius: 50%;
-      animation: pulse 1.5s infinite;
-    }
-
-    .dot:nth-child(2) { animation-delay: 0.2s; }
-    .dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
     }
 
     @keyframes slideIn {
@@ -405,11 +353,9 @@
 
       const bubble = document.createElement('div');
       bubble.classList.add('text');
-      // Bersihkan markdown dan ubah URL menjadi link klikable
       let cleanContent = content.replace(/\*\*/g, '').replace(/#/g, '').trim();
-      const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/; // Hanya ganti satu instance
+      const urlRegex = /(https?:\/\/trisaktimultimedia\.ecampuz\.com\/eadmisi\/)/;
       cleanContent = cleanContent.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-      console.log('Rendered content:', cleanContent); // Debug
       bubble.innerHTML = DOMPurify.sanitize(cleanContent.replace(/\n/g, '<br>'));
 
       if (role === 'ai') {
@@ -433,7 +379,7 @@
     function showTypingIndicator() {
       const typingIndicator = document.createElement('div');
       typingIndicator.id = 'typing-indicator';
-      typingIndicator.innerHTML = 'AI sedang mengetik <span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+      typingIndicator.innerHTML = 'AI sedang mengetik';
       chatContainer.appendChild(typingIndicator);
       chatContainer.scrollTop = chatContainer.scrollHeight;
       return typingIndicator;
