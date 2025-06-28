@@ -210,7 +210,10 @@
     }
   ],
   "faq_keywords": {
-    "alamat": ["alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana", "di mana kampus", "alamat trisakti"],
+    "alamat": [
+        "alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana", 
+        "di mana kampus", "alamat trisakti", "alamat kampusnya dimana", "dimana lokasi kampus"
+    ],
     "prodi": ["jurusan", "program studi", "ada jurusan apa saja", "apa saja jurusannya", "fokus studi", "s1 apa saja", "d4 apa", "animasi digital", "kemasan", "iklan", "broadcasting"],
     "beasiswa": ["beasiswa apa saja", "ada beasiswa", "syarat beasiswa", "kip kuliah", "bantuan biaya", "bantuan kuliah", "scholarship", "cara mendapatkan beasiswa", "beasiswa tersedia"],
     "pendaftaran": ["cara daftar", "pendaftaran", "jalur masuk", "link daftar", "formulir", "gelombang", "daftar kuliah", "mendaftar"],
