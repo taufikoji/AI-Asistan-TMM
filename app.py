@@ -51,8 +51,15 @@ KEYWORDS = TRISAKTI.get("faq_keywords", {})
 KEYWORDS.update({
     "visi": ["visi", "tujuan utama"],
     "misi": ["misi", "langkah strategis"],
-    "kerjasama": ["kerja sama", "partner", "kolaborasi", "mitra industri", "dengan siapa"]
+    "kerjasama": ["kerja sama", "partner", "kolaborasi", "mitra industri", "dengan siapa"],
+    "keunggulan": ["manfaat kuliah", "kenapa pilih trisakti", "keunggulan kampus", "mengapa trisakti", "apa bagusnya"],
+    "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum"]
 })
+# Perluas kata kunci untuk beasiswa
+KEYWORDS["beasiswa"] = [
+    "beasiswa apa saja", "ada beasiswa", "syarat beasiswa", "kip kuliah", "bantuan biaya",
+    "bantuan kuliah", "scholarship", "cara mendapatkan beasiswa", "beasiswa tersedia"
+]
 
 GREETINGS = ["halo", "hai", "assalamualaikum", "selamat pagi", "selamat siang", "selamat malam", "test"]
 
@@ -66,7 +73,9 @@ def match_keyword(message, category_keywords):
 def find_program_by_keyword(message):
     msg = message.lower()
     for p in PROGRAMS:
-        if p["short"].lower() in msg or p["name"].lower() in msg:
+        if (p["short"].lower() in msg or 
+            p["name"].lower() in msg or 
+            any(keyword in msg for keyword in p["description"].lower().split())):
             return p
     return None
 
@@ -74,7 +83,11 @@ def is_greeting(msg):
     return any(greet in msg.lower() for greet in GREETINGS)
 
 def is_educational_question(msg):
-    keywords = ["kuliah", "kampus", "mahasiswa", "program", "akademik", "pendidikan", "studi"]
+    keywords = [
+        "kuliah", "kampus", "mahasiswa", "program", "akademik", "pendidikan", "studi",
+        "jurusan", "prodi", "mata kuliah", "dosen", "kurikulum", "beasiswa", "fasilitas",
+        "akreditasi", "pendaftaran", "manfaat", "keunggulan", "teknologi", "iot", "ai"
+    ]
     return any(k in msg.lower() for k in keywords)
 
 def is_motivational_request(msg):
@@ -142,10 +155,11 @@ def chat():
     if program:
         prompt = (
             f"Pengguna bertanya: '{user_message}'. "
-            f"Berikan penjelasan tentang program studi {program['name']}. "
+            f"Berikan penjelasan singkat dan jelas tentang program studi {program['name']} di Trisakti School of Multimedia. "
             f"Deskripsi: {program['description']}. "
             f"Akreditasi: {program['accreditation']}. "
-            f"Peluang karier: {', '.join(program['career_prospects'])}."
+            f"Peluang karier: {', '.join(program['career_prospects'])}. "
+            "Jika ada detail lain yang relevan dari pertanyaan pengguna, sertakan juga."
         )
     elif category == "alamat":
         prompt = f"Pengguna bertanya: '{user_message}'. Alamat resmi: {ADDRESS}."
@@ -156,7 +170,12 @@ def chat():
             f"Link: {REGISTRATION_LINK}."
         )
     elif category == "beasiswa":
-        prompt = f"Pengguna bertanya: '{user_message}'. Beasiswa: {json.dumps(TRISAKTI.get('beasiswa', []), ensure_ascii=False)}."
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            f"Informasi beasiswa: {json.dumps(TRISAKTI.get('beasiswa', []), ensure_ascii=False)}. "
+            "Jika pengguna menyebut beasiswa tertentu (misalnya KIP Kuliah), berikan detail spesifik seperti nama, deskripsi, dan syarat jika tersedia. "
+            "Jika tidak ada detail spesifik, sarankan untuk menghubungi kampus."
+        )
     elif category == "prodi":
         prompt = f"Pengguna bertanya: '{user_message}'. Semua program studi: {json.dumps(PROGRAMS, ensure_ascii=False)}."
     elif category == "fasilitas":
@@ -171,6 +190,24 @@ def chat():
         prompt = f"Pengguna bertanya: '{user_message}'. Misi kampus: {json.dumps(TRISAKTI.get('mission', []), ensure_ascii=False)}."
     elif category == "kerjasama":
         prompt = f"Pengguna bertanya: '{user_message}'. Kerja sama strategis: {json.dumps(TRISAKTI.get('collaborations', []), ensure_ascii=False)}."
+    elif category == "kontak":
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            f"Kontak resmi Trisakti School of Multimedia: "
+            f"WhatsApp: {TRISAKTI.get('contact', {}).get('whatsapp', 'Tidak tersedia')}, "
+            f"Email: {TRISAKTI.get('contact', {}).get('email', 'Tidak tersedia')}, "
+            f"Telepon: {', '.join(TRISAKTI.get('contact', {}).get('phone', ['Tidak tersedia']))}."
+        )
+    elif category == "keunggulan":
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            f"Keunggulan Trisakti: {TRISAKTI.get('why_trisakti', 'Trisakti School of Multimedia berkomitmen menghasilkan lulusan berkualitas yang mampu bersaing di industri kreatif dan digital, dengan fokus pada teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI).')}"
+        )
+    elif category == "berita":
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            f"Berita terbaru: {json.dumps(TRISAKTI.get('news', []), ensure_ascii=False)}."
+        )
     elif is_motivational_request(user_message):
         prompt = (
             f"Pengguna berkata: '{user_message}'. "
@@ -182,15 +219,17 @@ def chat():
             "Jawablah seperti teman diskusi, bahas hal ringan seputar kuliah, studi, atau pilihan masa depan secara positif dan ramah."
         )
     elif is_educational_question(user_message):
-        prompt = f"Pengguna bertanya: '{user_message}'. Jawablah seputar dunia pendidikan dengan sopan dan edukatif."
-    else:
-        reply = (
-            "Terima kasih atas pertanyaannya. Saat ini saya hanya dapat membantu seputar dunia pendidikan "
-            "dan informasi resmi kampus Trisakti School of Multimedia. "
-            "Silakan ajukan pertanyaan seperti jurusan, pendaftaran, beasiswa, atau fasilitas kampus."
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            "Jawablah seputar dunia pendidikan dengan sopan dan edukatif, menggunakan konteks Trisakti School of Multimedia."
         )
-        save_chat(user_message, reply)
-        return jsonify({"reply": reply})
+    else:
+        logger.warning(f"Pertanyaan tidak terdeteksi: {user_message}")
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            "Jawablah dengan sopan, edukatif, dan profesional seputar Trisakti School of Multimedia. "
+            f"Konteks: {json.dumps(TRISAKTI, ensure_ascii=False)}."
+        )
 
     try:
         model = genai.GenerativeModel(
