@@ -134,13 +134,13 @@
     "process": "Pendaftaran dilakukan secara online melalui situs pendaftaran resmi. Calon mahasiswa mengisi formulir, mengunggah dokumen, dan mengikuti seleksi (jika ada)."
   },
   "faq_keywords": {
-    "alamat": ["alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana"],
-    "prodi": ["jurusan", "program studi", "ada jurusan apa saja", "apa saja jurusannya"],
-    "beasiswa": ["beasiswa apa saja", "ada beasiswa", "syarat beasiswa", "kip kuliah"],
-    "pendaftaran": ["cara daftar", "pendaftaran", "jalur masuk", "link daftar", "formulir"],
-    "fasilitas": ["fasilitas kampus", "lab nya apa", "ada studio", "tempat belajar"],
-    "sejarah": ["sejarah kampus", "didirikan kapan", "asal usul kampus"],
-    "akreditasi": ["akreditasi kampus", "akreditasi jurusan", "nilai akreditasi"],
+    "alamat": ["alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana", "di mana kampus"],
+    "prodi": ["jurusan", "program studi", "ada jurusan apa saja", "apa saja jurusannya", "fokus studi", "s1 apa saja", "d4 apa"],
+    "beasiswa": ["beasiswa apa saja", "ada beasiswa", "syarat beasiswa", "kip kuliah", "bantuan biaya"],
+    "pendaftaran": ["cara daftar", "pendaftaran", "jalur masuk", "link daftar", "formulir", "gelombang"],
+    "fasilitas": ["fasilitas kampus", "lab nya apa", "ada studio", "tempat belajar", "gedung", "ruang kelas"],
+    "sejarah": ["sejarah kampus", "didirikan kapan", "asal usul kampus", "riwayat kampus"],
+    "akreditasi": ["akreditasi kampus", "akreditasi jurusan", "nilai akreditasi", "sertifikasi ban-pt"],
     "kontak": ["nomor telepon", "hubungi siapa", "whatsapp kampus", "email kampus"]
   }
 }
