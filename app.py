@@ -53,13 +53,8 @@ KEYWORDS.update({
     "misi": ["misi", "langkah strategis"],
     "kerjasama": ["kerja sama", "partner", "kolaborasi", "mitra industri", "dengan siapa"],
     "keunggulan": ["manfaat kuliah", "kenapa pilih trisakti", "keunggulan kampus", "mengapa trisakti", "apa bagusnya"],
-    "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum"]
+    "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum", "event kampus"]
 })
-# Perluas kata kunci untuk beasiswa
-KEYWORDS["beasiswa"] = [
-    "beasiswa apa saja", "ada beasiswa", "syarat beasiswa", "kip kuliah", "bantuan biaya",
-    "bantuan kuliah", "scholarship", "cara mendapatkan beasiswa", "beasiswa tersedia"
-]
 
 GREETINGS = ["halo", "hai", "assalamualaikum", "selamat pagi", "selamat siang", "selamat malam", "test"]
 
@@ -196,7 +191,9 @@ def chat():
             f"Kontak resmi Trisakti School of Multimedia: "
             f"WhatsApp: {TRISAKTI.get('contact', {}).get('whatsapp', 'Tidak tersedia')}, "
             f"Email: {TRISAKTI.get('contact', {}).get('email', 'Tidak tersedia')}, "
-            f"Telepon: {', '.join(TRISAKTI.get('contact', {}).get('phone', ['Tidak tersedia']))}."
+            f"Telepon: {', '.join(TRISAKTI.get('contact', {}).get('phone', ['Tidak tersedia']))}, "
+            f"Jam Operasional: {TRISAKTI.get('contact', {}).get('office_hours', 'Tidak tersedia')}, "
+            f"Media Sosial: {json.dumps(TRISAKTI.get('contact', {}).get('social_media', {}), ensure_ascii=False)}."
         )
     elif category == "keunggulan":
         prompt = (
@@ -206,7 +203,18 @@ def chat():
     elif category == "berita":
         prompt = (
             f"Pengguna bertanya: '{user_message}'. "
-            f"Berita terbaru: {json.dumps(TRISAKTI.get('news', []), ensure_ascii=False)}."
+            f"Berita terbaru: {json.dumps(TRISAKTI.get('news', []), ensure_ascii=False)}. "
+            f"Kegiatan kampus: {json.dumps(TRISAKTI.get('campus_events', []), ensure_ascii=False)}."
+        )
+    elif category == "jadwal":
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            f"Jadwal akademik: {json.dumps(TRISAKTI.get('academic_calendar', {}), ensure_ascii=False)}."
+        )
+    elif category == "testimoni":
+        prompt = (
+            f"Pengguna bertanya: '{user_message}'. "
+            f"Testimoni alumni: {json.dumps(TRISAKTI.get('alumni_testimonials', []), ensure_ascii=False)}."
         )
     elif is_motivational_request(user_message):
         prompt = (
