@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Asisten AI STMK Trisakti</title>
+  <title>Asisten AI Trisakti School of Multimedia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -17,8 +17,8 @@
       --dark-glow: #00fff7;
       --user-msg: #b91c1c;
       --ai-msg: #f1f5f9;
-      --radius: 10px;
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      --radius: 12px;
+      --shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
       --transition: all 0.3s ease;
     }
 
@@ -174,31 +174,6 @@
       background: var(--button-hover);
     }
 
-    .quick-btns {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      justify-content: center;
-      padding: 1rem;
-      background: var(--bg);
-    }
-
-    .quick-btn {
-      background: var(--input-bg);
-      color: var(--text);
-      border: 1px solid #ccc;
-      padding: 0.6rem 1.2rem;
-      border-radius: var(--radius);
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .quick-btn:hover {
-      background: var(--button-hover);
-      color: white;
-    }
-
     @media (max-width: 600px) {
       #message-input, button {
         width: 100%;
@@ -220,7 +195,7 @@
 
   <main id="chat-container">
     <div class="message ai">
-      <img class="icon" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" alt="ai">
+      <img class="icon" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" alt="AI">
       <div class="text">Halo, saya adalah TIMU. Saya siap membantu Anda dalam memberikan informasi seputar Trisakti School Of Multimedia.</div>
     </div>
   </main>
@@ -229,15 +204,6 @@
     <textarea id="message-input" placeholder="Tulis pertanyaan Anda..." required></textarea>
     <button type="submit">Kirim</button>
   </form>
-
-  <div class="quick-btns">
-    <button class="quick-btn" data-question="Alamat kampusnya di mana?">📍 Alamat</button>
-    <button class="quick-btn" data-question="Apa saja jurusan di STMK Trisakti?">🎓 Jurusan</button>
-    <button class="quick-btn" data-question="Ada beasiswa apa?">💰 Beasiswa</button>
-    <button class="quick-btn" data-question="Bagaimana cara mendaftar?">📝 Daftar</button>
-    <button class="quick-btn" data-question="Akreditasi kampus ini apa?">🏅 Akreditasi</button>
-    <button class="quick-btn" data-question="Fasilitas kampusnya apa saja?">🏫 Fasilitas</button>
-  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
   <script>
@@ -281,23 +247,16 @@
       append("user", msg);
       input.value = "";
 
-      append("ai", "AI sedang mengetik...");
+      append("ai", "TIMU sedang mengetik...");
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ message: msg })
       });
       const data = await res.json();
       chat.lastChild.remove();
       append("ai", data.reply || "Terjadi kesalahan.");
     };
-
-    document.querySelectorAll(".quick-btn").forEach(btn => {
-      btn.onclick = () => {
-        input.value = btn.dataset.question;
-        form.dispatchEvent(new Event("submit"));
-      };
-    });
   </script>
 </body>
 </html>
