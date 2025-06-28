@@ -1,6 +1,5 @@
 import os
 import json
-import re
 import logging
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
@@ -8,7 +7,7 @@ from flask_cors import CORS
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 
-# Setup logging
+# Logging setup
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -16,21 +15,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Setup Flask
+# Flask setup
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# Load environment variables
+# Load .env
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "default_key")
 
-# Configure Gemini
+# Konfigurasi Gemini
 try:
     genai.configure(api_key=GEMINI_API_KEY)
 except Exception as e:
     logger.error(f"Gagal konfigurasi Gemini: {e}")
 
-# Load Trisakti info
+# Load data kampus
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -39,14 +38,14 @@ except Exception as e:
     logger.critical(f"Gagal memuat trisakti_info.json: {e}")
     TRISAKTI = {}
 
-# Ambil variabel penting
+# Variabel penting
 ADDRESS = TRISAKTI.get("address", "Alamat tidak tersedia.")
 REGISTRATION_LINK = TRISAKTI.get("registration_link", "https://trisaktimultimedia.ecampuz.com/eadmisi/")
 REGISTRATION_DETAILS = TRISAKTI.get("registration_details", {})
 
-# Kumpulan kata kunci per kategori
+# Kata kunci kategori
 KEYWORDS = {
-    "alamat": ["alamat kampus", "di mana lokasi", "beralamat di mana", "lokasi kampus", "dimana letaknya"],
+    "alamat": ["alamat kampus", "lokasi kampus", "beralamat di mana", "dimana letaknya", "di mana lokasi"],
     "pendaftaran": ["pendaftaran", "daftar", "registrasi", "cara daftar", "link daftar", "jalur masuk", "gelombang"],
     "beasiswa": ["beasiswa", "kip kuliah", "bantuan biaya", "gratis", "potongan"],
     "prodi": ["program studi", "jurusan", "apa saja prodi", "s1 apa saja", "d4 apa", "fokus studi", "apa bedanya"],
@@ -58,12 +57,18 @@ KEYWORDS = {
     "kerjasama": ["kerja sama", "partner", "kolaborasi", "mitra", "industri", "kerjasama sekolah"]
 }
 
+# Kata kunci sapaan
+GREETINGS = ["halo", "hai", "assalamualaikum", "selamat pagi", "selamat siang", "selamat malam", "test", "coba"]
+
 def keyword_match(message, categories):
     msg = message.lower()
     for key in categories:
         if any(kw in msg for kw in KEYWORDS.get(key, [])):
             return key
     return None
+
+def is_greeting(msg):
+    return any(greet in msg.lower() for greet in GREETINGS)
 
 def is_educational_question(message):
     keywords = [
@@ -83,9 +88,17 @@ def chat():
         return jsonify({"error": "Pesan tidak boleh kosong."}), 400
 
     user_message = data["message"].strip()
+
+    # Deteksi sapaan
+    if is_greeting(user_message):
+        return jsonify({
+            "reply": "Halo! 👋 Saya adalah Asisten AI dari Trisakti School of Multimedia. Silakan ajukan pertanyaan seputar dunia pendidikan atau kampus kami ya."
+        })
+
+    # Deteksi kategori
     category = keyword_match(user_message, KEYWORDS.keys())
 
-    # SYSTEM MESSAGE
+    # System message
     system_message = (
         "Anda adalah asisten resmi Trisakti School of Multimedia. "
         "Jawablah dengan sopan, profesional, dan berdasarkan data yang tersedia. "
@@ -95,7 +108,7 @@ def chat():
         "Jika pertanyaan di luar cakupan pendidikan, tolak dengan sopan."
     )
 
-    # PILIH PROMPT BERDASARKAN KATEGORI
+    # Bangun prompt
     if category == "alamat":
         prompt = f"Pertanyaan: '{user_message}'. Jawablah berdasarkan alamat resmi: {ADDRESS}."
     elif category == "pendaftaran":
@@ -135,14 +148,27 @@ def chat():
         )
 
     try:
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            generation_config={
-                "temperature": 0.3,
-                "top_p": 0.9,
-                "max_output_tokens": 1000
-            }
-        )
+        # Fallback Gemini model jika flash tidak tersedia
+        try:
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash",
+                generation_config={
+                    "temperature": 0.3,
+                    "top_p": 0.9,
+                    "max_output_tokens": 1000
+                }
+            )
+        except Exception as flash_error:
+            logger.warning(f"Fallback ke gemini-pro karena flash gagal: {flash_error}")
+            model = genai.GenerativeModel(
+                model_name="gemini-pro",
+                generation_config={
+                    "temperature": 0.3,
+                    "top_p": 0.9,
+                    "max_output_tokens": 1000
+                }
+            )
+
         response = model.generate_content(f"{system_message}\n\n{prompt}")
         reply = response.text.strip()
 
@@ -158,6 +184,7 @@ def chat():
         logger.error(f"Internal error: {e}")
         return jsonify({"error": "Kesalahan sistem.", "message": str(e)}), 500
 
+# Jalankan server
 if __name__ == "__main__":
     try:
         app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
