@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from dotenv import load_dotenv
 from flask_cors import CORS
 from datetime import datetime
@@ -64,15 +64,17 @@ def get_category(msg):
             return kategori
     return None
 
-# Fungsi untuk membersihkan markdown
+# Fungsi untuk membersihkan markdown (**, *, _, `)
 def clean_response(text):
     import re
     return re.sub(r"[*_`]+", "", text)
 
+# ROUTE: index
 @app.route("/")
 def index():
     return render_template("index.html")
 
+# ROUTE: API chatbot
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -93,7 +95,15 @@ def chat():
     prompt = ""
 
     # Penanganan kategori khusus
-    if kategori == "kontak":
+    if kategori == "brosur":
+        reply = (
+            "Silakan unduh brosur resmi Trisakti School of Multimedia (TMM) melalui tautan berikut:\n\n"
+            "[📄 Download Brosur TMM](/download-brosur)"
+        )
+        save_chat(message, reply)
+        return jsonify({"reply": reply})
+
+    elif kategori == "kontak":
         kontak = TRISAKTI.get("kontak", {})
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
@@ -158,13 +168,6 @@ def chat():
             f"Pengguna bertanya: '{message}'\n"
             f"Jawab dengan jelas bahwa TMM adalah singkatan dari Trisakti School of Multimedia."
         )
-    elif kategori == "brosur":
-        file_url = request.host_url + "static/brosur_tmm_2025.pdf"
-        prompt = (
-            f"Pengguna bertanya: '{message}'\n"
-            f"Berikan jawaban sopan bahwa mereka dapat mengunduh brosur resmi Trisakti School of Multimedia "
-            f"melalui tautan berikut:\n{file_url}"
-        )
     else:
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
@@ -183,8 +186,8 @@ def chat():
         )
         result = model.generate_content(system_prompt + prompt)
         raw_reply = result.text.strip()
-
         reply = clean_response(raw_reply).replace("TSM", "TMM")
+
         save_chat(message, reply)
         return jsonify({"reply": reply})
     except google_exceptions.GoogleAPIError as e:
@@ -194,5 +197,11 @@ def chat():
         logger.error(f"[Error Internal] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
 
+# ROUTE: Download brosur
+@app.route("/download-brosur")
+def download_brosur():
+    return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
+
+# Jalankan aplikasi
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
