@@ -186,12 +186,7 @@
     <button id="theme-toggle" title="Ganti Tema">☀️</button>
   </header>
 
-  <main id="chat-container">
-    <div class="message ai">
-      <img class="icon" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" alt="AI">
-      <div class="text">Halo, saya TIMU. Saya siap membantu informasi seputar Trisakti School of Multimedia.</div>
-    </div>
-  </main>
+  <main id="chat-container"></main>
 
   <form id="input-form">
     <textarea id="message-input" rows="2" placeholder="Tulis pertanyaan Anda..." required></textarea>
@@ -205,8 +200,10 @@
     const chat = document.getElementById("chat-container");
     const themeToggle = document.getElementById("theme-toggle");
 
-    document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
-    themeToggle.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+    // Tema awal
+    const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    themeToggle.textContent = savedTheme === "dark" ? "🌙" : "☀️";
 
     themeToggle.onclick = () => {
       const mode = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
@@ -214,6 +211,10 @@
       localStorage.setItem("theme", mode);
       themeToggle.textContent = mode === "dark" ? "🌙" : "☀️";
     };
+
+    function scrollToBottom() {
+      chat.scrollTop = chat.scrollHeight;
+    }
 
     function append(role, text) {
       const msg = document.createElement("div");
@@ -229,7 +230,38 @@
       msg.appendChild(icon);
       msg.appendChild(bubble);
       chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
+      scrollToBottom();
+    }
+
+    function appendTyping() {
+      const typing = document.createElement("div");
+      typing.className = "message ai";
+      typing.innerHTML = `
+        <img class="icon" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" />
+        <div class="text"><em>TIMU sedang mengetik...</em></div>
+      `;
+      chat.appendChild(typing);
+      scrollToBottom();
+    }
+
+    function saveHistory() {
+      localStorage.setItem("chatHistory", chat.innerHTML);
+    }
+
+    function loadHistory() {
+      const saved = localStorage.getItem("chatHistory");
+      if (saved) chat.innerHTML = saved;
+      scrollToBottom();
+    }
+
+    async function typeEffect(element, text) {
+      const delay = 10;
+      element.innerHTML = "";
+      for (let i = 0; i < text.length; i++) {
+        element.innerHTML += DOMPurify.sanitize(text[i]);
+        scrollToBottom();
+        await new Promise(res => setTimeout(res, delay));
+      }
     }
 
     form.onsubmit = async (e) => {
@@ -238,24 +270,44 @@
       if (!msg) return;
       append("user", msg);
       input.value = "";
-      append("ai", "TIMU sedang mengetik...");
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg })
-      });
-      const data = await res.json();
-      chat.lastChild.remove();
-      append("ai", data.reply || "Maaf, terjadi kesalahan.");
+      appendTyping();
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        chat.lastChild.remove();
+
+        const msgEl = document.createElement("div");
+        msgEl.className = "message ai";
+        const icon = document.createElement("img");
+        icon.className = "icon";
+        icon.src = "/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png";
+        const bubble = document.createElement("div");
+        bubble.className = "text";
+        msgEl.appendChild(icon);
+        msgEl.appendChild(bubble);
+        chat.appendChild(msgEl);
+        await typeEffect(bubble, data.reply || "Maaf, terjadi kesalahan.");
+        saveHistory();
+      } catch (err) {
+        chat.lastChild.remove();
+        append("ai", "Maaf, terjadi kesalahan koneksi.");
+      }
     };
 
-    // Enter = submit jika bukan multiline
     input.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         form.requestSubmit();
       }
     });
+
+    // Load chat history
+    loadHistory();
   </script>
 </body>
 </html>
