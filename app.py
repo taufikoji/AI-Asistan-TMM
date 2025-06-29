@@ -80,8 +80,9 @@ def chat():
 
     kategori = get_category(message)
     system_prompt = (
-        "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TSM). "
-        "Gunakan bahasa Indonesia yang formal dan ramah. Jawablah berdasarkan data berikut:\n\n"
+        "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
+        "Jangan gunakan singkatan TSM. Selalu gunakan TMM sebagai singkatan resmi. "
+        "Jawaban harus dalam Bahasa Indonesia formal, informatif, dan berdasarkan data berikut:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
     )
 
@@ -102,7 +103,7 @@ def chat():
     elif kategori == "beasiswa":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan semua jenis beasiswa di TSM dengan format formal dan rapi.\n\n"
+            f"Jelaskan semua jenis beasiswa di TMM dengan format formal dan rapi.\n\n"
             f"{json.dumps(TRISAKTI.get('beasiswa', []), ensure_ascii=False)}"
         )
     elif kategori == "pendaftaran":
@@ -121,36 +122,42 @@ def chat():
     elif kategori == "akreditasi":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan akreditasi institusi dan prodi.\n"
+            f"Jelaskan akreditasi institusi dan program studi.\n"
             f"{json.dumps(TRISAKTI.get('accreditation', {}), ensure_ascii=False)}"
         )
     elif kategori == "fasilitas":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Deskripsikan fasilitas kampus dengan jelas dan menarik.\n"
+            f"Deskripsikan fasilitas kampus secara informatif dan menarik.\n"
             f"{json.dumps(TRISAKTI.get('facilities', []), ensure_ascii=False)}"
         )
     elif kategori == "jadwal":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan kalender akademik kampus saat ini.\n"
+            f"Jelaskan kalender akademik terbaru kampus.\n"
             f"{json.dumps(TRISAKTI.get('academic_calendar', {}), ensure_ascii=False)}"
         )
     elif kategori == "sejarah":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan sejarah TSM secara ringkas.\n"
+            f"Jelaskan sejarah berdirinya Trisakti School of Multimedia (TMM).\n"
             f"{TRISAKTI.get('history')}"
         )
     elif kategori == "identitas_kampus":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan profil dan identitas kampus secara ringkas dan formal."
+            f"Jelaskan profil dan identitas kampus TMM secara ringkas dan formal."
+        )
+    elif kategori == "singkatan":
+        prompt = (
+            f"Pengguna bertanya: '{message}'\n"
+            f"Jelaskan bahwa singkatan resmi dari Trisakti School of Multimedia adalah TMM, bukan TSM. "
+            f"Tegaskan penggunaan singkatan TMM secara konsisten."
         )
     else:
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jawablah secara sopan dan profesional berdasarkan seluruh data di atas."
+            f"Jawablah secara sopan dan profesional berdasarkan data di atas. Hindari improvisasi dan jangan sebut TSM."
         )
 
     try:
