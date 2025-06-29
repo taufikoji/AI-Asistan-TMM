@@ -45,8 +45,6 @@
     * {
       box-sizing: border-box;
       font-family: 'Orbitron', sans-serif;
-      -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
     }
 
     body {
@@ -87,7 +85,6 @@
       max-width: 960px;
       margin: auto;
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
     }
 
     .message {
@@ -124,8 +121,10 @@
       color: white;
     }
 
-    .text strong {
-      font-weight: bold;
+    .text a {
+      color: #b30000;
+      text-decoration: underline;
+      word-break: break-all;
     }
 
     #input-form {
@@ -225,7 +224,9 @@
         : "/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png";
       const bubble = document.createElement("div");
       bubble.className = "text";
-      bubble.innerHTML = DOMPurify.sanitize(text.replace(/\n/g, "<br>"));
+      bubble.innerHTML = DOMPurify.sanitize(
+        text.replace(/\n/g, "<br>").replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+      );
       msg.appendChild(icon);
       msg.appendChild(bubble);
       chat.appendChild(msg);
@@ -240,16 +241,6 @@
         <div class="text"><em>TIMU sedang mengetik...</em></div>
       `;
       chat.appendChild(typing);
-      scrollToBottom();
-    }
-
-    function saveHistory() {
-      localStorage.setItem("chatHistory", chat.innerHTML);
-    }
-
-    function loadHistory() {
-      const saved = localStorage.getItem("chatHistory");
-      if (saved) chat.innerHTML = saved;
       scrollToBottom();
     }
 
@@ -291,14 +282,11 @@
         msgEl.appendChild(bubble);
         chat.appendChild(msgEl);
 
-        // Cek apakah respons mengandung link HTML
         if ((data.reply || "").includes("<a")) {
           bubble.innerHTML = DOMPurify.sanitize(data.reply.replace(/\n/g, "<br>"));
         } else {
           await typeEffect(bubble, data.reply || "Maaf, terjadi kesalahan.");
         }
-
-        saveHistory();
       } catch (err) {
         chat.lastChild.remove();
         append("ai", "Maaf, terjadi kesalahan koneksi.");
@@ -311,8 +299,6 @@
         form.requestSubmit();
       }
     });
-
-    loadHistory();
   </script>
 </body>
 </html>
