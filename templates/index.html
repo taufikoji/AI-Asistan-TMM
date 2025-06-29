@@ -3,18 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#7b1f2d">
   <title>Asisten AI Trisakti School of Multimedia</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --maroon: #7b1f2d;
-      --light-bg: #ffffff;
-      --light-text: #1e1e1e;
-      --dark-bg: #0d0d0d;
-      --dark-text: #e0f7fa;
       --user-msg: #b91c1c;
       --ai-msg: #f1f5f9;
       --radius: 12px;
@@ -22,23 +16,13 @@
       --transition: all 0.3s ease;
     }
 
-    [data-theme="dark"] {
-      --bg: var(--dark-bg);
-      --text: var(--dark-text);
-      --primary: #00fff7;
-      --header-bg: #1a1a1a;
-      --input-bg: #111;
-      --button-bg: #1f2937;
-      --button-hover: #00fff7;
-    }
-
     [data-theme="light"] {
-      --bg: var(--light-bg);
-      --text: var(--light-text);
+      --bg: #ffffff;
+      --text: #1e1e1e;
       --primary: var(--maroon);
       --header-bg: var(--maroon);
       --input-bg: #f9fafb;
-      --button-bg: #7b1f2d;
+      --button-bg: var(--maroon);
       --button-hover: #9c2e3f;
     }
 
@@ -49,7 +33,6 @@
 
     body {
       margin: 0;
-      padding: 0;
       background: var(--bg);
       color: var(--text);
       display: flex;
@@ -67,24 +50,13 @@
       box-shadow: var(--shadow);
     }
 
-    header h1 {
-      font-size: 1rem;
-    }
-
-    #theme-toggle {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
     #chat-container {
       flex: 1;
       padding: 1rem;
       max-width: 960px;
       margin: auto;
       overflow-y: auto;
+      scroll-behavior: smooth;
     }
 
     .message {
@@ -102,11 +74,10 @@
       height: 40px;
       margin: 0 12px;
       border-radius: 50%;
-      object-fit: cover;
     }
 
     .text {
-      max-width: 80%;
+      max-width: 85vw;
       padding: 0.9rem;
       border-radius: var(--radius);
       background: var(--input-bg);
@@ -124,7 +95,7 @@
     .text a {
       color: #b30000;
       text-decoration: underline;
-      word-break: break-all;
+      word-break: break-word;
     }
 
     #input-form {
@@ -142,8 +113,6 @@
       border: 1px solid #ccc;
       background: var(--input-bg);
       color: var(--text);
-      resize: none;
-      touch-action: manipulation;
     }
 
     button {
@@ -166,23 +135,36 @@
       #chat-container {
         padding: 0.75rem;
       }
-
       #input-form {
         flex-direction: column;
         gap: 0.5rem;
       }
-
       #message-input, button {
         width: 100%;
         margin: 0;
       }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.ai {
+      animation: slideUp 0.3s ease-out;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Asisten AI Trisakti School of Multimedia</h1>
-    <button id="theme-toggle" title="Ganti Tema">☀️</button>
+    <button id="theme-toggle">☀️</button>
   </header>
 
   <main id="chat-container"></main>
@@ -194,24 +176,29 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
   <script>
+    const chat = document.getElementById("chat-container");
     const form = document.getElementById("input-form");
     const input = document.getElementById("message-input");
-    const chat = document.getElementById("chat-container");
     const themeToggle = document.getElementById("theme-toggle");
 
-    const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const savedTheme = localStorage.getItem("theme") || "light";
     document.documentElement.setAttribute("data-theme", savedTheme);
     themeToggle.textContent = savedTheme === "dark" ? "🌙" : "☀️";
 
     themeToggle.onclick = () => {
-      const mode = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", mode);
-      localStorage.setItem("theme", mode);
-      themeToggle.textContent = mode === "dark" ? "🌙" : "☀️";
+      const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
     };
 
     function scrollToBottom() {
       chat.scrollTop = chat.scrollHeight;
+    }
+
+    function linkify(text) {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
     }
 
     function append(role, text) {
@@ -224,9 +211,7 @@
         : "/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png";
       const bubble = document.createElement("div");
       bubble.className = "text";
-      bubble.innerHTML = DOMPurify.sanitize(
-        text.replace(/\n/g, "<br>").replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
-      );
+      bubble.innerHTML = DOMPurify.sanitize(linkify(text).replace(/\n/g, "<br>"));
       msg.appendChild(icon);
       msg.appendChild(bubble);
       chat.appendChild(msg);
@@ -244,16 +229,6 @@
       scrollToBottom();
     }
 
-    async function typeEffect(element, text) {
-      const delay = 10;
-      element.innerHTML = "";
-      for (let i = 0; i < text.length; i++) {
-        element.innerHTML += DOMPurify.sanitize(text[i]);
-        scrollToBottom();
-        await new Promise(res => setTimeout(res, delay));
-      }
-    }
-
     form.onsubmit = async (e) => {
       e.preventDefault();
       const msg = input.value.trim();
@@ -268,26 +243,12 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: msg })
         });
+
         const data = await res.json();
         chat.lastChild.remove();
 
-        const msgEl = document.createElement("div");
-        msgEl.className = "message ai";
-        const icon = document.createElement("img");
-        icon.className = "icon";
-        icon.src = "/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png";
-        const bubble = document.createElement("div");
-        bubble.className = "text";
-        msgEl.appendChild(icon);
-        msgEl.appendChild(bubble);
-        chat.appendChild(msgEl);
-
-        if ((data.reply || "").includes("<a")) {
-          bubble.innerHTML = DOMPurify.sanitize(data.reply.replace(/\n/g, "<br>"));
-        } else {
-          await typeEffect(bubble, data.reply || "Maaf, terjadi kesalahan.");
-        }
-      } catch (err) {
+        append("ai", data.reply || "Maaf, terjadi kesalahan.");
+      } catch {
         chat.lastChild.remove();
         append("ai", "Maaf, terjadi kesalahan koneksi.");
       }
@@ -299,6 +260,9 @@
         form.requestSubmit();
       }
     });
+
+    // Bersihkan riwayat saat refresh
+    window.onbeforeunload = () => localStorage.removeItem("chatHistory");
   </script>
 </body>
 </html>
