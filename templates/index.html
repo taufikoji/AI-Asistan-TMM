@@ -200,7 +200,6 @@
     const chat = document.getElementById("chat-container");
     const themeToggle = document.getElementById("theme-toggle");
 
-    // Tema awal
     const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     document.documentElement.setAttribute("data-theme", savedTheme);
     themeToggle.textContent = savedTheme === "dark" ? "🌙" : "☀️";
@@ -291,7 +290,14 @@
         msgEl.appendChild(icon);
         msgEl.appendChild(bubble);
         chat.appendChild(msgEl);
-        await typeEffect(bubble, data.reply || "Maaf, terjadi kesalahan.");
+
+        // Cek apakah respons mengandung link HTML
+        if ((data.reply || "").includes("<a")) {
+          bubble.innerHTML = DOMPurify.sanitize(data.reply.replace(/\n/g, "<br>"));
+        } else {
+          await typeEffect(bubble, data.reply || "Maaf, terjadi kesalahan.");
+        }
+
         saveHistory();
       } catch (err) {
         chat.lastChild.remove();
@@ -306,7 +312,6 @@
       }
     });
 
-    // Load chat history
     loadHistory();
   </script>
 </body>
