@@ -64,6 +64,11 @@ def get_category(msg):
             return kategori
     return None
 
+# Fungsi untuk membersihkan markdown (**, *, _, `)
+def clean_response(text):
+    import re
+    return re.sub(r"[*_`]+", "", text)
+
 # ROUTE: index
 @app.route("/")
 def index():
@@ -81,7 +86,9 @@ def chat():
     kategori = get_category(message)
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
-        "Jawablah dengan bahasa Indonesia formal jika user berbahasa indonesia. dan jawab dengan bahasa inggris yang baik jika user berbahasa inggris, ramah, dan berdasarkan data berikut:\n\n"
+        "Jawablah dengan bahasa Indonesia formal jika user berbahasa Indonesia, "
+        "dan jawab dengan bahasa Inggris yang baik jika user berbahasa Inggris. "
+        "Bersikaplah ramah dan sopan. Gunakan data berikut sebagai dasar:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
     )
 
@@ -170,10 +177,10 @@ def chat():
             }
         )
         result = model.generate_content(system_prompt + prompt)
-        reply = result.text.strip()
+        raw_reply = result.text.strip()
 
-        # Cek dan koreksi jika menyebut TSM (ganti ke TMM)
-        reply = reply.replace("TSM", "TMM")
+        # Bersihkan markdown dan koreksi TSM → TMM
+        reply = clean_response(raw_reply).replace("TSM", "TMM")
 
         save_chat(message, reply)
         return jsonify({"reply": reply})
