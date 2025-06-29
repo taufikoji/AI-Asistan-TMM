@@ -80,7 +80,7 @@ def chat():
 
     kategori = get_category(message)
     system = (
-        "Anda adalah asisten AI resmi Trisakti School of Multimedia. "
+        "Anda adalah TIMU asisten AI resmi Trisakti School of Multimedia. "
         "Gunakan bahasa Indonesia formal dan edukatif. Jawaban harus jelas, sopan, dan berdasarkan data kampus berikut:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
     )
