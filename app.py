@@ -2,289 +2,167 @@ import os
 import json
 import logging
 from flask import Flask, request, jsonify, render_template
-from dotenv import load_dotenv
 from flask_cors import CORS
+from dotenv import load_dotenv
 import google.generativeai as genai
-from google.api_core import exceptions as google_exceptions
+from google.api_core import exceptions as google_ex
+import requests
 from datetime import datetime
-
-# Logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    filename="app.log"
-)
-logger = logging.getLogger(__name__)
 
 # Load environment
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "default_key")
 
-# Inisialisasi Flask
+# === Konfigurasi Gemini ===
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "models/gemini-1.5-flash")
+
+# === Konfigurasi OpenRouter ===
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "mistralai/mistral-7b-instruct:free")
+
+# Logging
+logging.basicConfig(level=logging.INFO)
+
+# Flask Setup
 app = Flask(__name__)
 CORS(app)
 
-# Konfigurasi Gemini
-try:
-    genai.configure(api_key=GEMINI_API_KEY)
-except Exception as e:
-    logger.error(f"Gagal konfigurasi Gemini: {e}")
+# Load data kampus
+with open("trisakti_info.json", "r", encoding="utf-8") as f:
+    campus_data = json.load(f)
 
-# Muat data kampus
-try:
-    with open("trisakti_info.json", "r", encoding="utf-8") as f:
-        TRISAKTI = json.load(f)
-        assert isinstance(TRISAKTI, dict)
-except Exception as e:
-    logger.critical(f"Gagal memuat trisakti_info.json: {e}")
-    TRISAKTI = {}
+# Simpan histori chat
+CHAT_HISTORY_PATH = "chat_history.json"
+if not os.path.exists(CHAT_HISTORY_PATH):
+    with open(CHAT_HISTORY_PATH, "w", encoding="utf-8") as f:
+        json.dump([], f, ensure_ascii=False, indent=2)
 
-# Variabel penting
-ADDRESS = TRISAKTI.get("address", "Alamat tidak tersedia.")
-REGISTRATION_LINK = TRISAKTI.get("registration_link", "#")
-REGISTRATION_DETAILS = TRISAKTI.get("registration_details", {})
-PROGRAMS = TRISAKTI.get("programs", [])
-PROGRAM_KEYWORDS = {p["short"].lower(): p for p in PROGRAMS}
-
-# Kata kunci utama
-KEYWORDS = TRISAKTI.get("faq_keywords", {})
-KEYWORDS.update({
-    "visi": ["visi", "tujuan utama"],
-    "misi": ["misi", "langkah strategis"],
-    "kerjasama": ["kerja sama", "partner", "kolaborasi", "mitra industri", "dengan siapa"],
-    "keunggulan": ["manfaat kuliah", "kenapa pilih trisakti", "keunggulan kampus", "mengapa trisakti", "apa bagusnya"],
-    "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum", "event kampus"],
-    "identitas_kampus": [
-        "jelaskan kampus apa ini", "apa itu trisakti multimedia", "tentang kampus", 
-        "seputar kampus", "identitas kampus", "profil kampus", "kampusnya seperti apa"
-    ]
-})
-
-GREETINGS = ["halo", "hai", "assalamualaikum", "selamat pagi", "selamat siang", "selamat malam", "test"]
-
-def match_keyword(message, category_keywords):
-    message = message.lower()
-    for category, keywords in category_keywords.items():
-        if any(k in message for k in keywords):
-            return category
+# Fungsi pencocokan keyword
+def find_category(user_input):
+    for category, keywords in campus_data.get("faq_keywords", {}).items():
+        for keyword in keywords:
+            if keyword.lower() in user_input.lower():
+                return category
     return None
 
-def find_program_by_keyword(message):
-    msg = message.lower()
-    for p in PROGRAMS:
-        if (p["short"].lower() in msg or 
-            p["name"].lower() in msg or 
-            any(keyword in msg for keyword in p["description"].lower().split())):
-            return p
-    return None
-
-def is_greeting(msg):
-    return any(greet in msg.lower() for greet in GREETINGS)
-
-def is_educational_question(msg):
-    keywords = [
-        "kuliah", "kampus", "mahasiswa", "program", "akademik", "pendidikan", "studi",
-        "jurusan", "prodi", "mata kuliah", "dosen", "kurikulum", "beasiswa", "fasilitas",
-        "akreditasi", "pendaftaran", "manfaat", "keunggulan", "teknologi", "iot", "ai"
-    ]
-    return any(k in msg.lower() for k in keywords)
-
-def is_motivational_request(msg):
-    motivasi_keywords = [
-        "bosan", "capek", "lelah", "gak semangat", "kurang motivasi",
-        "gimana cara belajar", "butuh semangat", "kenapa harus kuliah", 
-        "gak yakin", "bingung", "takut salah jurusan"
-    ]
-    return any(k in msg.lower() for k in motivasi_keywords)
-
-def is_discussion_request(msg):
-    diskusi_keywords = [
-        "menurut kamu", "gimana pendapatmu", "diskusi", "apa opini kamu", 
-        "bisa ajak ngobrol", "boleh curhat", "lagi apa", "bisa cerita gak"
-    ]
-    return any(k in msg.lower() for k in diskusi_keywords)
-
-def save_chat(user_msg, ai_reply):
-    try:
-        chat_file = "chat_history.json"
-        chat_data = []
-        if os.path.exists(chat_file):
-            with open(chat_file, "r", encoding="utf-8") as f:
-                chat_data = json.load(f)
-        chat_data.append({
-            "timestamp": datetime.now().isoformat(),
-            "user": user_msg,
-            "ai": ai_reply
-        })
-        with open(chat_file, "w", encoding="utf-8") as f:
-            json.dump(chat_data, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.warning(f"Gagal menyimpan chat: {e}")
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/api/chat", methods=["POST"])
-def chat():
-    data = request.get_json()
-    user_message = data.get("message", "").strip()
-
-    if not user_message:
-        return jsonify({"error": "Pesan tidak boleh kosong."}), 400
-
-    if is_greeting(user_message):
-        reply = (
-            "Halo, saya adalah TIMU. Saya siap membantu Anda dalam memberikan "
-            "informasi seputar Trisakti School of Multimedia."
-        )
-        save_chat(user_message, reply)
-        return jsonify({"reply": reply})
-
-    category = match_keyword(user_message, KEYWORDS)
-    program = find_program_by_keyword(user_message) if not category else None
-
-    system_message = (
-        "Anda adalah asisten resmi Trisakti School of Multimedia. "
-        "Jawablah dengan sopan, edukatif, dan profesional. "
-        "Gunakan bahasa Indonesia formal yang mudah dimengerti. "
-        "Fokus pada topik seputar kampus, pendidikan, diskusi akademik, dan motivasi belajar."
-    )
-
-    if program:
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Berikan penjelasan singkat dan jelas tentang program studi {program['name']} di Trisakti School of Multimedia. "
-            f"Deskripsi: {program['description']}. "
-            f"Akreditasi: {program['accreditation']}. "
-            f"Peluang karier: {', '.join(program['career_prospects'])}. "
-            "Jika ada detail lain yang relevan dari pertanyaan pengguna, sertakan juga."
-        )
-    elif category == "identitas_kampus":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Berikan gambaran umum tentang Trisakti School of Multimedia berdasarkan data berikut: "
-            f"Nama: {TRISAKTI.get('name', 'Trisakti School of Multimedia')}, "
-            f"Sejarah: {TRISAKTI.get('history', '')}, "
-            f"Lokasi: {ADDRESS}, "
-            f"Visi: {TRISAKTI.get('vision', '')}, "
-            f"Misi: {json.dumps(TRISAKTI.get('mission', []), ensure_ascii=False)}, "
-            f"Keunggulan: {TRISAKTI.get('why_trisakti', '')}, "
-            f"Program Studi Unggulan (contoh): {json.dumps([p['name'] for p in PROGRAMS[:2]], ensure_ascii=False)}. "
-            "Jawaban harus singkat, informatif, dan ramah, dengan ajakan untuk bertanya lebih lanjut jika diperlukan."
-        )
-    elif category == "alamat":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Alamat resmi Trisakti School of Multimedia adalah: {ADDRESS}. "
-            "Berikan respons yang informatif dan ramah, sertakan saran untuk mengunjungi website resmi "
-            f"({TRISAKTI.get('website', 'https://trisaktimultimedia.ac.id')}) untuk detail lokasi dan peta kampus."
-        )
-    elif category == "pendaftaran":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Info pendaftaran: {json.dumps(REGISTRATION_DETAILS, ensure_ascii=False)}. "
-            f"Link: {REGISTRATION_LINK}."
-        )
-    elif category == "beasiswa":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Informasi beasiswa: {json.dumps(TRISAKTI.get('beasiswa', []), ensure_ascii=False)}. "
-            "Jika pengguna menyebut beasiswa tertentu (misalnya KIP Kuliah), berikan detail spesifik seperti nama, deskripsi, dan syarat jika tersedia. "
-            "Jika tidak ada detail spesifik, sarankan untuk menghubungi kampus."
+# Fungsi ambil jawaban dari JSON
+def get_answer_by_category(category):
+    if category == "alamat":
+        return f"Kampus Trisakti School of Multimedia beralamat di {campus_data['address']}."
+    elif category == "kontak":
+        kontak = campus_data["kontak"]
+        return (
+            f"""Berikut informasi kontak resmi Trisakti School of Multimedia:\n
+Alamat: {campus_data['address']}
+Telepon: {', '.join(kontak['phone'])}
+Email: {kontak['email']}
+WhatsApp: {kontak['whatsapp']}
+Jam Operasional: {kontak['office_hours']}
+Instagram: {kontak['social_media']['instagram']}
+Facebook: {kontak['social_media']['facebook']}"""
         )
     elif category == "prodi":
-        prompt = f"Pengguna bertanya: '{user_message}'. Semua program studi: {json.dumps(PROGRAMS, ensure_ascii=False)}."
+        prodi = [f"- {p['name']}" for p in campus_data["programs"]]
+        return "Berikut program studi yang tersedia:\n" + "\n".join(prodi)
+    elif category == "beasiswa":
+        beasiswa = [f"- {b['name']}: {b['description']}" for b in campus_data["beasiswa"]]
+        return "Kami menyediakan beberapa beasiswa, antara lain:\n" + "\n".join(beasiswa)
+    elif category == "pendaftaran":
+        return (
+            f"Pendaftaran dilakukan secara online melalui: {campus_data['registration_link']}\n"
+            f"Proses: {campus_data['registration_details']['process']}"
+        )
     elif category == "fasilitas":
-        prompt = f"Pengguna bertanya: '{user_message}'. Fasilitas kampus: {json.dumps(TRISAKTI.get('facilities', []), ensure_ascii=False)}."
+        return "Fasilitas kampus kami meliputi:\n- " + "\n- ".join(campus_data["facilities"])
     elif category == "akreditasi":
-        prompt = f"Pengguna bertanya: '{user_message}'. Akreditasi: {json.dumps(TRISAKTI.get('accreditation', {}), ensure_ascii=False)}."
+        akred = campus_data["accreditation"]
+        return f"Akreditasi institusi: {akred['overall']}\nProgram Studi:\n" + "\n".join([f"- {k}: {v}" for k, v in akred["programs"].items()])
     elif category == "sejarah":
-        prompt = f"Pengguna bertanya: '{user_message}'. Sejarah kampus: {TRISAKTI.get('history', '')}."
-    elif category == "visi":
-        prompt = f"Pengguna bertanya: '{user_message}'. Visi kampus: {TRISAKTI.get('vision', '')}."
-    elif category == "misi":
-        prompt = f"Pengguna bertanya: '{user_message}'. Misi kampus: {json.dumps(TRISAKTI.get('mission', []), ensure_ascii=False)}."
-    elif category == "kerjasama":
-        prompt = f"Pengguna bertanya: '{user_message}'. Kerja sama strategis: {json.dumps(TRISAKTI.get('collaborations', []), ensure_ascii=False)}."
-    elif category == "kontak":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Kontak resmi Trisakti School of Multimedia: "
-            f"WhatsApp: {TRISAKTI.get('contact', {}).get('whatsapp', 'Tidak tersedia')}, "
-            f"Email: {TRISAKTI.get('contact', {}).get('email', 'Tidak tersedia')}, "
-            f"Telepon: {', '.join(TRISAKTI.get('contact', {}).get('phone', ['Tidak tersedia']))}, "
-            f"Jam Operasional: {TRISAKTI.get('contact', {}).get('office_hours', 'Tidak tersedia')}, "
-            f"Media Sosial: {json.dumps(TRISAKTI.get('contact', {}).get('social_media', {}), ensure_ascii=False)}."
-        )
-    elif category == "keunggulan":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Keunggulan Trisakti: {TRISAKTI.get('why_trisakti', 'Trisakti School of Multimedia berkomitmen menghasilkan lulusan berkualitas yang mampu bersaing di industri kreatif dan digital, dengan fokus pada teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI).')}"
-        )
-    elif category == "berita":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Berita terbaru: {json.dumps(TRISAKTI.get('news', []), ensure_ascii=False)}. "
-            f"Kegiatan kampus: {json.dumps(TRISAKTI.get('campus_events', []), ensure_ascii=False)}."
-        )
+        return campus_data["history"]
     elif category == "jadwal":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Jadwal akademik: {json.dumps(TRISAKTI.get('academic_calendar', {}), ensure_ascii=False)}."
+        sem1 = campus_data["academic_calendar"]["semester_1_2025"]
+        sem2 = campus_data["academic_calendar"]["semester_2_2025"]
+        return (
+            f"Semester 1 dimulai {sem1['start']} hingga {sem1['end']}.\n"
+            f"Libur: {', '.join(sem1['holidays'])}\n\n"
+            f"Semester 2 dimulai {sem2['start']} hingga {sem2['end']}.\n"
+            f"Libur: {', '.join(sem2['holidays'])}"
         )
     elif category == "testimoni":
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            f"Testimoni alumni: {json.dumps(TRISAKTI.get('alumni_testimonials', []), ensure_ascii=False)}."
-        )
-    elif is_motivational_request(user_message):
-        prompt = (
-            f"Pengguna berkata: '{user_message}'. "
-            "Berikan respons yang mendukung, semangat, dan memotivasi agar pengguna merasa didengar dan semangat belajar."
-        )
-    elif is_discussion_request(user_message):
-        prompt = (
-            f"Pengguna berkata: '{user_message}'. "
-            "Jawablah seperti teman diskusi, bahas hal ringan seputar kuliah, studi, atau pilihan masa depan secara positif dan ramah."
-        )
-    elif is_educational_question(user_message):
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            "Jawablah seputar dunia pendidikan dengan sopan dan edukatif, menggunakan konteks Trisakti School of Multimedia."
-        )
+        return "\n\n".join([f"{t['name']} ({t['program']}): {t['testimonial']}" for t in campus_data["alumni_testimonials"]])
+    elif category == "keunggulan":
+        return campus_data["why_trisakti"]
+    elif category == "berita":
+        return "\n\n".join([f"{b['title']} ({b['date']}): {b['description']}" for b in campus_data["news"]])
+    elif category == "identitas_kampus":
+        return f"Trisakti School of Multimedia (TMM) adalah perguruan tinggi media komunikasi yang berdiri sejak tahun {campus_data['foundation_year']}."
     else:
-        logger.warning(f"Pertanyaan tidak terdeteksi: {user_message}")
-        prompt = (
-            f"Pengguna bertanya: '{user_message}'. "
-            "Jawablah dengan sopan, edukatif, dan profesional seputar Trisakti School of Multimedia. "
-            f"Konteks: {json.dumps(TRISAKTI, ensure_ascii=False)}."
-        )
+        return None
 
+# Fallback ke OpenRouter jika Gemini gagal
+def fallback_openrouter(prompt):
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": OPENROUTER_MODEL,
+        "messages": [
+            {"role": "system", "content": "Jawab dengan bahasa Indonesia yang sopan dan profesional."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+    if response.status_code == 200:
+        return response.json()['choices'][0]['message']['content']
+    else:
+        return "Mohon maaf, saat ini kami tidak dapat menjawab pertanyaan Anda. Silakan coba beberapa saat lagi."
+
+# Route utama
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/chat", methods=["POST"])
+def chat():
     try:
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            generation_config={
-                "temperature": 0.35,
-                "top_p": 0.95,
-                "max_output_tokens": 1000
-            }
-        )
-        response = model.generate_content(f"{system_message}\n\n{prompt}")
-        reply = response.text.strip()
-        save_chat(user_message, reply)
-        return jsonify({"reply": reply})
-    except google_exceptions.GoogleAPIError as e:
-        logger.error(f"GoogleAPIError: {e}")
-        return jsonify({"error": "Koneksi ke AI gagal.", "message": str(e)}), 500
-    except Exception as e:
-        logger.error(f"Error: {e}")
-        return jsonify({"error": "Terjadi kesalahan sistem.", "message": str(e)}), 500
+        data = request.get_json()
+        user_input = data.get("message", "")
+        category = find_category(user_input)
 
-# Jalankan server
+        if category:
+            response = get_answer_by_category(category)
+        else:
+            try:
+                model = genai.GenerativeModel(GEMINI_MODEL)
+                chat = model.start_chat()
+                gemini_response = chat.send_message(user_input)
+                response = gemini_response.text
+            except google_ex.GoogleAPIError as e:
+                logging.error("Gemini error: %s", e)
+                response = fallback_openrouter(user_input)
+
+        save_chat(user_input, response)
+        return jsonify({"response": response})
+
+    except Exception as e:
+        logging.exception("Chat error")
+        return jsonify({"response": "Terjadi kesalahan. Silakan coba kembali."}), 500
+
+# Simpan riwayat chat
+def save_chat(user_input, response):
+    chat_data = {
+        "timestamp": datetime.now().isoformat(),
+        "user": user_input,
+        "bot": response
+    }
+    with open(CHAT_HISTORY_PATH, "r+", encoding="utf-8") as f:
+        data = json.load(f)
+        data.append(chat_data)
+        f.seek(0)
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+# Run server
 if __name__ == "__main__":
-    try:
-        app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
-    except Exception as e:
-        logger.critical(f"Gagal menjalankan server: {e}")
-        raise
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port)
