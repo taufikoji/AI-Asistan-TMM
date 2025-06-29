@@ -2,9 +2,9 @@
 <html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#7b1f2d">
-  <title>Asisten AI Trisakti School Of Multimedia</title>
+  <title>TIMU - Asisten AI TMM</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -28,11 +28,11 @@
 
     [data-theme="dark"] {
       --bg: #0d0d0d;
-      --text: #e0f7fa;
+      --text: #f0f0f0;
       --primary: #00fff7;
       --header-bg: #1a1a1a;
-      --input-bg: #111;
-      --button-bg: #1f2937;
+      --input-bg: #1e1e1e;
+      --button-bg: #333;
       --button-hover: #00fff7;
     }
 
@@ -53,22 +53,18 @@
     header {
       background: var(--header-bg);
       color: white;
-      padding: 1rem;
+      padding: 0.6rem 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--shadow);
+      font-size: 0.95rem;
     }
 
-    #theme-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.9rem;
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
+    header h1 {
+      font-size: 1.2rem;
+      margin: 0;
+      line-height: 1.3;
     }
 
     #chat-container {
@@ -154,13 +150,17 @@
 
     footer {
       text-align: center;
-      padding: 1rem;
+      font-size: 0.8rem;
+      padding: 0.5rem;
       background: var(--header-bg);
       color: white;
-      font-size: 0.75rem;
     }
 
     @media (max-width: 600px) {
+      header h1 {
+        font-size: 1rem;
+      }
+
       #chat-container {
         padding: 0.75rem;
       }
@@ -195,10 +195,7 @@
 <body>
   <header>
     <h1>TIMU Asisten AI Trisakti School Of Multimedia</h1>
-    <button id="theme-toggle">
-      <span id="theme-icon">☀️</span>
-      <span id="theme-label">Light Mode</span>
-    </button>
+    <button id="theme-toggle">☀️ Light Mode</button>
   </header>
 
   <main id="chat-container"></main>
@@ -208,7 +205,9 @@
     <button type="submit">Kirim</button>
   </form>
 
-  <footer>© 2025 Trisakti School of Multimedia — TIMU AI Assistant</footer>
+  <footer>
+    Masih Dalam Tahap Pengembangan. &copy; 2025 Develop by Taofik Faoji.
+  </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
   <script>
@@ -216,25 +215,16 @@
     const form = document.getElementById("input-form");
     const input = document.getElementById("message-input");
     const themeToggle = document.getElementById("theme-toggle");
-    const themeIcon = document.getElementById("theme-icon");
-    const themeLabel = document.getElementById("theme-label");
 
-    // Inisialisasi tema
     const savedTheme = localStorage.getItem("theme") || "light";
     document.documentElement.setAttribute("data-theme", savedTheme);
-    updateThemeDisplay(savedTheme);
-
-    function updateThemeDisplay(theme) {
-      themeIcon.textContent = theme === "dark" ? "🌙" : "☀️";
-      themeLabel.textContent = theme === "dark" ? "Dark Mode" : "Light Mode";
-    }
+    themeToggle.textContent = savedTheme === "dark" ? "🌙 Dark Mode" : "☀️ Light Mode";
 
     themeToggle.onclick = () => {
-      const current = document.documentElement.getAttribute("data-theme");
-      const newTheme = current === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-      updateThemeDisplay(newTheme);
+      const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      themeToggle.textContent = theme === "dark" ? "🌙 Dark Mode" : "☀️ Light Mode";
     };
 
     function scrollToBottom() {
@@ -274,7 +264,6 @@
       scrollToBottom();
     }
 
-    // Kirim pesan
     form.onsubmit = async (e) => {
       e.preventDefault();
       const msg = input.value.trim();
@@ -299,7 +288,6 @@
       }
     };
 
-    // Enter = kirim
     input.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -307,13 +295,13 @@
       }
     });
 
-    // Sapaan awal
+    // Bersihkan riwayat saat refresh
+    window.onbeforeunload = () => localStorage.removeItem("chatHistory");
+
+    // ✅ Tambahkan sapaan awal saat pertama kali dibuka
     window.onload = () => {
       append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
     };
-
-    // Bersihkan riwayat saat refresh
-    window.onbeforeunload = () => localStorage.removeItem("chatHistory");
   </script>
 </body>
 </html>
