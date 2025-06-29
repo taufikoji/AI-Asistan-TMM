@@ -8,7 +8,7 @@ from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 
-# Logging setup
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -20,17 +20,17 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# Flask setup
+# Setup Flask
 app = Flask(__name__)
 CORS(app)
 
-# Konfigurasi Gemini
+# Configure Gemini
 try:
     genai.configure(api_key=GEMINI_API_KEY)
 except Exception as e:
     logger.error(f"Gagal konfigurasi Gemini: {e}")
 
-# Load data kampus
+# Load data JSON kampus
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -38,7 +38,7 @@ except Exception as e:
     logger.critical(f"Gagal memuat data JSON: {e}")
     TRISAKTI = {}
 
-# Simpan chat history
+# Simpan riwayat chat
 def save_chat(user_msg, ai_msg):
     try:
         file = "chat_history.json"
@@ -56,7 +56,7 @@ def save_chat(user_msg, ai_msg):
     except Exception as e:
         logger.warning(f"Gagal simpan riwayat: {e}")
 
-# Temukan kategori dari pertanyaan
+# Deteksi kategori pertanyaan
 def get_category(msg):
     msg = msg.lower()
     for kategori, keywords in TRISAKTI.get("faq_keywords", {}).items():
@@ -64,17 +64,17 @@ def get_category(msg):
             return kategori
     return None
 
-# Fungsi untuk membersihkan markdown (**, *, _, `)
+# Hilangkan markdown (*, **, _, `) dari balasan AI
 def clean_response(text):
     import re
     return re.sub(r"[*_`]+", "", text)
 
-# ROUTE: index
+# ROUTE: Homepage
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# ROUTE: API chatbot
+# ROUTE: API utama
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -87,23 +87,34 @@ def chat():
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
         "Jawablah dengan bahasa Indonesia formal jika user berbahasa Indonesia, "
-        "dan jawab dengan bahasa Inggris yang baik jika user berbahasa Inggris. "
-        "Bersikaplah ramah dan sopan. Gunakan data berikut sebagai dasar:\n\n"
+        "dan jawab dengan bahasa Inggris jika user menggunakan bahasa Inggris. "
+        "Gunakan data berikut sebagai referensi:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
     )
 
-    prompt = ""
-
-    # Penanganan kategori khusus
+    # Jika pertanyaan termasuk kategori brosur
     if kategori == "brosur":
         reply = (
             "Silakan unduh brosur resmi Trisakti School of Multimedia (TMM) melalui tautan berikut:<br><br>"
-    "<a href='/download-brosur' target='_blank' style='color: #b30000; text-decoration: underline;'>📄 Download Brosur TMM</a>"
+            "<a href='/download-brosur' target='_blank' style='color: #b30000; text-decoration: underline;'>📄 Download Brosur TMM</a>"
         )
-        
         save_chat(message, reply)
         return jsonify({"reply": reply})
 
+    # Jika pertanyaan termasuk kategori pendaftaran
+    elif kategori == "pendaftaran":
+        link = TRISAKTI.get("registration_link", "#")
+        detail = TRISAKTI.get("registration_details", "")
+        reply = (
+            "Selamat pagi/siang/sore! Berikut informasi mengenai pendaftaran di Trisakti School of Multimedia (TMM):<br><br>"
+            f"<strong>🔗 Link Pendaftaran:</strong><br>"
+            f"<a href='{link}' target='_blank' style='color: #b30000; text-decoration: underline;'>{link}</a><br><br>"
+            f"<strong>Syarat dan Jalur Pendaftaran:</strong><br>{detail.replace(chr(10), '<br>')}"
+        )
+        save_chat(message, reply)
+        return jsonify({"reply": reply})
+
+    # Sisanya: bangun prompt ke Gemini
     elif kategori == "kontak":
         kontak = TRISAKTI.get("kontak", {})
         prompt = (
@@ -122,13 +133,6 @@ def chat():
             f"Jelaskan semua jenis beasiswa di TMM dengan format formal dan rapi.\n\n"
             f"{json.dumps(TRISAKTI.get('beasiswa', []), ensure_ascii=False)}"
         )
-    elif kategori == "pendaftaran":
-        prompt = (
-            f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan syarat, jalur, dan prosedur pendaftaran kampus.\n"
-            f"{json.dumps(TRISAKTI.get('registration_details'), ensure_ascii=False)}\n"
-            f"Link pendaftaran: {TRISAKTI.get('registration_link')}"
-        )
     elif kategori == "prodi":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
@@ -138,13 +142,13 @@ def chat():
     elif kategori == "akreditasi":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan akreditasi institusi dan prodi.\n"
+            f"Jelaskan akreditasi institusi dan program studi.\n"
             f"{json.dumps(TRISAKTI.get('accreditation', {}), ensure_ascii=False)}"
         )
     elif kategori == "fasilitas":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Deskripsikan fasilitas kampus dengan jelas dan menarik.\n"
+            f"Deskripsikan fasilitas kampus secara menarik dan informatif.\n"
             f"{json.dumps(TRISAKTI.get('facilities', []), ensure_ascii=False)}"
         )
     elif kategori == "jadwal":
@@ -198,7 +202,7 @@ def chat():
         logger.error(f"[Error Internal] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
 
-# ROUTE: Download brosur
+# ROUTE: Unduh brosur PDF
 @app.route("/download-brosur")
 def download_brosur():
     return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
