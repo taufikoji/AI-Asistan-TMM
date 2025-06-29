@@ -8,7 +8,7 @@ from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 
-# Logging
+# Logging setup
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -16,7 +16,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Load environment
+# Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -30,7 +30,7 @@ try:
 except Exception as e:
     logger.error(f"Gagal konfigurasi Gemini: {e}")
 
-# Load JSON data
+# Load data kampus
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -38,25 +38,25 @@ except Exception as e:
     logger.critical(f"Gagal memuat data JSON: {e}")
     TRISAKTI = {}
 
-# Simpan riwayat
-def save_chat(user, ai):
+# Simpan chat history
+def save_chat(user_msg, ai_msg):
     try:
         file = "chat_history.json"
-        data = []
+        history = []
         if os.path.exists(file):
             with open(file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        data.append({
+                history = json.load(f)
+        history.append({
             "timestamp": datetime.now().isoformat(),
-            "user": user,
-            "ai": ai
+            "user": user_msg,
+            "ai": ai_msg
         })
         with open(file, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+            json.dump(history, f, ensure_ascii=False, indent=2)
     except Exception as e:
         logger.warning(f"Gagal simpan riwayat: {e}")
 
-# Deteksi kategori
+# Temukan kategori dari pertanyaan
 def get_category(msg):
     msg = msg.lower()
     for kategori, keywords in TRISAKTI.get("faq_keywords", {}).items():
@@ -64,12 +64,12 @@ def get_category(msg):
             return kategori
     return None
 
-# ROUTE INDEX
+# ROUTE: index
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# ROUTE CHAT
+# ROUTE: API chatbot
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -79,9 +79,9 @@ def chat():
         return jsonify({"error": "Pesan kosong."}), 400
 
     kategori = get_category(message)
-    system = (
-        "Anda adalah TIMU asisten AI resmi Trisakti School of Multimedia. "
-        "Gunakan bahasa Indonesia formal dan edukatif. Jawaban harus jelas, sopan, dan berdasarkan data kampus berikut:\n\n"
+    system_prompt = (
+        "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TSM). "
+        "Gunakan bahasa Indonesia yang formal dan ramah. Jawablah berdasarkan data berikut:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
     )
 
@@ -91,7 +91,7 @@ def chat():
         kontak = TRISAKTI.get("kontak", {})
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Tuliskan jawaban lengkap dan formal seperti surat informasi resmi institusi. Sertakan:\n"
+            f"Tuliskan jawaban lengkap seperti surat informasi resmi kampus. Sertakan:\n"
             f"- Alamat kampus: {TRISAKTI.get('address')}\n"
             f"- Nomor telepon: {', '.join(kontak.get('phone', []))}\n"
             f"- WhatsApp: {kontak.get('whatsapp')}\n"
@@ -102,56 +102,55 @@ def chat():
     elif kategori == "beasiswa":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan semua jenis beasiswa di TSM dengan format formal dan terstruktur, mencakup:\n"
-            f"- Nama\n- Deskripsi\n- Syarat\n- Proses\n\n"
+            f"Jelaskan semua jenis beasiswa di TSM dengan format formal dan rapi.\n\n"
             f"{json.dumps(TRISAKTI.get('beasiswa', []), ensure_ascii=False)}"
         )
     elif kategori == "pendaftaran":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan prosedur pendaftaran, jalur masuk, syarat, dan gelombang.\n"
-            f"Data pendaftaran: {json.dumps(TRISAKTI.get('registration_details'), ensure_ascii=False)}\n"
-            f"Link: {TRISAKTI.get('registration_link')}"
+            f"Jelaskan syarat, jalur, dan prosedur pendaftaran kampus.\n"
+            f"{json.dumps(TRISAKTI.get('registration_details'), ensure_ascii=False)}\n"
+            f"Link pendaftaran: {TRISAKTI.get('registration_link')}"
         )
     elif kategori == "prodi":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan semua program studi secara ringkas dan jelas.\n"
+            f"Jelaskan semua program studi beserta akreditasi dan deskripsinya.\n"
             f"{json.dumps(TRISAKTI.get('programs', []), ensure_ascii=False)}"
         )
     elif kategori == "akreditasi":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Tuliskan status akreditasi kampus dan masing-masing program studi.\n"
+            f"Jelaskan akreditasi institusi dan prodi.\n"
             f"{json.dumps(TRISAKTI.get('accreditation', {}), ensure_ascii=False)}"
         )
     elif kategori == "fasilitas":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan fasilitas kampus secara rinci dan menarik.\n"
+            f"Deskripsikan fasilitas kampus dengan jelas dan menarik.\n"
             f"{json.dumps(TRISAKTI.get('facilities', []), ensure_ascii=False)}"
         )
     elif kategori == "jadwal":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan kalender akademik terkini.\n"
+            f"Jelaskan kalender akademik kampus saat ini.\n"
             f"{json.dumps(TRISAKTI.get('academic_calendar', {}), ensure_ascii=False)}"
         )
     elif kategori == "sejarah":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan sejarah kampus berdasarkan data berikut:\n"
+            f"Jelaskan sejarah TSM secara ringkas.\n"
             f"{TRISAKTI.get('history')}"
         )
     elif kategori == "identitas_kampus":
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jelaskan profil kampus, sejarah, visi, misi, program unggulan, dan nilai-nilai institusi secara ringkas dan formal."
+            f"Jelaskan profil dan identitas kampus secara ringkas dan formal."
         )
     else:
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
-            f"Jawablah secara sopan dan profesional, berdasarkan semua data kampus."
+            f"Jawablah secara sopan dan profesional berdasarkan seluruh data di atas."
         )
 
     try:
@@ -163,17 +162,17 @@ def chat():
                 "max_output_tokens": 1024
             }
         )
-        result = model.generate_content(system + prompt)
+        result = model.generate_content(system_prompt + prompt)
         reply = result.text.strip()
         save_chat(message, reply)
         return jsonify({"reply": reply})
     except google_exceptions.GoogleAPIError as e:
-        logger.error(f"Gemini API Error: {e}")
+        logger.error(f"[Gemini API Error] {e}")
         return jsonify({"error": "Koneksi AI gagal"}), 500
     except Exception as e:
-        logger.error(f"Error umum: {e}")
+        logger.error(f"[Error Internal] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
 
-# Jalankan
+# Jalankan aplikasi
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
