@@ -7,15 +7,12 @@ from flask_cors import CORS
 from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
-import requests
 
 # Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "mistralai/mistral-7b-instruct:free")
 
-# Setup Gemini
+# Konfigurasi Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 gemini_model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -24,27 +21,27 @@ logging.basicConfig(level=logging.INFO)
 log_file = "chat_history.json"
 data_file = "trisakti_info.json"
 
-# Flask App
+# Flask app
 app = Flask(__name__)
 CORS(app)
 
-# Load JSON data
+# Load data JSON
 with open(data_file, "r", encoding="utf-8") as f:
     kampus_data = json.load(f)
 
-# Fungsi pencocokan kata kunci ke kategori
+# Fungsi pencocokan kategori
 def temukan_kategori(pertanyaan):
     for kategori, keywords in kampus_data.get("faq_keywords", {}).items():
         if any(k.lower() in pertanyaan.lower() for k in keywords):
             return kategori
     return None
 
-# Jawaban berdasarkan kategori
+# Fungsi jawaban dari data lokal
 def jawab_dari_data(kategori):
     if kategori == "kontak":
         kontak = kampus_data["kontak"]
         return f"""
-Selamat datang di Trisakti School of Multimedia (TSM).
+Selamat datang di Trisakti School of Multimedia (TMM).
 
 Untuk informasi dan komunikasi resmi, berikut data kontak kami:
 - 📍 **Alamat:** {kampus_data['address']}
@@ -58,7 +55,7 @@ Untuk informasi dan komunikasi resmi, berikut data kontak kami:
 Kami siap melayani Anda pada hari kerja. Jangan ragu untuk menghubungi kami!
 """
     elif kategori == "alamat":
-        return f"Alamat kampus Trisakti School of Multimedia (TMM) adalah:\n{kampus_data['address']}"
+        return f"Alamat kampus Trisakti School of Multimedia (TMM):\n{kampus_data['address']}"
     elif kategori == "sejarah":
         return kampus_data["history"]
     elif kategori == "visimisi":
@@ -105,11 +102,11 @@ Kami siap melayani Anda pada hari kerja. Jangan ragu untuk menghubungi kami!
         alumni = kampus_data["alumni_testimonials"]
         return "\n\n".join([f"👨‍🎓 {a['name']} ({a['program']}, {a['year']}):\n\"{a['testimonial']}\"" for a in alumni])
     elif kategori == "identitas_kampus":
-        return f"Ini adalah Trisakti School of Multimedia (TMM), sebelumnya dikenal sebagai STMK Trisakti. TMM adalah perguruan tinggi di bidang media komunikasi dan industri kreatif, didirikan sejak tahun {kampus_data['foundation_year']}."
+        return f"Trisakti School of Multimedia (TMM), sebelumnya dikenal sebagai STMK Trisakti, adalah perguruan tinggi di bidang media komunikasi dan industri kreatif, berdiri sejak tahun {kampus_data['foundation_year']}."
 
     return None
 
-# Fallback ke Gemini
+# Fallback dengan Gemini
 def jawab_dengan_gemini(prompt):
     try:
         response = gemini_model.generate_content(prompt)
@@ -117,27 +114,9 @@ def jawab_dengan_gemini(prompt):
     except google_exceptions.GoogleAPIError as e:
         logging.error(f"[Gemini Error] {e}")
         return None
-
-# Fallback ke OpenRouter
-def jawab_dengan_openrouter(prompt):
-    try:
-        headers = {
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "model": OPENROUTER_MODEL,
-            "messages": [
-                {"role": "system", "content": "Kamu adalah asisten kampus Trisakti School of Multimedia. Jawablah dengan jelas, sopan, dan formal."},
-                {"role": "user", "content": prompt}
-            ]
-        }
-        r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-        res = r.json()
-        return res["choices"][0]["message"]["content"].strip()
     except Exception as e:
-        logging.error(f"[OpenRouter Error] {e}")
-        return "Maaf, sistem sedang tidak dapat merespons saat ini."
+        logging.error(f"[Unhandled Gemini Error] {e}")
+        return None
 
 # Endpoint utama
 @app.route("/chat", methods=["POST"])
@@ -145,7 +124,7 @@ def chat():
     data = request.get_json()
     user_input = data.get("message", "")
     waktu = datetime.now().isoformat()
-    
+
     kategori = temukan_kategori(user_input)
     jawaban = None
     sumber = None
@@ -153,16 +132,15 @@ def chat():
     if kategori:
         jawaban = jawab_dari_data(kategori)
         sumber = "data lokal"
-    
+
     if not jawaban:
         jawaban = jawab_dengan_gemini(user_input)
-        sumber = "Gemini"
-    
-    if not jawaban:
-        jawaban = jawab_dengan_openrouter(user_input)
-        sumber = "OpenRouter"
+        sumber = "AI Gemini" if jawaban else "error"
 
-    # Simpan log percakapan
+    if not jawaban:
+        jawaban = "Maaf, saat ini saya belum dapat menjawab pertanyaan Anda."
+
+    # Logging chat
     log = {
         "waktu": waktu,
         "pertanyaan": user_input,
@@ -188,7 +166,6 @@ def chat():
 def index():
     return render_template("index.html")
 
-# Jalankan server
+# Jalankan app
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(debug=True, port=5000)
