@@ -97,8 +97,7 @@ def chat():
     # Penanganan kategori khusus
     if kategori == "brosur":
         reply = (
-            reply = (
-    "Silakan unduh brosur resmi Trisakti School of Multimedia (TMM) melalui tautan berikut:<br><br>"
+            "Silakan unduh brosur resmi Trisakti School of Multimedia (TMM) melalui tautan berikut:<br><br>"
     "<a href='/download-brosur' target='_blank' style='color: #b30000; text-decoration: underline;'>📄 Download Brosur TMM</a>"
         )
         )
