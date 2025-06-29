@@ -45,8 +45,6 @@
     * {
       box-sizing: border-box;
       font-family: 'Orbitron', sans-serif;
-      -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
     }
 
     body {
@@ -189,7 +187,9 @@
   <main id="chat-container">
     <div class="message ai">
       <img class="icon" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" alt="AI">
-      <div class="text">Halo, saya TIMU. Saya siap membantu informasi seputar Trisakti School of Multimedia.</div>
+      <div class="text">
+        Halo, saya <strong>TIMU</strong>, asisten AI dari <strong>Trisakti School of Multimedia (TMM)</strong>. Saya siap membantu Anda menemukan informasi tentang program studi, beasiswa, fasilitas, pendaftaran, dan lainnya di TMM. Silakan ajukan pertanyaan!
+      </div>
     </div>
   </main>
 
@@ -246,16 +246,8 @@
       });
       const data = await res.json();
       chat.lastChild.remove();
-      append("ai", data.reply || "Maaf, terjadi kesalahan.");
+      append("ai", data.response || "Maaf, terjadi kesalahan.");
     };
-
-    // Enter = submit jika bukan multiline
-    input.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        form.requestSubmit();
-      }
-    });
   </script>
 </body>
 </html>
