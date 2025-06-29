@@ -29,11 +29,10 @@
     [data-theme="dark"] {
       --bg: #0d0d0d;
       --text: #e0f7fa;
-      --primary: #00fff7;
       --header-bg: #1a1a1a;
-      --input-bg: #111;
-      --button-bg: #1f2937;
-      --button-hover: #00fff7;
+      --input-bg: #1a1a1a;
+      --button-bg: #263238;
+      --button-hover: #0097a7;
     }
 
     * {
@@ -53,21 +52,16 @@
     header {
       background: var(--header-bg);
       color: white;
-      padding: 0.5rem 1rem;
+      padding: 0.7rem 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--shadow);
-      font-size: 0.85rem;
     }
 
-    #theme-toggle {
-      font-size: 1rem;
-      padding: 0.2rem 0.5rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: white;
+    header h1 {
+      font-size: 0.95rem;
+      margin: 0;
     }
 
     #chat-container {
@@ -151,16 +145,23 @@
       background: var(--button-hover);
     }
 
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      background: var(--bg);
+      border-top: 1px solid #ccc;
+    }
+
     @media (max-width: 600px) {
       #chat-container {
         padding: 0.75rem;
       }
-
       #input-form {
         flex-direction: column;
         gap: 0.5rem;
       }
-
       #message-input, button {
         width: 100%;
         margin: 0;
@@ -195,6 +196,10 @@
     <textarea id="message-input" rows="2" placeholder="Tulis pertanyaan Anda..." required></textarea>
     <button type="submit">Kirim</button>
   </form>
+
+  <footer>
+    &copy; 2025 Dibuat dan DiKembangkan oleh Taofik Faoji. Seluruh hak cipta dilindungi.
+  </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
   <script>
@@ -268,7 +273,6 @@
 
         const data = await res.json();
         chat.lastChild.remove();
-
         append("ai", data.reply || "Maaf, terjadi kesalahan.");
       } catch {
         chat.lastChild.remove();
@@ -285,6 +289,11 @@
 
     // Bersihkan riwayat saat refresh
     window.onbeforeunload = () => localStorage.removeItem("chatHistory");
+
+    // Sapa awal TIMU
+    window.onload = () => {
+      append("ai", "Hai, selamat datang! Saya adalah <strong>TIMU</strong>, asisten AI resmi Trisakti School of Multimedia. Silakan ajukan pertanyaan Anda.");
+    };
   </script>
 </body>
 </html>
