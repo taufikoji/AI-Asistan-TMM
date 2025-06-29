@@ -26,6 +26,16 @@
       --button-hover: #9c2e3f;
     }
 
+    [data-theme="dark"] {
+      --bg: #0d0d0d;
+      --text: #e0f7fa;
+      --primary: #00fff7;
+      --header-bg: #1a1a1a;
+      --input-bg: #111;
+      --button-bg: #1f2937;
+      --button-hover: #00fff7;
+    }
+
     * {
       box-sizing: border-box;
       font-family: 'Orbitron', sans-serif;
@@ -43,11 +53,21 @@
     header {
       background: var(--header-bg);
       color: white;
-      padding: 1rem;
+      padding: 0.5rem 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--shadow);
+      font-size: 0.85rem;
+    }
+
+    #theme-toggle {
+      font-size: 1rem;
+      padding: 0.2rem 0.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: white;
     }
 
     #chat-container {
@@ -135,10 +155,12 @@
       #chat-container {
         padding: 0.75rem;
       }
+
       #input-form {
         flex-direction: column;
         gap: 0.5rem;
       }
+
       #message-input, button {
         width: 100%;
         margin: 0;
