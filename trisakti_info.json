@@ -225,6 +225,16 @@
     "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum", "event kampus"],
     "jadwal": ["jadwal kuliah", "kalender akademik", "kapan semester", "libur kampus"],
     "testimoni": ["pengalaman alumni", "testimoni mahasiswa", "cerita alumni", "kisah sukses"]
+        "identitas_kampus": [
+      "kampus apa ini",
+      "ini kampus apa",
+      "nama kampusnya apa",
+      "kampus ini namanya apa",
+      "apa nama kampusnya",
+      "trisakti ini apa",
+      "trisakti multimedia itu apa",
+      "trisakti school of multimedia itu apa"
+    ]
   },
   "news": [
     {
