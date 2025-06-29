@@ -160,6 +160,12 @@ def chat():
             f"Pengguna bertanya: '{message}'\n"
             f"Jawab dengan jelas bahwa TMM adalah singkatan dari Trisakti School of Multimedia."
         )
+    elif kategori == "website_content":
+        prompt = (
+            f"Pengguna bertanya: '{message}'\n"
+            f"Jelaskan isi situs resmi {TRISAKTI.get('website')} berdasarkan struktur dan menu berikut ini:\n"
+            f"{json.dumps(TRISAKTI.get('website_structure', []), ensure_ascii=False)}"
+        )
     else:
         prompt = (
             f"Pengguna bertanya: '{message}'\n"
