@@ -2,7 +2,9 @@
 <html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#7b1f2d">
   <title>Asisten AI Trisakti School of Multimedia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
@@ -11,22 +13,19 @@
       --maroon: #7b1f2d;
       --light-bg: #ffffff;
       --light-text: #1e1e1e;
-      --light-subtext: #4b5563;
       --dark-bg: #0d0d0d;
       --dark-text: #e0f7fa;
-      --dark-glow: #00fff7;
       --user-msg: #b91c1c;
       --ai-msg: #f1f5f9;
       --radius: 12px;
-      --shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       --transition: all 0.3s ease;
     }
 
     [data-theme="dark"] {
       --bg: var(--dark-bg);
       --text: var(--dark-text);
-      --subtext: #9ca3af;
-      --primary: var(--dark-glow);
+      --primary: #00fff7;
       --header-bg: #1a1a1a;
       --input-bg: #111;
       --button-bg: #1f2937;
@@ -36,7 +35,6 @@
     [data-theme="light"] {
       --bg: var(--light-bg);
       --text: var(--light-text);
-      --subtext: var(--light-subtext);
       --primary: var(--maroon);
       --header-bg: var(--maroon);
       --input-bg: #f9fafb;
@@ -47,36 +45,32 @@
     * {
       box-sizing: border-box;
       font-family: 'Orbitron', sans-serif;
-      margin: 0;
-      padding: 0;
-      -webkit-text-size-adjust: 100%; /* Mencegah zoom teks di iOS */
+      -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
     }
 
     body {
+      margin: 0;
+      padding: 0;
       background: var(--bg);
       color: var(--text);
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      transition: var(--transition);
     }
 
     header {
       background: var(--header-bg);
       color: white;
-      padding: 1rem 1.5rem;
+      padding: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
       box-shadow: var(--shadow);
     }
 
     header h1 {
-      font-size: 1.2rem;
+      font-size: 1rem;
     }
 
     #theme-toggle {
@@ -89,11 +83,10 @@
 
     #chat-container {
       flex: 1;
-      padding: 1.5rem;
-      overflow-y: auto;
-      scroll-behavior: smooth;
-      max-width: 900px;
+      padding: 1rem;
+      max-width: 960px;
       margin: auto;
+      overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -101,31 +94,29 @@
       display: flex;
       align-items: flex-start;
       margin-bottom: 1.5rem;
-      animation: fadeIn 0.3s ease;
     }
 
     .user {
       flex-direction: row-reverse;
     }
 
-    .message .icon {
-      width: 42px;
-      height: 42px;
+    .icon {
+      width: 40px;
+      height: 40px;
       margin: 0 12px;
       border-radius: 50%;
-      border: 2px solid var(--primary);
       object-fit: cover;
     }
 
-    .message .text {
-      max-width: 75%;
-      padding: 1rem;
+    .text {
+      max-width: 80%;
+      padding: 0.9rem;
       border-radius: var(--radius);
       background: var(--input-bg);
       color: var(--text);
-      position: relative;
-      box-shadow: var(--shadow);
       word-wrap: break-word;
+      white-space: pre-wrap;
+      box-shadow: var(--shadow);
     }
 
     .user .text {
@@ -133,47 +124,39 @@
       color: white;
     }
 
-    .text a {
-      color: var(--primary);
-      text-decoration: underline;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .text strong {
+      font-weight: bold;
     }
 
     #input-form {
       display: flex;
-      justify-content: center;
       padding: 1rem;
-      background: var(--bg);
       border-top: 1px solid #ccc;
+      background: var(--bg);
     }
 
     #message-input {
-      width: 100%;
-      max-width: 700px;
-      padding: 0.8rem 1rem;
-      font-size: 16px;
+      flex: 1;
+      font-size: 1rem;
+      padding: 0.75rem;
       border-radius: var(--radius);
       border: 1px solid #ccc;
       background: var(--input-bg);
       color: var(--text);
-      touch-action: manipulation; /* Mencegah gesture zoom */
+      resize: none;
+      touch-action: manipulation;
     }
 
     button {
       margin-left: 1rem;
+      padding: 0.8rem 1.2rem;
       background: var(--button-bg);
       color: white;
-      padding: 0.8rem 1.2rem;
       border: none;
       border-radius: var(--radius);
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
       transition: var(--transition);
-      touch-action: manipulation; /* Mencegah gesture zoom */
     }
 
     button:hover {
@@ -181,19 +164,18 @@
     }
 
     @media (max-width: 600px) {
-      #message-input, button {
-        width: 100%;
-        margin: 0.3rem 0;
-        font-size: 16px;
+      #chat-container {
+        padding: 0.75rem;
       }
 
       #input-form {
         flex-direction: column;
-        align-items: center;
+        gap: 0.5rem;
       }
 
-      .message .text {
-        max-width: 85%;
+      #message-input, button {
+        width: 100%;
+        margin: 0;
       }
     }
   </style>
@@ -207,12 +189,12 @@
   <main id="chat-container">
     <div class="message ai">
       <img class="icon" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" alt="AI">
-      <div class="text">Halo, saya adalah TIMU. Saya siap membantu Anda dalam memberikan informasi seputar Trisakti School Of Multimedia.</div>
+      <div class="text">Halo, saya TIMU. Saya siap membantu informasi seputar Trisakti School of Multimedia.</div>
     </div>
   </main>
 
   <form id="input-form">
-    <textarea id="message-input" placeholder="Tulis pertanyaan Anda..." required></textarea>
+    <textarea id="message-input" rows="2" placeholder="Tulis pertanyaan Anda..." required></textarea>
     <button type="submit">Kirim</button>
   </form>
 
@@ -223,15 +205,14 @@
     const chat = document.getElementById("chat-container");
     const themeToggle = document.getElementById("theme-toggle");
 
-    const theme = localStorage.getItem("theme") || "light";
-    document.documentElement.setAttribute("data-theme", theme);
-    themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
+    document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
+    themeToggle.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
 
     themeToggle.onclick = () => {
-      const now = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", now);
-      localStorage.setItem("theme", now);
-      themeToggle.textContent = now === "dark" ? "🌙" : "☀️";
+      const mode = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", mode);
+      localStorage.setItem("theme", mode);
+      themeToggle.textContent = mode === "dark" ? "🌙" : "☀️";
     };
 
     function append(role, text) {
@@ -251,31 +232,21 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // Tambahkan pencegahan zoom
-    document.addEventListener('touchmove', function (e) {
-        if (e.scale !== 1) { e.preventDefault(); }
-    }, { passive: false });
-
-    document.addEventListener('gesturestart', function (e) {
-        e.preventDefault();
-    });
-
     form.onsubmit = async (e) => {
       e.preventDefault();
       const msg = input.value.trim();
       if (!msg) return;
       append("user", msg);
       input.value = "";
-
       append("ai", "TIMU sedang mengetik...");
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg })
       });
       const data = await res.json();
       chat.lastChild.remove();
-      append("ai", data.reply || "Terjadi kesalahan.");
+      append("ai", data.response || "Maaf, terjadi kesalahan.");
     };
   </script>
 </body>
