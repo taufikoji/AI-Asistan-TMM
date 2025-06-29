@@ -73,6 +73,32 @@
   },
   "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
   "website": "https://trisaktimultimedia.ac.id",
+  "website_structure": [
+    {
+      "menu": "Beranda",
+      "description": "Halaman utama situs dengan informasi terbaru dan banner visual."
+    },
+    {
+      "menu": "Profil",
+      "description": "Menjelaskan sejarah, visi misi, pimpinan, dan struktur organisasi kampus."
+    },
+    {
+      "menu": "Program Studi",
+      "description": "Informasi lengkap tentang jurusan dan akreditasinya."
+    },
+    {
+      "menu": "Pendaftaran",
+      "description": "Syarat, prosedur, dan link resmi untuk mendaftar."
+    },
+    {
+      "menu": "Berita & Kegiatan",
+      "description": "Informasi tentang agenda, acara kampus, kerja sama, dan berita terbaru."
+    },
+    {
+      "menu": "Kontak",
+      "description": "Detail alamat, telepon, email, serta formulir kontak."
+    }
+  ],
   "values": ["Kreativitas", "Teknologi", "Budaya"],
   "collaborations": [
     {
@@ -227,7 +253,8 @@
     "identitas_kampus": ["kampus apa ini", "ini kampus apa", "nama kampusnya apa", "kampus ini namanya apa", "apa nama kampusnya", "trisakti ini apa", "trisakti multimedia itu apa", "trisakti school of multimedia itu apa"],
     "visimisi": ["visi misi", "apa visinya", "apa misinya", "visi kampus", "misi kampus"],
     "jenis_kampus": ["jenis kampus", "ini kampus apa", "kampus swasta atau negeri", "kategori kampus", "jenis perguruan tinggi", "apa jenis kampus ini"],
-    "singkatan": ["apa singkatan kampus", "singkatan trisakti", "singkatan tmm", "apa itu tmm", "arti tmm", "kepanjangan tmm"]
+    "singkatan": ["apa singkatan kampus", "singkatan trisakti", "singkatan tmm", "apa itu tmm", "arti tmm", "kepanjangan tmm"],
+    "website_content": ["apa isi website", "menu situs", "apa ada menu profil", "halaman apa saja", "struktur web", "konten di situs", "fitur website", "situs resmi", "apa saja di situs"]
   },
   "news": [
     {
