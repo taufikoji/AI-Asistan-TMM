@@ -210,10 +210,7 @@
     }
   ],
   "faq_keywords": {
-    "alamat": [
-      "alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana", 
-      "di mana kampus", "alamat trisakti", "alamat kampusnya dimana", "dimana lokasi kampus"
-    ],
+    "alamat": ["alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana", "di mana kampus", "alamat trisakti", "alamat kampusnya dimana", "dimana lokasi kampus"],
     "prodi": ["jurusan", "program studi", "ada jurusan apa saja", "apa saja jurusannya", "fokus studi", "s1 apa saja", "d4 apa", "animasi digital", "kemasan", "iklan", "broadcasting"],
     "beasiswa": ["beasiswa apa saja", "ada beasiswa", "syarat beasiswa", "kip kuliah", "bantuan biaya", "bantuan kuliah", "scholarship", "cara mendapatkan beasiswa", "beasiswa tersedia"],
     "pendaftaran": ["cara daftar", "pendaftaran", "jalur masuk", "link daftar", "formulir", "gelombang", "daftar kuliah", "mendaftar"],
@@ -224,17 +221,9 @@
     "keunggulan": ["manfaat kuliah", "kenapa pilih trisakti", "keunggulan kampus", "mengapa trisakti", "apa bagusnya"],
     "berita": ["berita terbaru", "acara kampus", "permendikbudristek", "kerja sama", "kuliah umum", "event kampus"],
     "jadwal": ["jadwal kuliah", "kalender akademik", "kapan semester", "libur kampus"],
-    "testimoni": ["pengalaman alumni", "testimoni mahasiswa", "cerita alumni", "kisah sukses"]
-        "identitas_kampus": [
-      "kampus apa ini",
-      "ini kampus apa",
-      "nama kampusnya apa",
-      "kampus ini namanya apa",
-      "apa nama kampusnya",
-      "trisakti ini apa",
-      "trisakti multimedia itu apa",
-      "trisakti school of multimedia itu apa"
-    ]
+    "testimoni": ["pengalaman alumni", "testimoni mahasiswa", "cerita alumni", "kisah sukses"],
+    "identitas_kampus": ["kampus apa ini", "ini kampus apa", "nama kampusnya apa", "kampus ini namanya apa", "apa nama kampusnya", "trisakti ini apa", "trisakti multimedia itu apa", "trisakti school of multimedia itu apa"],
+    "visimisi": ["visi misi", "apa visinya", "apa misinya", "visi kampus", "misi kampus"]
   },
   "news": [
     {
