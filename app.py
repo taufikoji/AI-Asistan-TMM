@@ -11,32 +11,54 @@ from google.api_core import exceptions as google_exceptions
 # Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GOOGLE_API_KEY not found in environment variables")
 
-# Konfigurasi Gemini
+# Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 gemini_model = genai.GenerativeModel("gemini-1.5-flash")
 
-# Logging
-logging.basicConfig(level=logging.INFO)
-log_file = "chat_history.json"
-data_file = "trisakti_info.json"
+# Logging setup
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Flask app
 app = Flask(__name__)
 CORS(app)
 
-# Load data JSON
-with open(data_file, "r", encoding="utf-8") as f:
-    kampus_data = json.load(f)
+# File paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(BASE_DIR, "trisakti_info.json")
+LOG_FILE = os.path.join(BASE_DIR, "chat_history.json")
 
-# Fungsi pencocokan kategori
+# Load data JSON
+try:
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        kampus_data = json.load(f)
+except FileNotFoundError:
+    logger.error(f"Data file {DATA_FILE} not found")
+    raise
+except json.JSONDecodeError:
+    logger.error(f"Invalid JSON in {DATA_FILE}")
+    raise
+
+# Function to match category
 def temukan_kategori(pertanyaan):
+    if not pertanyaan or not isinstance(pertanyaan, str):
+        return None
     for kategori, keywords in kampus_data.get("faq_keywords", {}).items():
         if any(k.lower() in pertanyaan.lower() for k in keywords):
             return kategori
     return None
 
-# Fungsi jawaban dari data lokal
+# Function to generate answer from local data
 def jawab_dari_data(kategori):
     if kategori == "kontak":
         kontak = kampus_data["kontak"]
@@ -103,69 +125,80 @@ Kami siap melayani Anda pada hari kerja. Jangan ragu untuk menghubungi kami!
         return "\n\n".join([f"👨‍🎓 {a['name']} ({a['program']}, {a['year']}):\n\"{a['testimonial']}\"" for a in alumni])
     elif kategori == "identitas_kampus":
         return f"Trisakti School of Multimedia (TMM), sebelumnya dikenal sebagai STMK Trisakti, adalah perguruan tinggi di bidang media komunikasi dan industri kreatif, berdiri sejak tahun {kampus_data['foundation_year']}."
-
     return None
 
-# Fallback dengan Gemini
+# Fallback with Gemini
 def jawab_dengan_gemini(prompt):
     try:
         response = gemini_model.generate_content(prompt)
         return response.text.strip()
     except google_exceptions.GoogleAPIError as e:
-        logging.error(f"[Gemini Error] {e}")
+        logger.error(f"Gemini API error: {e}")
         return None
     except Exception as e:
-        logging.error(f"[Unhandled Gemini Error] {e}")
+        logger.error(f"Unexpected Gemini error: {e}")
         return None
 
-# Endpoint utama
-@app.route("/chat", methods=["POST"])
+# Chat endpoint
+@app.route("/api/chat", methods=["POST"])
 def chat():
-    data = request.get_json()
-    user_input = data.get("message", "")
-    waktu = datetime.now().isoformat()
-
-    kategori = temukan_kategori(user_input)
-    jawaban = None
-    sumber = None
-
-    if kategori:
-        jawaban = jawab_dari_data(kategori)
-        sumber = "data lokal"
-
-    if not jawaban:
-        jawaban = jawab_dengan_gemini(user_input)
-        sumber = "AI Gemini" if jawaban else "error"
-
-    if not jawaban:
-        jawaban = "Maaf, saat ini saya belum dapat menjawab pertanyaan Anda."
-
-    # Logging chat
-    log = {
-        "waktu": waktu,
-        "pertanyaan": user_input,
-        "jawaban": jawaban,
-        "sumber": sumber
-    }
     try:
-        if os.path.exists(log_file):
-            with open(log_file, "r", encoding="utf-8") as f:
-                riwayat = json.load(f)
-        else:
-            riwayat = []
-        riwayat.append(log)
-        with open(log_file, "w", encoding="utf-8") as f:
-            json.dump(riwayat, f, indent=2, ensure_ascii=False)
+        data = request.get_json()
+        if not data or "message" not in data:
+            return jsonify({"error": "No message provided"}), 400
+        
+        user_input = data["message"].strip()
+        if not user_input:
+            return jsonify({"error": "Empty message"}), 400
+        if len(user_input) > 500:
+            return jsonify({"error": "Message too long (max 500 characters)"}), 400
+
+        waktu = datetime.utcnow().isoformat()
+        kategori = temukan_kategori(user_input)
+        jawaban = None
+        sumber = None
+
+        if kategori:
+            jawaban = jawab_dari_data(kategori)
+            sumber = "data lokal"
+
+        if not jawaban:
+            jawaban = jawab_dengan_gemini(user_input)
+            sumber = "AI Gemini" if jawaban else "error"
+
+        if not jawaban:
+            jawaban = "Maaf, saat ini saya belum dapat menjawab pertanyaan Anda."
+            sumber = "error"
+
+        # Log chat
+        log = {
+            "waktu": waktu,
+            "pertanyaan": user_input,
+            "jawaban": jawaban,
+            "sumber": sumber
+        }
+        try:
+            if os.path.exists(LOG_FILE):
+                with open(LOG_FILE, "r", encoding="utf-8") as f:
+                    riwayat = json.load(f)
+            else:
+                riwayat = []
+            riwayat.append(log)
+            with open(LOG_FILE, "w", encoding="utf-8") as f:
+                json.dump(riwayat, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            logger.error(f"Failed to log chat: {e}")
+
+        return jsonify({"response": jawaban, "source": sumber})
     except Exception as e:
-        logging.error(f"[Log Error] {e}")
+        logger.error(f"Chat endpoint error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
-    return jsonify({"response": jawaban, "source": sumber})
-
-# Halaman utama
+# Main page
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# Jalankan app
+# Run app
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=False, host="0.0.0.0", port=5000)
