@@ -100,7 +100,7 @@ def chat():
             "Silakan unduh brosur resmi Trisakti School of Multimedia (TMM) melalui tautan berikut:<br><br>"
     "<a href='/download-brosur' target='_blank' style='color: #b30000; text-decoration: underline;'>📄 Download Brosur TMM</a>"
         )
-        )
+        
         save_chat(message, reply)
         return jsonify({"reply": reply})
 
