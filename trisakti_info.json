@@ -1,5 +1,6 @@
 {
   "name": "Trisakti School of Multimedia",
+  "official_abbreviation": "TMM",
   "alias": ["TMM", "STMK Trisakti", "Trisakti Multimedia"],
   "jenis_kampus": "Perguruan Tinggi Swasta di bidang Media Komunikasi, Kreatif, dan Teknologi",
   "foundation_year": 1985,
@@ -225,7 +226,8 @@
     "testimoni": ["pengalaman alumni", "testimoni mahasiswa", "cerita alumni", "kisah sukses"],
     "identitas_kampus": ["kampus apa ini", "ini kampus apa", "nama kampusnya apa", "kampus ini namanya apa", "apa nama kampusnya", "trisakti ini apa", "trisakti multimedia itu apa", "trisakti school of multimedia itu apa"],
     "visimisi": ["visi misi", "apa visinya", "apa misinya", "visi kampus", "misi kampus"],
-    "jenis_kampus": ["jenis kampus", "ini kampus apa", "kampus swasta atau negeri", "kategori kampus", "jenis perguruan tinggi", "apa jenis kampus ini"]
+    "jenis_kampus": ["jenis kampus", "ini kampus apa", "kampus swasta atau negeri", "kategori kampus", "jenis perguruan tinggi", "apa jenis kampus ini"],
+    "singkatan": ["apa singkatan kampus", "singkatan trisakti", "singkatan tmm", "apa itu tmm", "arti tmm", "kepanjangan tmm"]
   },
   "news": [
     {
@@ -236,7 +238,7 @@
     {
       "title": "Kerja Sama dengan Poltek Harapan Bersama",
       "date": "26 Mei 2025",
-      "description": "Penandatanganan kerja sama untuk program ekstensi bD3 ke S1 dan kuliah umum strategi digital branding."
+      "description": "Penandatanganan kerja sama untuk program ekstensi D3 ke S1 dan kuliah umum strategi digital branding."
     }
   ]
 }
