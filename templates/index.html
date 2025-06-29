@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#7b1f2d">
+  <meta name="description" content="Chatbot resmi Trisakti School of Multimedia untuk informasi kampus dan pendaftaran.">
   <title>Asisten AI Trisakti School of Multimedia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --maroon: #7b1f2d;
@@ -71,6 +73,7 @@
 
     header h1 {
       font-size: 1rem;
+      margin: 0;
     }
 
     #theme-toggle {
@@ -128,6 +131,17 @@
       font-weight: bold;
     }
 
+    .typing::after {
+      content: ".";
+      animation: dots 1.5s infinite;
+    }
+
+    @keyframes dots {
+      0% { content: "."; }
+      33% { content: ".."; }
+      66% { content: "..."; }
+    }
+
     #input-form {
       display: flex;
       padding: 1rem;
@@ -181,20 +195,20 @@
   </style>
 </head>
 <body>
-  <header>
+  <header role="banner">
     <h1>Asisten AI Trisakti School of Multimedia</h1>
-    <button id="theme-toggle" title="Ganti Tema">☀️</button>
+    <button id="theme-toggle" aria-label="Ganti Tema" title="Ganti Tema"><i class="fas fa-sun"></i></button>
   </header>
 
-  <main id="chat-container">
+  <main id="chat-container" role="log" aria-live="polite">
     <div class="message ai">
-      <img class="icon" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" alt="AI">
+      <img class="icon" src="/static/ai-icon.png" alt="AI">
       <div class="text">Halo, saya TIMU. Saya siap membantu informasi seputar Trisakti School of Multimedia.</div>
     </div>
   </main>
 
   <form id="input-form">
-    <textarea id="message-input" rows="2" placeholder="Tulis pertanyaan Anda..." required></textarea>
+    <textarea id="message-input" rows="2" placeholder="Tulis pertanyaan Anda..." required aria-label="Masukkan pertanyaan"></textarea>
     <button type="submit">Kirim</button>
   </form>
 
@@ -205,16 +219,19 @@
     const chat = document.getElementById("chat-container");
     const themeToggle = document.getElementById("theme-toggle");
 
+    // Initialize theme
     document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || "light");
-    themeToggle.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+    themeToggle.innerHTML = document.documentElement.getAttribute("data-theme") === "dark" ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
 
+    // Theme toggle
     themeToggle.onclick = () => {
       const mode = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
       document.documentElement.setAttribute("data-theme", mode);
       localStorage.setItem("theme", mode);
-      themeToggle.textContent = mode === "dark" ? "🌙" : "☀️";
+      themeToggle.innerHTML = mode === "dark" ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
     };
 
+    // Append message to chat
     function append(role, text) {
       const msg = document.createElement("div");
       msg.className = `message ${role}`;
@@ -222,7 +239,8 @@
       icon.className = "icon";
       icon.src = role === "user"
         ? "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
-        : "/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png";
+        : "/static/ai-icon.png";
+      icon.alt = role === "user" ? "Pengguna" : "TIMU";
       const bubble = document.createElement("div");
       bubble.className = "text";
       bubble.innerHTML = DOMPurify.sanitize(text.replace(/\n/g, "<br>"));
@@ -232,21 +250,33 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
+    // Form submission
     form.onsubmit = async (e) => {
       e.preventDefault();
       const msg = input.value.trim();
       if (!msg) return;
+      if (msg.length > 500) {
+        append("ai", "Pesan terlalu panjang (maks. 500 karakter).");
+        return;
+      }
       append("user", msg);
       input.value = "";
-      append("ai", "TIMU sedang mengetik...");
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg })
-      });
-      const data = await res.json();
-      chat.lastChild.remove();
-      append("ai", data.response || "Maaf, terjadi kesalahan.");
+      append("ai", '<span class="typing">TIMU sedang mengetik</span>');
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        chat.lastChild.remove();
+        append("ai", data.response || "Maaf, tidak ada jawaban dari server.");
+      } catch (error) {
+        chat.lastChild.remove();
+        append("ai", `Error: ${error.message}. Silakan coba lagi.`);
+      }
     };
   </script>
 </body>
