@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, session
 from dotenv import load_dotenv
 from flask_cors import CORS
 from datetime import datetime
@@ -23,6 +23,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Setup Flask
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "your-secret-key")  # Untuk session
 CORS(app)
 
 # Configure Gemini
@@ -36,7 +37,7 @@ except Exception as e:
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
-    # Tambahkan konteks waktu saat ini
+    # Perbarui konteks waktu
     TRISAKTI["current_context"]["date"] = datetime.now().strftime("%d %B %Y")
     TRISAKTI["current_context"]["time"] = datetime.now().strftime("%H:%M WIB")
 except Exception as e:
@@ -69,7 +70,7 @@ def get_category(msg):
             return kategori
     return "general"
 
-# Hilangkan markdown (*, **, _, `) dari balasan AI
+# Hilangkan markdown dari balasan AI
 def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
@@ -87,23 +88,33 @@ def chat():
     if not message:
         return jsonify({"error": "Pesan kosong."}), 400
 
+    # Inisialisasi sesi
+    if 'conversation' not in session:
+        session['conversation'] = []
+
+    # Simpan pertanyaan ke sesi
+    session['conversation'].append({"user": message})
+    if len(session['conversation']) > 5:  # Batasi riwayat ke 5 pesan terakhir
+        session['conversation'] = session['conversation'][-5:]
+
     kategori = get_category(message)
     current_context = TRISAKTI.get("current_context", {})
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
-        "Jawab dengan bahasa Indonesia yang ramah dan informatif jika pengguna menggunakan bahasa Indonesia. "
-        "Jika pengguna menggunakan bahasa Inggris, jawab dalam bahasa Inggris yang formal. "
+        "Jawab dengan bahasa Indonesia yang ramah dan informatif. Jika pengguna menggunakan bahasa Inggris, jawab dalam bahasa Inggris formal. "
         "Gunakan data berikut sebagai referensi:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Konteks terkini: Tanggal {current_context.get('date')}, Jam {current_context.get('time')}. "
-        "Pastikan informasi pendaftaran mencerminkan status terkini (Gelombang 2 berakhir hari ini, Gelombang 3 mulai besok)."
+        f"Konteks percakapan sebelumnya: {json.dumps(session['conversation'], ensure_ascii=False)}\n"
+        "Pastikan jawaban relevan dengan pertanyaan sebelumnya jika ada, dan ajak pengguna untuk melanjutkan diskusi."
     )
 
     # Respons khusus berdasarkan kategori
     if kategori == "brosur":
         reply = (
             "Selamat malam! Silakan unduh brosur resmi Trisakti School of Multimedia (TMM) melalui tautan berikut:<br><br>"
-            "<a href='/download-brosur' target='_blank' style='color: #b30000; text-decoration: underline;'>📄 Download Brosur TMM</a>"
+            "<a href='/download-brosur' target='_blank' style='color: #b30000; text-decoration: underline;'>📄 Download Brosur TMM</a><br><br>"
+            "Apakah Anda ingin informasi lebih lanjut tentang pendaftaran atau program studi?"
         )
         save_chat(message, reply)
         return jsonify({"reply": reply})
@@ -120,6 +131,9 @@ def chat():
             f"<strong>Jalur dan Periode:</strong><br>"
             "".join([f"- {path['name']}: {wave['wave']} ({wave['period']})<br>" for path in details for wave in path['waves']])
         )
+        if "30 Juni 2025" in current_context.get("date", ""):
+            reply += "<br><strong>Peringatan:</strong> Gelombang 2 berakhir hari ini! Segera daftar sebelum tengah malam.<br>"
+        reply += "<br>Apakah Anda ingin tahu syarat pendaftaran atau proses seleksinya?"
         save_chat(message, reply)
         return jsonify({"reply": reply})
 
@@ -129,14 +143,62 @@ def chat():
             "Selamat malam! Berikut jenis beasiswa di Trisakti School of Multimedia (TMM):<br><br>"
             "".join([f"- <strong>{s['name']}</strong>: {s['description']}<br>Syarat: {', '.join(s['requirements'])}<br>Proses: {s['process']}<br><br>" for s in scholarships])
         )
+        reply += "Apakah Anda ingin detail tentang salah satu beasiswa, seperti KIP Kuliah?"
         save_chat(message, reply)
         return jsonify({"reply": reply})
 
     elif kategori == "prodi":
         programs = TRISAKTI.get("academic_programs", [])
+        specific_program = None
+        for p in programs:
+            if p["short"].lower() in message.lower() or any(s.lower() in message.lower() for s in p["specializations"]):
+                specific_program = p
+                break
+        if specific_program and any(p["user"].lower().find("jurusan") >= 0 for p in session.get('conversation', [])[:-1]):
+            # Respons untuk pertanyaan lanjutan
+            reply = (
+                f"Selamat malam! Informasi tentang {specific_program['name']} di TMM:<br><br>"
+                f"<strong>Deskripsi:</strong> {specific_program['description']}<br>"
+                f"<strong>Akreditasi:</strong> {specific_program['accreditation']}<br>"
+                f"<strong>Prospek Karier:</strong> {', '.join(specific_program['career_prospects'])}<br>"
+                f"<strong>Kurikulum:</strong> {specific_program['curriculum']}<br><br>"
+                f"Apakah Anda ingin tahu lebih banyak tentang mata kuliah atau peluang karier di bidang ini?"
+            )
+        else:
+            reply = (
+                "Selamat malam! Berikut program studi di Trisakti School of Multimedia (TMM):<br><br>"
+                "".join([f"- <strong>{p['name']}</strong> ({p['short']}): {p['description']}<br>Akreditasi: {p['accreditation']}<br><br>" for p in programs])
+            )
+            reply += "Apakah Anda ingin informasi lebih detail tentang salah satu jurusan?"
+        save_chat(message, reply)
+        return jsonify({"reply": reply})
+
+    elif kategori == "curriculum":
+        programs = TRISAKTI.get("academic_programs", [])
+        specific_program = None
+        for p in programs:
+            if p["short"].lower() in message.lower() or any(s.lower() in message.lower() for s in p["specializations"]):
+                specific_program = p
+                break
+        if specific_program:
+            reply = (
+                f"Selamat malam! Kurikulum untuk {specific_program['name']} di TMM:<br><br>"
+                f"{specific_program['curriculum']}<br><br>"
+                f"Apakah Anda ingin diskusi lebih lanjut tentang mata kuliah tertentu atau fasilitas pendukungnya?"
+            )
+        else:
+            reply = (
+                "Selamat malam! Kurikulum di TMM bervariasi berdasarkan program studi:<br><br>"
+                "".join([f"- <strong>{p['name']}</strong>: {p['curriculum']}<br><br>" for p in programs])
+            )
+            reply += "Apakah Anda ingin detail kurikulum untuk jurusan tertentu?"
+        save_chat(message, reply)
+        return jsonify({"reply": reply})
+
+    elif kategori == "extracurricular":
         reply = (
-            "Selamat malam! Berikut program studi di Trisakti School of Multimedia (TMM):<br><br>"
-            "".join([f"- <strong>{p['name']}</strong> ({p['short']}): {p['description']}<br>Akreditasi: {p['accreditation']}<br><br>" for p in programs])
+            f"Selamat malam! {TRISAKTI.get('additional_info', {}).get('student_activities', '')}<br><br>"
+            "Apakah Anda ingin tahu lebih banyak tentang acara mahasiswa atau cara bergabung dengan klub?"
         )
         save_chat(message, reply)
         return jsonify({"reply": reply})
@@ -145,7 +207,9 @@ def chat():
     prompt = (
         f"Pengguna bertanya: '{message}'\n"
         f"Kategori: {kategori}\n"
-        f"Jawab dengan gaya ramah dan informatif berdasarkan data TMM. Jika tidak tahu, sarankan menghubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']}."
+        f"Jawab dengan gaya ramah dan informatif berdasarkan data TMM. "
+        f"Jika pertanyaan tidak ada di data, berikan jawaban kreatif yang relevan dengan misi TMM (kreativitas, teknologi, budaya) "
+        f"dan ajak pengguna untuk mendiskusikan lebih lanjut. Jika tidak yakin, sarankan kontak WhatsApp {TRISAKTI['institution']['contact']['whatsapp']}."
     )
 
     # Kirim ke Gemini API
@@ -164,7 +228,13 @@ def chat():
 
         # Pastikan jawaban tidak kosong
         if not reply:
-            reply = "Maaf, saya tidak yakin dengan jawaban. Silakan hubungi kami di +62 877 4299 7808 untuk bantuan lebih lanjut."
+            reply = (
+                f"Selamat malam! Maaf, saya tidak memiliki informasi spesifik untuk pertanyaan Anda. "
+                f"Silakan hubungi kami di WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan lebih lanjut. "
+                "Apakah ada topik lain yang ingin Anda diskusikan?"
+            )
+        else:
+            reply += "<br>Apakah ada pertanyaan lain atau topik yang ingin didiskusikan lebih lanjut?"
 
         save_chat(message, reply)
         return jsonify({"reply": reply})
