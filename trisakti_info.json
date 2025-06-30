@@ -43,7 +43,8 @@
       "specializations": ["Packaging Design & Production"],
       "career_prospects": ["Packaging Designer", "Branding Consultant", "Packaging Production Supervisor"],
       "accreditation": "B",
-      "evening_class": true
+      "evening_class": true,
+      "curriculum": "Mata kuliah meliputi desain kemasan, teknologi produksi, dan manajemen branding. Mahasiswa belajar merancang kemasan inovatif dengan teknologi terkini."
     },
     {
       "name": "Sarjana Desain Animasi dan Games (S1)",
@@ -52,7 +53,8 @@
       "specializations": ["Animation & Games"],
       "career_prospects": ["Animator", "Game Developer", "Storyboard Artist"],
       "accreditation": "B",
-      "evening_class": false
+      "evening_class": false,
+      "curriculum": "Mata kuliah mencakup animasi 2D/3D, storytelling, pengembangan game interaktif, dan teknologi animasi digital."
     },
     {
       "name": "Sarjana Desain Kreatif Visual Periklanan (S1)",
@@ -61,7 +63,8 @@
       "specializations": ["Graphic Advertising"],
       "career_prospects": ["Creative Director", "Visual Branding Specialist", "Art Director"],
       "accreditation": "B",
-      "evening_class": false
+      "evening_class": false,
+      "curriculum": "Mata kuliah meliputi komunikasi visual, strategi branding, dan desain iklan kreatif."
     },
     {
       "name": "Sarjana Desain Multimedia Broadcasting (S1)",
@@ -70,7 +73,8 @@
       "specializations": ["Multimedia Broadcasting"],
       "career_prospects": ["Multimedia Producer", "Content Creator", "Broadcast Technician"],
       "accreditation": "B",
-      "evening_class": false
+      "evening_class": false,
+      "curriculum": "Mata kuliah mencakup produksi multimedia, teknologi siaran, dan pengeditan audio-visual."
     }
   ],
   "accreditation": {
@@ -238,6 +242,16 @@
       "testimonial": "Saya belajar banyak tentang teknologi kemasan modern di sini. Sekarang saya bekerja sebagai Packaging Designer di perusahaan multinasional."
     }
   ],
+  "additional_info": {
+    "curriculum": {
+      "D4 Kemasan": "Mata kuliah meliputi desain kemasan, teknologi produksi, dan manajemen branding. Mahasiswa belajar merancang kemasan inovatif dengan teknologi terkini.",
+      "S1 Animasi": "Mata kuliah mencakup animasi 2D/3D, storytelling, pengembangan game interaktif, dan teknologi animasi digital.",
+      "S1 Iklan": "Mata kuliah meliputi komunikasi visual, strategi branding, dan desain iklan kreatif.",
+      "S1 Broadcasting": "Mata kuliah mencakup produksi multimedia, teknologi siaran, dan pengeditan audio-visual."
+    },
+    "student_activities": "TMM mendukung kegiatan mahasiswa seperti klub desain, animasi, dan broadcasting untuk mengasah kreativitas. Acara rutin meliputi workshop, pameran, dan kompetisi kreatif.",
+    "rector": "Informasi pimpinan kampus dapat ditanyakan langsung ke bagian administrasi."
+  },
   "faq": [
     {
       "question": "Greeting awal",
@@ -249,7 +263,7 @@
     },
     {
       "question": "Bagaimana cara pendaftaran? Ada biaya?",
-      "answer": "Pendaftaran bisa online di https://trisaktimultimedia.ecampuz.com/eadmisi/ atau offline di Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur. Tidak ada biaya pendaftaran, gratis!"
+      "answer": "Pendaftaran bisa online di www.pmb.trisaktimultimedia.ac.id atau offline di Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur. Tidak ada biaya pendaftaran, gratis!"
     },
     {
       "question": "Apa masih ada uang gedung?",
@@ -314,11 +328,13 @@
     "visimisi": ["visi misi", "apa visinya", "apa misinya", "visi kampus", "misi kampus"],
     "jenis_kampus": ["jenis kampus", "ini kampus apa", "kampus swasta atau negeri", "kategori kampus", "jenis perguruan tinggi", "apa jenis kampus ini"],
     "singkatan": ["apa singkatan kampus", "singkatan trisakti", "singkatan tmm", "apa itu tmm", "arti tmm", "kepanjangan tmm"],
-    "website_content": ["apa isi website", "menu situs", "apa ada menu profil", "halaman apa saja", "struktur web", "konten di situs", "fitur website", "situs resmi", "apa saja di situs"]
+    "website_content": ["apa isi website", "menu situs", "apa ada menu profil", "halaman apa saja", "struktur web", "konten di situs", "fitur website", "situs resmi", "apa saja di situs"],
+    "extracurricular": ["kegiatan mahasiswa", "ekstrakurikuler", "klub apa saja", "aktivitas mahasiswa", "kegiatan kampus"],
+    "curriculum": ["mata kuliah", "kurikulum", "pelajaran apa saja", "materi kuliah"]
   },
   "current_context": {
     "date": "30 Juni 2025",
-    "time": "22:05 WIB",
+    "time": "23:00 WIB",
     "registration_status": "Gelombang 2 berakhir hari ini, Gelombang 3 mulai besok 1 Juli 2025."
   },
   "kip_schedule": {
