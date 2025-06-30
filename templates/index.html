@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id" data-theme="light">
 <head>
@@ -83,7 +84,7 @@
       margin: auto;
       overflow-y: auto;
       scroll-behavior: smooth;
-      margin-bottom: 130px; /* supaya tidak tertutup input */
+      margin-bottom: 130px;
     }
 
     .message {
@@ -147,20 +148,39 @@
       color: var(--text);
     }
 
-    button {
-      margin-left: 1rem;
-      padding: 0.8rem 1.2rem;
-      background: var(--button-bg);
+    /* ✅ Gaya tombol glowing dengan ikon pesawat */
+    #send-button {
+      background: #b91c1c;
       color: white;
       border: none;
-      border-radius: var(--radius);
-      font-weight: bold;
+      border-radius: 50%;
+      padding: 0.75rem;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 8px #b91c1c, 0 0 16px rgba(185, 28, 28, 0.5);
+      margin-left: 1rem;
     }
 
-    button:hover {
-      background: var(--button-hover);
+    #send-button svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.2s ease;
+    }
+
+    #send-button:hover {
+      background-color: #ef4444;
+      transform: scale(1.1);
+      box-shadow: 0 0 14px #ff4d4d, 0 0 24px rgba(255, 77, 77, 0.6);
+    }
+
+    #send-button:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 4px #b91c1c;
     }
 
     footer {
@@ -208,9 +228,14 @@
 
   <main id="chat-container"></main>
 
+  <!-- ✅ FORM DENGAN TOMBOL KIRIM PESAWAT KERTAS -->
   <form id="input-form">
     <textarea id="message-input" rows="2" placeholder="Tulis pertanyaan Anda..." required></textarea>
-    <button type="submit">Kirim</button>
+    <button type="submit" id="send-button" title="Kirim">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="white" viewBox="0 0 24 24">
+        <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/>
+      </svg>
+    </button>
   </form>
 
   <footer>
@@ -308,7 +333,6 @@
       }
     });
 
-    // Sambutan awal
     window.onload = () => {
       append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
     };
