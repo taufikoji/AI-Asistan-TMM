@@ -1,47 +1,87 @@
 {
-  "name": "Trisakti School of Multimedia",
-  "official_abbreviation": "TMM",
-  "alias": ["TMM", "STMK Trisakti", "Trisakti Multimedia"],
-  "jenis_kampus": "Perguruan Tinggi Swasta di bidang Media Komunikasi, Kreatif, dan Teknologi",
-  "foundation_year": 1985,
-  "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATG) oleh Cosmos Sutiyono, B.Sc., dengan dukungan Rektor Universitas Trisakti, Prof. Dr. Ir. P. Haryasudirdja. Tahun 2008 berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti (STMK Trisakti) melalui SK Kemendikbud. Tahun 2018, STMK Trisakti resmi melakukan rebranding menjadi Trisakti School of Multimedia (TMM), dengan fokus pada pendidikan di bidang industri kreatif. Pada 26 Mei 2025, TMM menjalin kerja sama strategis dengan Politeknik Harapan Bersama untuk program ekstensi D3 ke S1.",
-  "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
-  "mission": [
-    "Menyebarluaskan ilmu pengetahuan, teknologi, dan seni di bidang media komunikasi.",
-    "Menghasilkan lulusan yang profesional dan memiliki daya saing tinggi di industri kreatif.",
-    "Mengembangkan riset dan inovasi berbasis teknologi mutakhir seperti Internet of Things (IoT) dan Artificial Intelligence (AI)."
-  ],
-  "why_trisakti": "Trisakti School of Multimedia berkomitmen menghasilkan lulusan berkualitas yang mampu bersaing di industri kreatif dan digital, dengan fokus pada teknologi seperti Internet of Things (IoT) dan Artificial Intelligence (AI). Kami menawarkan pendidikan yang relevan dengan kebutuhan industri, kerja sama strategis, fasilitas modern, dan dukungan beasiswa untuk mahasiswa berprestasi.",
-  "programs": [
+  "institution": {
+    "name": "Trisakti School of Multimedia",
+    "official_abbreviation": "TMM",
+    "alias": ["TMM", "STMK Trisakti", "Trisakti Multimedia"],
+    "type": "Perguruan Tinggi Swasta di bidang Media Komunikasi, Kreatif, dan Teknologi",
+    "foundation_year": 1985,
+    "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATG) oleh Cosmos Sutiyono, B.Sc., dengan dukungan Rektor Universitas Trisakti, Prof. Dr. Ir. P. Haryasudirdja. Tahun 2008 berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti (STMK Trisakti) melalui SK Kemendikbud. Tahun 2018, STMK Trisakti resmi melakukan rebranding menjadi Trisakti School of Multimedia (TMM), dengan fokus pada pendidikan di bidang industri kreatif. Pada 26 Mei 2025, TMM menjalin kerja sama strategis dengan Politeknik Harapan Bersama untuk program ekstensi D3 ke S1.",
+    "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
+    "mission": [
+      "Menyebarluaskan ilmu pengetahuan, teknologi, dan seni di bidang media komunikasi.",
+      "Menghasilkan lulusan yang profesional dan memiliki daya saing tinggi di industri kreatif.",
+      "Mengembangkan riset dan inovasi berbasis teknologi mutakhir seperti Internet of Things (IoT) dan Artificial Intelligence (AI)."
+    ],
+    "why_choose": "Trisakti School of Multimedia berkomitmen menghasilkan lulusan berkualitas yang mampu bersaing di industri kreatif dan digital, dengan fokus pada teknologi seperti IoT dan AI. Kami menawarkan pendidikan relevan, kerja sama strategis, fasilitas modern, dan beasiswa untuk mahasiswa berprestasi.",
+    "values": ["Kreativitas", "Teknologi", "Budaya"],
+    "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
+    "contact": {
+      "whatsapp": "+62 877 4299 7808",
+      "email": "info@trisaktimultimedia.ac.id",
+      "phone": ["+62-21-4895787", "+62-21-4701842"],
+      "office_hours": "Senin-Jumat, 08:00-16:00 WIB",
+      "social_media": {
+        "instagram": "@trisaktimultimedia",
+        "facebook": "TrisaktiMultimediaOfficial"
+      }
+    },
+    "website": "https://trisaktimultimedia.ac.id",
+    "website_structure": [
+      {"menu": "Beranda", "description": "Halaman utama dengan informasi terbaru dan banner visual."},
+      {"menu": "Profil", "description": "Sejarah, visi misi, pimpinan, dan struktur organisasi."},
+      {"menu": "Program Studi", "description": "Informasi jurusan dan akreditasi."},
+      {"menu": "Pendaftaran", "description": "Syarat, prosedur, dan link pendaftaran."},
+      {"menu": "Berita & Kegiatan", "description": "Agenda, acara, kerja sama, dan berita."},
+      {"menu": "Kontak", "description": "Alamat, telepon, email, dan formulir kontak."}
+    ]
+  },
+  "academic_programs": [
     {
       "name": "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
       "short": "D4 Kemasan",
-      "description": "Program ini menggabungkan keahlian desain grafis dengan teknologi kemasan modern. Mahasiswa belajar menciptakan solusi kemasan yang kreatif, fungsional, dan ramah lingkungan untuk produk komersial.",
+      "description": "Menggabungkan desain grafis dengan teknologi kemasan modern, fokus pada solusi kreatif, fungsional, dan ramah lingkungan.",
+      "specializations": ["Packaging Design & Production"],
       "career_prospects": ["Packaging Designer", "Branding Consultant", "Packaging Production Supervisor"],
-      "accreditation": "B"
+      "accreditation": "B",
+      "evening_class": true
     },
     {
       "name": "Sarjana Desain Animasi dan Games (S1)",
       "short": "S1 Animasi",
-      "description": "Fokus pada pengembangan animasi digital dan desain permainan (games). Mahasiswa dibekali dengan kemampuan storytelling, animasi 2D/3D, hingga pengembangan game interaktif.",
+      "description": "Fokus pada animasi digital dan desain permainan, dengan pelatihan storytelling, animasi 2D/3D, dan pengembangan game.",
+      "specializations": ["Animation & Games"],
       "career_prospects": ["Animator", "Game Developer", "Storyboard Artist"],
-      "accreditation": "B"
+      "accreditation": "B",
+      "evening_class": false
     },
     {
       "name": "Sarjana Desain Kreatif Visual Periklanan (S1)",
       "short": "S1 Iklan",
-      "description": "Membekali mahasiswa dengan kemampuan merancang kampanye iklan visual yang efektif dan kreatif. Fokus pada komunikasi visual, branding, dan strategi pemasaran visual.",
+      "description": "Membekali kemampuan merancang kampanye iklan visual efektif, fokus pada branding dan strategi pemasaran.",
+      "specializations": ["Graphic Advertising"],
       "career_prospects": ["Creative Director", "Visual Branding Specialist", "Art Director"],
-      "accreditation": "B"
+      "accreditation": "B",
+      "evening_class": false
     },
     {
       "name": "Sarjana Desain Multimedia Broadcasting (S1)",
       "short": "S1 Broadcasting",
-      "description": "Mengembangkan keahlian di bidang media penyiaran digital, produksi konten multimedia, dan teknologi siaran terkini.",
+      "description": "Mengembangkan keahlian di media penyiaran digital, produksi konten multimedia, dan teknologi siaran terkini.",
+      "specializations": ["Multimedia Broadcasting"],
       "career_prospects": ["Multimedia Producer", "Content Creator", "Broadcast Technician"],
-      "accreditation": "B"
+      "accreditation": "B",
+      "evening_class": false
     }
   ],
+  "accreditation": {
+    "overall": "BAIK (BAN-PT)",
+    "programs": {
+      "Desain dan Teknologi Kemasan": "B",
+      "Desain Animasi dan Games": "B",
+      "Desain Visual Periklanan": "B",
+      "Multimedia Broadcasting": "B"
+    }
+  },
   "facilities": [
     "Perpustakaan Digital (SLiMS & Digilib)",
     "Laboratorium Desain & Animasi",
@@ -52,121 +92,9 @@
     "Wi-Fi Gratis di Seluruh Kampus",
     "Kantin Mahasiswa"
   ],
-  "accreditation": {
-    "overall": "B",
-    "programs": {
-      "Desain dan Teknologi Kemasan": "B",
-      "Desain Animasi dan Games": "B",
-      "Desain Visual Periklanan": "B",
-      "Multimedia Broadcasting": "B"
-    }
-  },
-  "kontak": {
-    "whatsapp": "+62 877 4299 7808",
-    "email": "info@trisaktimultimedia.ac.id",
-    "phone": ["+62-21-4895787", "+62-21-4701842"],
-    "office_hours": "Senin-Jumat, 08:00-16:00 WIB",
-    "social_media": {
-      "instagram": "@trisaktimultimedia",
-      "facebook": "TrisaktiMultimediaOfficial"
-    }
-  },
-  "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
-  "website": "https://trisaktimultimedia.ac.id",
-  "website_structure": [
-    {
-      "menu": "Beranda",
-      "description": "Halaman utama situs dengan informasi terbaru dan banner visual."
-    },
-    {
-      "menu": "Profil",
-      "description": "Menjelaskan sejarah, visi misi, pimpinan, dan struktur organisasi kampus."
-    },
-    {
-      "menu": "Program Studi",
-      "description": "Informasi lengkap tentang jurusan dan akreditasinya."
-    },
-    {
-      "menu": "Pendaftaran",
-      "description": "Syarat, prosedur, dan link resmi untuk mendaftar."
-    },
-    {
-      "menu": "Berita & Kegiatan",
-      "description": "Informasi tentang agenda, acara kampus, kerja sama, dan berita terbaru."
-    },
-    {
-      "menu": "Kontak",
-      "description": "Detail alamat, telepon, email, serta formulir kontak."
-    }
-  ],
-  "values": ["Kreativitas", "Teknologi", "Budaya"],
-  "collaborations": [
-    {
-      "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
-      "date": "26 Mei 2025",
-      "description": "Kerja sama ekstensi D3 ke S1 dan kuliah umum strategi digital branding."
-    },
-    {
-      "partner": "PT. Guava Production",
-      "date": "02 Februari 2022",
-      "description": "Kolaborasi produksi multimedia (musik video dan film)."
-    }
-  ],
-  "beasiswa": [
-    {
-      "name": "Beasiswa KIP Kuliah",
-      "description": "Beasiswa pemerintah untuk mahasiswa berprestasi dari keluarga kurang mampu.",
-      "requirements": [
-        "Fotokopi KTP dan KK",
-        "Surat keterangan tidak mampu dari kelurahan",
-        "Transkrip nilai SMA/SMK",
-        "Pendaftaran melalui situs resmi KIP Kuliah. https://kip-kuliah.kemdikbud.go.id"
-      ],
-      "process": "Pendaftaran online melalui situs resmi KIP Kuliah, seleksi berdasarkan nilai dan dokumen pendukung."
-    },
-    {
-      "name": "Yayasan Beasiswa Trisakti",
-      "description": "Beasiswa internal untuk mahasiswa berprestasi akademik.",
-      "requirements": [
-        "IPK minimal 3.0",
-        "Surat rekomendasi dari dosen",
-        "Esai motivasi (maks. 500 kata)"
-      ],
-      "process": "Pengajuan melalui bagian akademik kampus, seleksi tahap wawancara."
-    },
-    {
-      "name": "Beasiswa Bulan Pendidikan",
-      "description": "Beasiswa tahunan untuk mahasiswa dengan prestasi non-akademik (olahraga, seni, dll.).",
-      "requirements": [
-        "Sertifikat prestasi non-akademik",
-        "Surat rekomendasi dari pelatih/mentor",
-        "Transkrip nilai semester terakhir"
-      ],
-      "process": "Pengajuan via email ke info@trisaktimultimedia.ac.id, pengumuman setiap Juli."
-    },
-    {
-      "name": "Beasiswa EX-UTBK",
-      "description": "Beasiswa untuk mahasiswa baru dengan nilai UTBK tinggi.",
-      "requirements": [
-        "Nilai UTBK minimal 600",
-        "Fotokopi sertifikat UTBK",
-        "Surat pernyataan bermaterai"
-      ],
-      "process": "Otomatis diberikan saat pendaftaran jika memenuhi syarat."
-    },
-    {
-      "name": "Beasiswa Kerja Sama Sekolah",
-      "description": "Beasiswa untuk lulusan sekolah mitra Trisakti.",
-      "requirements": [
-        "Surat rekomendasi dari sekolah",
-        "Transkrip nilai SMA/SMK",
-        "Fotokopi ijazah"
-      ],
-      "process": "Koordinasi dengan sekolah mitra, pengajuan melalui kantor admisi."
-    }
-  ],
-  "registration_link": "https://trisaktimultimedia.ecampuz.com/eadmisi/",
-  "registration_details": {
+  "registration": {
+    "link": "https://trisaktimultimedia.ecampuz.com/eadmisi/",
+    "cost": "Gratis",
     "requirements": [
       "Fotokopi ijazah SMA/SMK sederajat yang dilegalisir",
       "Transkrip nilai SMA/SMK sederajat",
@@ -178,26 +106,82 @@
       {
         "name": "NR - Non Reguler",
         "waves": [
-          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
-          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir hari ini, 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai besok"}
         ]
       },
       {
         "name": "REG - Reguler",
         "waves": [
-          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
-          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir hari ini, 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai besok"}
         ]
       },
       {
         "name": "AJ - Alih Jenjang",
         "waves": [
-          { "wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025" },
-          { "wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025" }
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir hari ini, 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai besok"}
         ]
       }
     ],
-    "process": "Pendaftaran dilakukan secara online melalui situs pendaftaran resmi. Calon mahasiswa mengisi formulir, mengunggah dokumen, dan mengikuti seleksi (jika ada)."
+    "process": "Pendaftaran online melalui situs resmi: isi formulir, unggah dokumen, dan ikuti seleksi (jika ada). Offline di alamat kampus."
+  },
+  "scholarships": [
+    {
+      "name": "Beasiswa KIP Kuliah",
+      "description": "Beasiswa pemerintah untuk mahasiswa berprestasi dari keluarga kurang mampu.",
+      "requirements": [
+        "Fotokopi KTP dan KK",
+        "Surat keterangan tidak mampu dari kelurahan",
+        "Transkrip nilai SMA/SMK",
+        "Pendaftaran via https://kip-kuliah.kemdikbud.go.id"
+      ],
+      "process": "Pendaftaran online, seleksi berdasarkan nilai dan dokumen, batas 31 Oktober 2025."
+    },
+    {
+      "name": "Yayasan Beasiswa Trisakti",
+      "description": "Beasiswa internal untuk mahasiswa berprestasi akademik.",
+      "requirements": ["IPK minimal 3.0", "Surat rekomendasi dari dosen", "Esai motivasi (maks. 500 kata)"],
+      "process": "Pengajuan via bagian akademik, seleksi wawancara, kuota bervariasi."
+    },
+    {
+      "name": "Beasiswa Bulan Pendidikan",
+      "description": "Beasiswa tahunan untuk prestasi non-akademik (olahraga, seni, dll.).",
+      "requirements": ["Sertifikat prestasi", "Surat rekomendasi dari pelatih", "Transkrip nilai semester terakhir"],
+      "process": "Pengajuan via email info@trisaktimultimedia.ac.id, pengumuman Juli."
+    },
+    {
+      "name": "Beasiswa EX-UTBK",
+      "description": "Beasiswa untuk mahasiswa baru dengan nilai UTBK tinggi.",
+      "requirements": ["Nilai UTBK minimal 600", "Fotokopi sertifikat UTBK", "Surat pernyataan bermaterai"],
+      "process": "Otomatis saat pendaftaran jika memenuhi syarat."
+    },
+    {
+      "name": "Beasiswa Kerja Sama Sekolah",
+      "description": "Beasiswa untuk lulusan sekolah mitra Trisakti.",
+      "requirements": ["Surat rekomendasi sekolah", "Transkrip nilai SMA/SMK", "Fotokopi ijazah"],
+      "process": "Koordinasi dengan sekolah mitra, pengajuan via kantor admisi."
+    }
+  ],
+  "payment": {
+    "policy": "Tidak ada uang gedung, hanya pembayaran uang kuliah.",
+    "installment": "Cicilan 3 kali per semester: awal masuk, sebelum UTS, sebelum UAS."
+  },
+  "admission_process": {
+    "regular": ["Verifikasi data", "Tes tertulis", "Wawancara"],
+    "scholarship": ["Verifikasi data", "Tes tertulis", "Wawancara 1", "Wawancara 2"],
+    "test_mode": {
+      "jabodetabek": "Offline",
+      "outside_jabodetabek": "Online"
+    }
+  },
+  "affiliation": {
+    "part_of": "Yayasan Trisakti",
+    "different_from": "Universitas Trisakti (berlokasi di Grogol)"
+  },
+  "advantages": {
+    "dkv": "Harga terjangkau, fasilitas lengkap, dan banyak partner kolaborasi sesuai bidang."
   },
   "academic_calendar": {
     "semester_1_2025": {
@@ -211,11 +195,16 @@
       "holidays": ["1 Februari 2026 - Imlek", "1 Mei 2026 - Hari Buruh"]
     }
   },
-  "campus_events": [
+  "events": [
     {
       "title": "Diseminasi Permendikbudristek No. 53 Tahun 2023",
       "date": "25 Juni 2025",
-      "description": "Acara untuk meningkatkan standar mutu pendidikan tinggi, selaras dengan regulasi nasional tentang penjaminan mutu dan akreditasi."
+      "description": "Acara untuk meningkatkan standar mutu pendidikan tinggi, selaras dengan regulasi nasional."
+    },
+    {
+      "title": "Kerja Sama dengan Poltek Harapan Bersama",
+      "date": "26 Mei 2025",
+      "description": "Penandatanganan kerja sama untuk ekstensi D3 ke S1 dan kuliah umum strategi digital branding."
     },
     {
       "title": "Workshop Desain Digital",
@@ -223,7 +212,19 @@
       "description": "Pelatihan intensif untuk mahasiswa tentang desain digital dan animasi."
     }
   ],
-  "alumni_testimonials": [
+  "collaborations": [
+    {
+      "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
+      "date": "26 Mei 2025",
+      "description": "Kerja sama ekstensi D3 ke S1 dan kuliah umum strategi digital branding."
+    },
+    {
+      "partner": "PT. Guava Production",
+      "date": "02 Februari 2022",
+      "description": "Kolaborasi produksi multimedia (musik video dan film)."
+    }
+  ],
+  "testimonials": [
     {
       "name": "Andi Pratama",
       "program": "S1 Animasi",
@@ -237,7 +238,65 @@
       "testimonial": "Saya belajar banyak tentang teknologi kemasan modern di sini. Sekarang saya bekerja sebagai Packaging Designer di perusahaan multinasional."
     }
   ],
-  "faq_keywords": {
+  "faq": [
+    {
+      "question": "Greeting awal",
+      "answer": "Selamat pagi / siang / sore, dengan senang hati saya dari TIMU Trisakti School of Multimedia akan membantu menjawab pertanyaan Anda."
+    },
+    {
+      "question": "Apa akreditasi kampus TMM dan prodi/jurusannya?",
+      "answer": "Akreditasi Trisakti School of Multimedia adalah BAIK (BAN-PT). Kami punya 2 prodi: Desain Komunikasi Visual (DKV) dengan peminatan Graphic Advertising, Multimedia Broadcasting, dan Animation & Games; serta Teknologi Grafika dengan peminatan Packaging Design & Production, semua dengan akreditasi B."
+    },
+    {
+      "question": "Bagaimana cara pendaftaran? Ada biaya?",
+      "answer": "Pendaftaran bisa online di https://trisaktimultimedia.ecampuz.com/eadmisi/ atau offline di Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur. Tidak ada biaya pendaftaran, gratis!"
+    },
+    {
+      "question": "Apa masih ada uang gedung?",
+      "answer": "Tidak, di TMM tidak ada uang gedung, hanya pembayaran uang kuliah."
+    },
+    {
+      "question": "Ada kelas malam untuk karyawan?",
+      "answer": "Hanya ada kelas malam untuk prodi Teknologi Grafika (D4 Kemasan)."
+    },
+    {
+      "question": "Apakah TMM sama dengan Universitas Trisakti?",
+      "answer": "TMM adalah bagian Yayasan Trisakti, tapi berbeda dengan Universitas Trisakti di Grogol. TMM berlokasi di Kampus C, Rawasari, Jakarta Timur."
+    },
+    {
+      "question": "Ada beasiswa untuk mahasiswa berprestasi?",
+      "answer": "Ya, ada Beasiswa KIP dan Yayasan Beasiswa Trisakti (YBT) setiap tahun, dengan kuota bervariasi."
+    },
+    {
+      "question": "Ada beasiswa selain KIP?",
+      "answer": "Selain KIP, ada Beasiswa YBT dengan kuota berbeda setiap tahun."
+    },
+    {
+      "question": "Ada beasiswa untuk alih jenjang?",
+      "answer": "Ya, untuk mahasiswa alih jenjang (AJ) dari institusi yang bekerja sama dengan TMM."
+    },
+    {
+      "question": "Bisa bayar cicilan?",
+      "answer": "Ya, cicilan 3 kali per semester: awal masuk, sebelum UTS, sebelum UAS."
+    },
+    {
+      "question": "Tahapan seleksi apa saja?",
+      "answer": "Untuk reguler: verifikasi data, tes tertulis, wawancara. Untuk beasiswa: tambah wawancara tahap 2."
+    },
+    {
+      "question": "Tes seleksi online atau offline?",
+      "answer": "Untuk Jabodetabek offline, luar Jabodetabek online."
+    },
+    {
+      "question": "TMM bagian Yayasan Trisakti?",
+      "answer": "Ya, TMM adalah bagian Yayasan Trisakti."
+    },
+    {
+      "question": "Keunggulan DKV TMM?",
+      "answer": "Harga terjangkau, fasilitas lengkap, dan banyak partner kolaborasi sesuai bidang."
+    }
+  ],
+  "keywords": {
     "brosur": ["brosur", "download brosur", "minta brosur", "brosur kampus", "brosur pendaftaran"],
     "alamat": ["alamat kampus", "lokasi kampus", "beralamat di mana", "kampus berada di mana", "di mana kampus", "alamat trisakti", "alamat kampusnya dimana", "dimana lokasi kampus"],
     "prodi": ["jurusan", "program studi", "ada jurusan apa saja", "apa saja jurusannya", "fokus studi", "s1 apa saja", "d4 apa", "animasi digital", "kemasan", "iklan", "broadcasting"],
@@ -257,16 +316,24 @@
     "singkatan": ["apa singkatan kampus", "singkatan trisakti", "singkatan tmm", "apa itu tmm", "arti tmm", "kepanjangan tmm"],
     "website_content": ["apa isi website", "menu situs", "apa ada menu profil", "halaman apa saja", "struktur web", "konten di situs", "fitur website", "situs resmi", "apa saja di situs"]
   },
-  "news": [
-    {
-      "title": "Diseminasi Permendikbudristek No. 53 Tahun 2023",
-      "date": "25 Juni 2025",
-      "description": "Acara untuk meningkatkan standar mutu pendidikan tinggi, selaras dengan regulasi nasional tentang penjaminan mutu dan akreditasi."
-    },
-    {
-      "title": "Kerja Sama dengan Poltek Harapan Bersama",
-      "date": "26 Mei 2025",
-      "description": "Penandatanganan kerja sama untuk program ekstensi D3 ke S1 dan kuliah umum strategi digital branding."
-    }
-  ]
+  "current_context": {
+    "date": "30 Juni 2025",
+    "time": "22:05 WIB",
+    "registration_status": "Gelombang 2 berakhir hari ini, Gelombang 3 mulai besok 1 Juli 2025."
+  },
+  "kip_schedule": {
+    "events": [
+      {"name": "Pendaftaran Akun Siswa KIP-Kuliah", "start": "04 Feb 2025", "end": "31 Okt 2025"},
+      {"name": "Seleksi Nasional Berdasarkan Prestasi (SNBP)", "start": "04 Feb 2025", "end": "18 Feb 2025"},
+      {"name": "UTBK-SNBT", "start": "11 Mar 2025", "end": "27 Mar 2025"},
+      {"name": "Seleksi Mandiri PTN", "start": "04 Jun 2025", "end": "30 Sep 2025"},
+      {"name": "Seleksi Mandiri PTS", "start": "04 Jun 2025", "end": "31 Okt 2025"}
+    ],
+    "note": "Jadwal dapat berubah sewaktu-waktu"
+  },
+  "kip_contact": {
+    "organization": "Pusat Pembiayaan dan Asesmen Pendidikan Tinggi",
+    "address": "Gedung D, Jl. Jenderal Sudirman, Senayan, Jakarta Pusat 10270",
+    "copyright": "© 2025 Kartu Indonesia Pintar Kuliah"
+  }
 }
