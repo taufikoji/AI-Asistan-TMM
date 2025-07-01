@@ -117,13 +117,13 @@ def chat():
     context = TRISAKTI.get("current_context", {})
 
     # ✅ Permintaan brosur
-    if kategori == "brosur":
-        base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
-        brosur_url = f"{base_url}/download-brosur"
+        if kategori == "brosur":
         reply = (
             "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
-            f"<a href='{brosur_url}' download='brosur_tmm.pdf' target='_blank' rel='noopener noreferrer'>📄 Klik di sini untuk mengunduh brosur PDF</a><br><br>"
-            "Jika tidak otomatis terunduh, tekan dan tahan lalu pilih 'Download Tautan' atau 'Simpan link'."
+            "<a href='/download-brosur' download='brosur_tmm.pdf' "
+            "class='download-btn' target='_blank' rel='noopener noreferrer'>"
+            "📄 Klik di sini untuk mengunduh brosur PDF</a><br><br>"
+            "Jika tidak otomatis terunduh, tekan dan tahan lalu pilih 'Download Tautan'."
         )
         save_chat(corrected, reply)
         return jsonify({
