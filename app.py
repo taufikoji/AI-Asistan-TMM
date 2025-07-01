@@ -221,6 +221,11 @@ def admin_stats():
 
 @app.route("/logout")
 def logout():
+    session.pop("admin_logged_in", None)
+    return redirect(url_for("login"))
+
+@app.route("/logout")
+def logout():
     session.clear()
     return redirect(url_for("login"))
 
