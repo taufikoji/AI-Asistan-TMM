@@ -8,8 +8,8 @@ from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 import re
-from langdetect import detect  # ✅ Deteksi bahasa
-from textblob import TextBlob   # ✅ Koreksi typo
+from langdetect import detect
+from textblob import TextBlob
 
 # Setup logging
 logging.basicConfig(
@@ -35,7 +35,7 @@ except Exception as e:
     logger.error(f"Gagal konfigurasi Gemini: {e}")
     raise
 
-# Load JSON data kampus
+# Load data kampus
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -45,7 +45,6 @@ except Exception as e:
     logger.critical(f"Gagal memuat data JSON: {e}")
     TRISAKTI = {}
 
-# Deteksi bahasa
 def detect_language(text):
     try:
         return detect(text)
@@ -53,7 +52,6 @@ def detect_language(text):
         logger.warning(f"Deteksi bahasa gagal: {e}")
         return "unknown"
 
-# Koreksi typo bahasa Inggris
 def correct_typo(text):
     try:
         blob = TextBlob(text)
@@ -62,7 +60,6 @@ def correct_typo(text):
         logger.warning(f"Koreksi typo gagal: {e}")
         return text
 
-# Simpan riwayat
 def save_chat(user_msg, ai_msg):
     try:
         file = "chat_history.json"
@@ -80,7 +77,6 @@ def save_chat(user_msg, ai_msg):
     except Exception as e:
         logger.warning(f"Gagal simpan riwayat: {e}")
 
-# Deteksi kategori
 def get_category(msg):
     msg = msg.lower()
     for kategori, keywords in TRISAKTI.get("keywords", {}).items():
@@ -88,16 +84,13 @@ def get_category(msg):
             return kategori
     return "general"
 
-# Bersihkan markdown
 def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
-# ROUTE: Homepage
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# ROUTE: API utama
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -106,11 +99,9 @@ def chat():
     if not message:
         return jsonify({"error": "Pesan kosong."}), 400
 
-    # Deteksi bahasa & typo
     detected_lang = detect_language(message)
     corrected_msg = correct_typo(message) if detected_lang == "en" else message
 
-    # Sesi
     if 'conversation' not in session:
         session['conversation'] = []
 
@@ -120,8 +111,6 @@ def chat():
 
     kategori = get_category(corrected_msg)
     current_context = TRISAKTI.get("current_context", {})
-
-    # Atur instruksi bahasa
     lang_note = (
         "Jawab dengan bahasa Indonesia yang ramah dan informatif."
         if detected_lang != "en"
@@ -138,13 +127,91 @@ def chat():
         "Pastikan jawaban relevan dengan pertanyaan sebelumnya jika ada, dan ajak pengguna untuk melanjutkan diskusi."
     )
 
-    # (Respons khusus kategori bisa Anda tambahkan di sini...)
+    # Respon khusus
+    if kategori == "brosur":
+        reply = (
+            "Silakan unduh brosur resmi Trisakti School of Multimedia (TMM) melalui tautan berikut:<br><br>"
+            "<a href='/download-brosur' target='_blank' style='color: #b30000;'>📄 Download Brosur TMM</a><br><br>"
+            "Apakah Anda ingin informasi lebih lanjut tentang pendaftaran atau program studi?"
+        )
+        save_chat(corrected_msg, reply)
+        return jsonify({"reply": reply, "language": detected_lang})
 
-    # Prompt utama
+    elif kategori == "pendaftaran":
+        link = TRISAKTI.get("registration", {}).get("link", "#")
+        details = TRISAKTI.get("registration", {}).get("paths", [])
+        status = current_context.get("registration_status", "")
+        reply = (
+            f"Informasi pendaftaran TMM:<br><br>"
+            f"<strong>🔗 Link Pendaftaran:</strong><br>"
+            f"<a href='{link}' target='_blank' style='color: #b30000;'>{link}</a><br><br>"
+            f"<strong>Status:</strong><br>{status}<br><br>"
+            f"<strong>Jalur dan Periode:</strong><br>"
+            "".join([f"- {path['name']}: {wave['wave']} ({wave['period']})<br>" for path in details for wave in path['waves']])
+        )
+        reply += "<br>Butuh bantuan tentang persyaratan atau jadwalnya?"
+        save_chat(corrected_msg, reply)
+        return jsonify({"reply": reply, "language": detected_lang})
+
+    elif kategori == "beasiswa":
+        scholarships = TRISAKTI.get("scholarships", [])
+        reply = (
+            "Berikut jenis beasiswa di TMM:<br><br>"
+            "".join([
+                f"- <strong>{s['name']}</strong>: {s['description']}<br>"
+                f"Syarat: {', '.join(s['requirements'])}<br>"
+                f"Proses: {s['process']}<br><br>" for s in scholarships
+            ])
+        )
+        reply += "Ingin tahu lebih banyak tentang salah satu beasiswa ini?"
+        save_chat(corrected_msg, reply)
+        return jsonify({"reply": reply, "language": detected_lang})
+
+    elif kategori == "prodi":
+        programs = TRISAKTI.get("academic_programs", [])
+        specific_program = None
+        for p in programs:
+            if p["short"].lower() in corrected_msg.lower() or any(s.lower() in corrected_msg.lower() for s in p["specializations"]):
+                specific_program = p
+                break
+        if specific_program:
+            reply = (
+                f"Informasi tentang {specific_program['name']} di TMM:<br><br>"
+                f"<strong>Deskripsi:</strong> {specific_program['description']}<br>"
+                f"<strong>Akreditasi:</strong> {specific_program['accreditation']}<br>"
+                f"<strong>Prospek Karier:</strong> {', '.join(specific_program['career_prospects'])}<br>"
+                f"<strong>Kurikulum:</strong> {specific_program['curriculum']}<br><br>"
+                f"Ingin diskusi lebih lanjut tentang jurusan ini?"
+            )
+        else:
+            reply = (
+                "Berikut daftar program studi di TMM:<br><br>"
+                "".join([f"- <strong>{p['name']}</strong>: {p['description']}<br>Akreditasi: {p['accreditation']}<br><br>" for p in programs])
+            )
+        save_chat(corrected_msg, reply)
+        return jsonify({"reply": reply, "language": detected_lang})
+
+    elif kategori == "curriculum":
+        programs = TRISAKTI.get("academic_programs", [])
+        reply = (
+            "Berikut ringkasan kurikulum masing-masing program studi:<br><br>"
+            "".join([f"- <strong>{p['name']}</strong>: {p['curriculum']}<br><br>" for p in programs])
+        )
+        reply += "Ingin tahu kurikulum lebih rinci dari jurusan tertentu?"
+        save_chat(corrected_msg, reply)
+        return jsonify({"reply": reply, "language": detected_lang})
+
+    elif kategori == "extracurricular":
+        reply = TRISAKTI.get('additional_info', {}).get('student_activities', '')
+        reply += "<br><br>Apakah Anda ingin tahu tentang klub atau komunitas tertentu di TMM?"
+        save_chat(corrected_msg, reply)
+        return jsonify({"reply": reply, "language": detected_lang})
+
+    # Prompt umum
     prompt = (
         f"Pengguna bertanya: '{corrected_msg}'\n"
         f"Kategori: {kategori}\n"
-        "Jawab berdasarkan data institusi dan konteks yang tersedia."
+        "Jawab berdasarkan data dan misi institusi TMM."
     )
 
     try:
@@ -159,15 +226,10 @@ def chat():
         result = model.generate_content(system_prompt + "\n\n" + prompt)
         raw_reply = result.text.strip()
         reply = clean_response(raw_reply).replace("TSM", "TMM")
-
         if not reply:
-            reply = (
-                f"Maaf, saya tidak menemukan jawaban yang relevan. "
-                f"Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan lebih lanjut."
-            )
+            reply = f"Maaf, saya tidak dapat menemukan jawaban. Hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']}."
         else:
-            reply += "<br>Apakah ada hal lain yang ingin Anda diskusikan?"
-
+            reply += "<br>Ada lagi yang ingin ditanyakan?"
         save_chat(corrected_msg, reply)
         return jsonify({
             "reply": reply,
@@ -182,11 +244,9 @@ def chat():
         logger.error(f"[Error Internal] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
 
-# ROUTE: Unduh brosur
 @app.route("/download-brosur")
 def download_brosur():
     return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
 
-# RUN
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
