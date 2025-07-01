@@ -12,24 +12,20 @@ from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    filename="app.log"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="app.log")
 logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")  # Tambahkan ini di .env
 
 # Setup Flask
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "your-secret-key")
 CORS(app)
 
-# Configure Gemini
+# Konfigurasi Gemini
 try:
     genai.configure(api_key=GEMINI_API_KEY)
 except Exception as e:
@@ -51,6 +47,8 @@ symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 dictionary_path = "indonesia_dictionary_3000.txt"
 if not symspell.load_dictionary(dictionary_path, term_index=0, count_index=1):
     logger.warning("Gagal memuat kamus SymSpell.")
+
+# ====================== FUNGSI UTAMA =======================
 
 def detect_language(text):
     try:
@@ -93,6 +91,8 @@ def get_category(msg):
 def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
+# ====================== ROUTES UTAMA =======================
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -117,13 +117,14 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
+    # Tangani permintaan brosur
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
         reply = (
-            "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
-            f"<a href='{brosur_url}' class='download-btn'>📄 Klik di sini untuk mengunduh Brosur PDF</a><br><br>"
-            "Jika tidak dapat membuka, salin dan tempel link di browser Anda."
+            "📄 Brosur resmi Trisakti School of Multimedia telah siap!<br><br>"
+            f"<a href='{brosur_url}' class='download-btn' target='_blank'>⬇️ Klik di sini untuk mengunduh brosur</a><br><br>"
+            "Jika tidak bisa mengakses, salin dan buka link ini di browser Anda."
         )
         save_chat(corrected, reply)
         return jsonify({
@@ -132,12 +133,10 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
+    # Siapkan prompt untuk Gemini
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
-        "Anda Menguasai semua Bahasa. "
-        "Jawab dengan ramah, informatif, dan profesional dalam bahasa Indonesia. "
-        "Jika pengguna menggunakan bahasa Inggris, jawab dalam bahasa Inggris formal. "
-        "Jika pengguna menggunakan bahasa Jawa, jawab dalam bahasa jawa halus. "
+        "Jawab dengan ramah, informatif, dan profesional dalam bahasa pengguna. "
         "Gunakan data berikut sebagai referensi:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
@@ -184,16 +183,13 @@ def download_brosur():
     try:
         file_path = os.path.join("static", "brosur_tmm.pdf")
         if not os.path.exists(file_path):
-            logger.error(f"File brosur_tmm.pdf tidak ditemukan di {file_path}")
-            return jsonify({"error": "Brosur tidak tersedia saat ini."}), 404
+            return jsonify({"error": "Brosur tidak tersedia."}), 404
         return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
     except Exception as e:
-        logger.error(f"Error saat mengunduh brosur: {e}")
-        return jsonify({"error": "Terjadi kesalahan saat mengunduh brosur."}), 500
+        logger.error(f"Error download brosur: {e}")
+        return jsonify({"error": "Gagal unduh brosur."}), 500
 
-# =======================
-# LOGIN & ADMIN STATS
-# =======================
+# ====================== ADMIN LOGIN & STATS =======================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -202,32 +198,33 @@ def login():
         if password == ADMIN_PASSWORD:
             session["admin_logged_in"] = True
             return redirect(url_for("admin_stats"))
-        return "Password salah", 403
+        return render_template("login.html", error="Password salah.")
     return render_template("login.html")
 
 @app.route("/admin/stats")
 def admin_stats():
     if not session.get("admin_logged_in"):
         return redirect(url_for("login"))
+
     try:
         with open("chat_history.json", "r", encoding="utf-8") as f:
             history = json.load(f)
-        total_chats = len(history)
-        latest_chats = history[-20:][::-1]
-        return render_template("stats.html", total=total_chats, recent=latest_chats)
-    except Exception as e:
-        logger.error(f"Gagal muat statistik: {e}")
-        return "Gagal menampilkan statistik", 500
+    except:
+        history = []
+
+    stats = {
+        "total_chats": len(history),
+        "latest": history[-5:] if len(history) >= 5 else history
+    }
+
+    return render_template("stats.html", stats=stats)
 
 @app.route("/logout")
 def logout():
     session.pop("admin_logged_in", None)
     return redirect(url_for("login"))
 
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
+# ====================== RUN APP =======================
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
