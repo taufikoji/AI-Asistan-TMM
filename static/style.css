@@ -197,6 +197,23 @@ header h1 {
   transition: transform 0.2s ease;
 }
 
+.admin-login-btn {
+  font-size: 0.85rem;
+  color: white;
+  background: transparent;
+  border: 1px solid white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s;
+  margin-left: 1rem;
+}
+
+.admin-login-btn:hover {
+  background: white;
+  color: var(--maroon);
+}
+
 .logout-btn {
   position: absolute;
   top: 1rem;
