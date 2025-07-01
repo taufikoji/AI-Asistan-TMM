@@ -92,6 +92,8 @@
       overflow-y: auto;
       scroll-behavior: smooth;
       margin-bottom: 130px;
+      display: flex;
+      flex-direction: column-reverse; /* Ditambahkan untuk scroll dari bawah */
     }
 
     .message {
@@ -238,7 +240,7 @@
   </form>
 
   <footer>
-    &copy; 2025 Trisakti School of Multimedia. Create by Taofik Faoji.
+    © 2025 Trisakti School of Multimedia. Create by Taofik Faoji.
     Seluruh pertanyaan dijawab oleh AI dan mungkin saja jawaban tidak sesuai.
   </footer>
 
@@ -265,7 +267,7 @@
     };
 
     function scrollToBottom() {
-      chat.scrollTop = chat.scrollHeight;
+      chat.scrollTop = 0; // Karena flex-direction: column-reverse, scroll ke 0 untuk ke bawah
     }
 
     function linkify(text) {
@@ -287,7 +289,7 @@
       msg.appendChild(icon);
       msg.appendChild(bubble);
       chat.appendChild(msg);
-      scrollToBottom();
+      scrollToBottom(); // Pastikan scroll ke posisi terbaru
     }
 
     function appendTyping() {
@@ -298,7 +300,7 @@
         <div class="text"><em>TIMU sedang mengetik...</em></div>
       `;
       chat.appendChild(typing);
-      scrollToBottom();
+      scrollToBottom(); // Scroll saat menampilkan "typing"
     }
 
     form.onsubmit = async (e) => {
@@ -347,6 +349,7 @@
 
     window.onload = () => {
       append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
+      scrollToBottom();
     };
   </script>
 </body>
