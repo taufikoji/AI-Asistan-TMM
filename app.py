@@ -98,17 +98,15 @@ def index():
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    data = request.get_json()
+    data = request.get_json(silent=True)
     message = data.get("message", "").strip()
 
     if not message:
         return jsonify({"error": "Pesan kosong."}), 400
 
-    # Deteksi bahasa dan koreksi
     lang = detect_language(message)
     corrected = correct_typo(message)
 
-    # Simpan sesi
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
@@ -118,16 +116,16 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
-    # ✅ JIKA PENGGUNA MINTA BROSUR — BALAS LANGSUNG TANPA GEMINI
+    # ✅ Handling brosur
     if kategori == "brosur":
-        # Pastikan menggunakan https dan host yang valid
-        base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
-        brosur_url = f"{base_url}/download-brosur"
+        base_url = request.url_root.replace("http://", "https://").rstrip("/")
+        auto_url = f"{base_url}/auto-download"
+        direct_url = f"{base_url}/download-brosur"
         reply = (
             "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
-            f"Anda dapat mengunduhnya melalui tautan berikut: "
-            f"<a href='{brosur_url}' target='_blank'>Download Brosur PDF</a><br><br>"
-            "Jika tidak dapat membuka, salin dan tempel link di browser Anda."
+            f"<a href='{auto_url}' target='_blank'>📥 Klik di sini untuk mulai unduhan otomatis</a><br><br>"
+            f"Jika tidak berhasil, Anda bisa unduh langsung di sini: "
+            f"<a href='{direct_url}' target='_blank'>{direct_url}</a>"
         )
         save_chat(corrected, reply)
         return jsonify({
@@ -136,13 +134,12 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # Prompt untuk AI
+    # Prompt AI
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
-        "Anda Menguasai semua Bahasa"
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa Indonesia. "
         "Jika pengguna menggunakan bahasa Inggris, jawab dalam bahasa Inggris formal. "
-        "Jika pengguna menggunakan bahasa Jawa, jawab dalam bahasa jawa halus."
+        "Jika pengguna menggunakan bahasa Jawa, jawab dalam bahasa jawa halus. "
         "Gunakan data berikut sebagai referensi:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
@@ -165,13 +162,11 @@ def chat():
             generation_config={"temperature": 0.3, "top_p": 0.9, "max_output_tokens": 1024}
         )
         result = model.generate_content(system_prompt + prompt)
-        raw = result.text.strip()
+        raw = getattr(result, "text", "").strip()
         reply = clean_response(raw).replace("TSM", "TMM")
 
         if not reply:
             reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan."
-        else:
-            reply += ""
 
         save_chat(corrected, reply)
         return jsonify({
@@ -189,14 +184,22 @@ def chat():
 @app.route("/download-brosur")
 def download_brosur():
     try:
-        file_path = os.path.join("static", "brosur_tmm.pdf")
+        directory = os.path.join(app.root_path, "static")
+        filename = "brosur_tmm.pdf"
+        file_path = os.path.join(directory, filename)
+
         if not os.path.exists(file_path):
-            logger.error(f"File brosur_tmm.pdf tidak ditemukan di {file_path}")
+            logger.error(f"File brosur tidak ditemukan: {file_path}")
             return jsonify({"error": "Brosur tidak tersedia saat ini."}), 404
-        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
+
+        return send_from_directory(directory, filename, as_attachment=True, cache_timeout=0)
     except Exception as e:
         logger.error(f"Error saat mengunduh brosur: {e}")
         return jsonify({"error": "Terjadi kesalahan saat mengunduh brosur."}), 500
 
+@app.route("/auto-download")
+def auto_download():
+    return render_template("auto_download.html")
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
