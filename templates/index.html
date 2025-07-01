@@ -93,7 +93,7 @@
       scroll-behavior: smooth;
       margin-bottom: 130px;
       display: flex;
-      flex-direction: column-reverse; /* Ditambahkan untuk scroll dari bawah */
+      flex-direction: column-reverse; /* Membuat scroll dimulai dari bawah */
     }
 
     .message {
@@ -334,6 +334,20 @@
         }
 
         append("ai", fullReply);
+
+        // Cek apakah ada link download dan beri peringatan jika gagal
+        const linkMatch = fullReply.match(/(https?:\/\/[^\s]+)/);
+        if (linkMatch) {
+          const testLink = linkMatch[0];
+          try {
+            const linkTest = await fetch(testLink, { method: "HEAD" });
+            if (!linkTest.ok) {
+              append("ai", "Maaf, link download brosur tampaknya bermasalah. Silakan coba lagi nanti.");
+            }
+          } catch (e) {
+            append("ai", "Maaf, terjadi kesalahan saat memverifikasi link download.");
+          }
+        }
       } catch {
         chat.lastChild.remove();
         append("ai", "Maaf, terjadi kesalahan koneksi.");
