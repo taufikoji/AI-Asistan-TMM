@@ -1,18 +1,22 @@
 import os
 import json
 import logging
-import re
 from flask import Flask, request, jsonify, render_template, send_from_directory, session
 from dotenv import load_dotenv
 from flask_cors import CORS
 from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
+import re
 from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="app.log")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    filename="app.log"
+)
 logger = logging.getLogger(__name__)
 
 # Load environment variables
@@ -61,7 +65,7 @@ def correct_typo(text):
         corrected_words.append(suggestion[0].term if suggestion else word)
     return " ".join(corrected_words)
 
-def save_chat(user_msg, ai_msg):
+def save_chat(user_msg, ai_msg, lang="unknown", kategori="general"):
     try:
         file = "chat_history.json"
         history = []
@@ -71,7 +75,9 @@ def save_chat(user_msg, ai_msg):
         history.append({
             "timestamp": datetime.now().isoformat(),
             "user": user_msg,
-            "ai": ai_msg
+            "ai": ai_msg,
+            "language": lang,
+            "category": kategori
         })
         with open(file, "w", encoding="utf-8") as f:
             json.dump(history, f, ensure_ascii=False, indent=2)
@@ -100,11 +106,9 @@ def chat():
     if not message:
         return jsonify({"error": "Pesan kosong."}), 400
 
-    # Deteksi bahasa dan koreksi
     lang = detect_language(message)
     corrected = correct_typo(message)
 
-    # Simpan sesi
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
@@ -114,18 +118,16 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
-    # ✅ Balasan khusus untuk brosur
     if kategori == "brosur":
-        reply = (
-            "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
-            "<a href='/download-brosur' download='brosur_tmm.pdf' "
-            "target='_blank' rel='noopener noreferrer' class='download-btn'>"
-            "📄 Klik di sini untuk mengunduh brosur PDF"
-            "</a><br><br>"
-            "Jika tidak otomatis terunduh, tekan dan tahan lalu pilih 'Download Tautan'."
+        base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
+        brosur_button = (
+            "<br><br><a href='/download-brosur' class='download-btn' target='_blank'>📄 Download Brosur TMM</a>"
         )
-
-        save_chat(corrected, reply)
+        reply = (
+            "Berikut adalah brosur resmi Trisakti School of Multimedia." +
+            brosur_button
+        )
+        save_chat(corrected, reply, lang=lang, kategori=kategori)
         return jsonify({
             "reply": reply,
             "language": lang,
@@ -135,10 +137,7 @@ def chat():
     # Prompt untuk AI
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
-        "Anda Menguasai semua Bahasa. "
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa Indonesia. "
-        "Jika pengguna menggunakan bahasa Inggris, jawab dalam bahasa Inggris formal. "
-        "Jika pengguna menggunakan bahasa Jawa, jawab dalam bahasa jawa halus. "
         "Gunakan data berikut sebagai referensi:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
@@ -165,9 +164,14 @@ def chat():
         reply = clean_response(raw).replace("TSM", "TMM")
 
         if not reply:
-            reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan."
+            reply = (
+                f"Maaf, saya belum memiliki informasi yang sesuai. "
+                f"Silakan klik tombol di bawah ini untuk menghubungi admin melalui WhatsApp:"
+                f"<br><br><a href='https://wa.me/{TRISAKTI['institution']['contact']['whatsapp']}' "
+                f"target='_blank' class='whatsapp-btn'>📞 Hubungi Admin</a>"
+            )
 
-        save_chat(corrected, reply)
+        save_chat(corrected, reply, lang=lang, kategori=kategori)
         return jsonify({
             "reply": reply,
             "language": lang,
@@ -192,5 +196,24 @@ def download_brosur():
         logger.error(f"Error saat mengunduh brosur: {e}")
         return jsonify({"error": "Terjadi kesalahan saat mengunduh brosur."}), 500
 
+@app.route("/stats")
+def stats():
+    try:
+        with open("chat_history.json", "r", encoding="utf-8") as f:
+            history = json.load(f)
+
+        per_day = {}
+        per_category = {}
+        for chat in history:
+            day = chat["timestamp"][:10]
+            cat = chat.get("category", "general")
+            per_day[day] = per_day.get(day, 0) + 1
+            per_category[cat] = per_category.get(cat, 0) + 1
+
+        return render_template("stats.html", daily=per_day, categories=per_category)
+    except Exception as e:
+        logger.error(f"Gagal baca statistik: {e}")
+        return "Gagal memuat statistik."
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
