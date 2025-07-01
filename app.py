@@ -1,13 +1,13 @@
 import os
 import json
 import logging
+import re
 from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
 from dotenv import load_dotenv
 from flask_cors import CORS
 from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
-import re
 from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
 
@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")  # Tambahkan ini di .env
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 
-# Setup Flask
+# Flask App
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "your-secret-key")
 CORS(app)
@@ -32,14 +32,14 @@ except Exception as e:
     logger.error(f"Gagal konfigurasi Gemini: {e}")
     raise
 
-# Load data kampus
+# Load JSON kampus
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
     TRISAKTI["current_context"]["date"] = datetime.now().strftime("%d %B %Y")
     TRISAKTI["current_context"]["time"] = datetime.now().strftime("%H:%M WIB")
 except Exception as e:
-    logger.critical(f"Gagal memuat data JSON: {e}")
+    logger.critical(f"Gagal load JSON kampus: {e}")
     TRISAKTI = {}
 
 # Setup SymSpell
@@ -48,38 +48,48 @@ dictionary_path = "indonesia_dictionary_3000.txt"
 if not symspell.load_dictionary(dictionary_path, term_index=0, count_index=1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# ====================== FUNGSI UTAMA =======================
+# ========== FUNGSI BANTUAN ==========
 
 def detect_language(text):
     try:
         return detect(text)
-    except Exception as e:
-        logger.warning(f"Deteksi bahasa gagal: {e}")
+    except:
         return "unknown"
 
 def correct_typo(text):
-    corrected_words = []
+    corrected = []
     for word in text.split():
-        suggestion = symspell.lookup(word, Verbosity.CLOSEST, max_edit_distance=2)
-        corrected_words.append(suggestion[0].term if suggestion else word)
-    return " ".join(corrected_words)
+        suggestions = symspell.lookup(word, Verbosity.CLOSEST, max_edit_distance=2)
+        corrected.append(suggestions[0].term if suggestions else word)
+    return " ".join(corrected)
+
+def clean_response(text):
+    return re.sub(r"[*_`]+", "", text)
+
+def format_links(text):
+    # Deteksi dan ubah semua tautan mentah menjadi HTML rapi
+    url_pattern = re.compile(r"(https?://[^\s<>'\"]+)")
+    return url_pattern.sub(r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
 
 def save_chat(user_msg, ai_msg):
     try:
         file = "chat_history.json"
-        history = []
         if os.path.exists(file):
             with open(file, "r", encoding="utf-8") as f:
                 history = json.load(f)
+        else:
+            history = []
+
         history.append({
             "timestamp": datetime.now().isoformat(),
             "user": user_msg,
             "ai": ai_msg
         })
+
         with open(file, "w", encoding="utf-8") as f:
             json.dump(history, f, ensure_ascii=False, indent=2)
     except Exception as e:
-        logger.warning(f"Gagal simpan riwayat: {e}")
+        logger.warning(f"Gagal menyimpan chat: {e}")
 
 def get_category(msg):
     msg = msg.lower()
@@ -88,10 +98,7 @@ def get_category(msg):
             return kategori
     return "general"
 
-def clean_response(text):
-    return re.sub(r"[*_`]+", "", text)
-
-# ====================== ROUTES UTAMA =======================
+# ========== ROUTES ==========
 
 @app.route("/")
 def index():
@@ -101,7 +108,6 @@ def index():
 def chat():
     data = request.get_json()
     message = data.get("message", "").strip()
-
     if not message:
         return jsonify({"error": "Pesan kosong."}), 400
 
@@ -161,6 +167,7 @@ def chat():
         result = model.generate_content(system_prompt + prompt)
         raw = result.text.strip()
         reply = clean_response(raw).replace("TSM", "TMM")
+        reply = format_links(reply)
 
         if not reply:
             reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan."
@@ -171,6 +178,7 @@ def chat():
             "language": lang,
             "corrected": corrected if corrected != message else None
         })
+
     except google_exceptions.GoogleAPIError as e:
         logger.error(f"[Gemini API Error] {e}")
         return jsonify({"error": "Koneksi AI gagal"}), 500
@@ -189,10 +197,10 @@ def download_brosur():
         logger.error(f"Error download brosur: {e}")
         return jsonify({"error": "Gagal unduh brosur."}), 500
 
-# ====================== ADMIN LOGIN & STATS =======================
+# ========== LOGIN ADMIN ==========
 
-@app.route("/admin/login", methods=["GET", "POST"])
-def admin_login():
+@app.route("/login", methods=["GET", "POST"])
+def login():
     if request.method == "POST":
         password = request.form.get("password")
         if password == ADMIN_PASSWORD:
@@ -204,7 +212,7 @@ def admin_login():
 @app.route("/admin/stats")
 def admin_stats():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("login"))
 
     try:
         with open("chat_history.json", "r", encoding="utf-8") as f:
@@ -219,12 +227,11 @@ def admin_stats():
 
     return render_template("stats.html", stats=stats)
 
-@app.route("/admin/logout")
-def admin_logout():
+@app.route("/logout")
+def logout():
     session.pop("admin_logged_in", None)
-    return redirect(url_for("admin_login"))
+    return redirect(url_for("login"))
 
-# ====================== RUN APP =======================
-
+# ========== RUN ==========
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
