@@ -18,7 +18,7 @@
     "contact": {
       "whatsapp": "+62 877 4299 7808",
       "email": "info@trisaktimultimedia.ac.id",
-      "phone": ["+62-21-4895787", "+62-21-4701842"],
+      "phone": ["+62-21-4895787"],
       "office_hours": "Senin-Jumat, 08:00-16:00 WIB",
       "social_media": {
         "instagram": "@trisaktimultimedia",
@@ -110,22 +110,22 @@
       {
         "name": "NR - Non Reguler",
         "waves": [
-          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir hari ini, 30 Juni 2025"},
-          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai besok"}
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir pada, 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai dari"}
         ]
       },
       {
         "name": "REG - Reguler",
         "waves": [
-          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir hari ini, 30 Juni 2025"},
-          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai besok"}
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir pada, 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai dari"}
         ]
       },
       {
         "name": "AJ - Alih Jenjang",
         "waves": [
-          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir hari ini, 30 Juni 2025"},
-          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai besok"}
+          {"wave": "Gelombang 2", "period": "01 April 2025 - 30 Juni 2025", "status": "Berakhir pada, 30 Juni 2025"},
+          {"wave": "Gelombang 3", "period": "01 Juli 2025 - 31 Juli 2025", "status": "Akan dimulai dari"}
         ]
       }
     ],
