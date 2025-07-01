@@ -92,8 +92,6 @@
       overflow-y: auto;
       scroll-behavior: smooth;
       margin-bottom: 130px;
-      display: flex;
-      flex-direction: column-reverse; /* Membuat scroll dimulai dari bawah */
     }
 
     .message {
@@ -240,7 +238,7 @@
   </form>
 
   <footer>
-    © 2025 Trisakti School of Multimedia. Create by Taofik Faoji.
+    &copy; 2025 Trisakti School of Multimedia. Create by Taofik Faoji.
     Seluruh pertanyaan dijawab oleh AI dan mungkin saja jawaban tidak sesuai.
   </footer>
 
@@ -267,7 +265,7 @@
     };
 
     function scrollToBottom() {
-      chat.scrollTop = 0; // Karena flex-direction: column-reverse, scroll ke 0 untuk ke bawah
+      chat.scrollTop = chat.scrollHeight;
     }
 
     function linkify(text) {
@@ -289,7 +287,7 @@
       msg.appendChild(icon);
       msg.appendChild(bubble);
       chat.appendChild(msg);
-      scrollToBottom(); // Pastikan scroll ke posisi terbaru
+      scrollToBottom();
     }
 
     function appendTyping() {
@@ -300,7 +298,7 @@
         <div class="text"><em>TIMU sedang mengetik...</em></div>
       `;
       chat.appendChild(typing);
-      scrollToBottom(); // Scroll saat menampilkan "typing"
+      scrollToBottom();
     }
 
     form.onsubmit = async (e) => {
@@ -334,20 +332,6 @@
         }
 
         append("ai", fullReply);
-
-        // Cek apakah ada link download dan beri peringatan jika gagal
-        const linkMatch = fullReply.match(/(https?:\/\/[^\s]+)/);
-        if (linkMatch) {
-          const testLink = linkMatch[0];
-          try {
-            const linkTest = await fetch(testLink, { method: "HEAD" });
-            if (!linkTest.ok) {
-              append("ai", "Maaf, link download brosur tampaknya bermasalah. Silakan coba lagi nanti.");
-            }
-          } catch (e) {
-            append("ai", "Maaf, terjadi kesalahan saat memverifikasi link download.");
-          }
-        }
       } catch {
         chat.lastChild.remove();
         append("ai", "Maaf, terjadi kesalahan koneksi.");
@@ -363,7 +347,6 @@
 
     window.onload = () => {
       append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
-      scrollToBottom();
     };
   </script>
 </body>
