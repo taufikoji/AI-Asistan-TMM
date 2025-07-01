@@ -144,6 +144,7 @@ def chat():
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa pengguna. "
         "Gunakan data berikut sebagai referensi:\n\n"
+        "Tampilkan semua tautan hanya dalam format HTML, jangan gunakan format markdown."
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Percakapan sebelumnya:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
