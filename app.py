@@ -122,9 +122,9 @@ def chat():
     if kategori == "brosur":
         brosur_url = request.host_url.rstrip("/") + "/download-brosur"
         reply = (
-            "Berikut adalah brosur resmi Trisakti School of Multimedia.\n\n"
-            f"📄 Anda dapat mengunduhnya melalui tautan berikut:\n"
-            f"<a href='{brosur_url}' target='_blank'>Download Brosur PDF</a>\n\n"
+            "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
+            "Anda dapat mengunduhnya melalui tautan berikut: "
+            "<a href='https://chatbot-tmm-production.up.railway.app/download-brosur' target='_blank'>Download Brosur PDF</a><br><br>"
             "Jika tidak dapat membuka, salin dan tempel link di browser Anda."
         )
         save_chat(corrected, reply)
