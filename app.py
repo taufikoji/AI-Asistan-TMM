@@ -117,7 +117,7 @@ def chat():
     context = TRISAKTI.get("current_context", {})
 
     # ✅ Permintaan brosur
-        if kategori == "brosur":
+            if kategori == "brosur":
         reply = (
             "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
             "<a href='/download-brosur' download='brosur_tmm.pdf' "
