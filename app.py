@@ -142,7 +142,7 @@ def chat():
         reply = (
             "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
             f"Anda dapat mengunduhnya melalui tautan berikut: "
-            f"<a href='{brosur_url}' target='_blank'>Download Brosur PDF</a><br><br>"
+            f"<a href='{brosur_url}' 'target='_blank'>Download Brosur PDF</a><br><br>"
             "Jika tidak dapat membuka, salin dan tempel link di browser Anda."
         )
         save_chat(corrected, reply)
