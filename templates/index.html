@@ -26,13 +26,13 @@
     }
 
     [data-theme="dark"] {
-      --bg: #0d0d0d;
-      --text: #e0f7fa;
-      --header-bg: #1a1a1a;
-      --input-bg: #111;
-      --button-bg: #1f2937;
-      --button-hover: #00fff7;
-    }
+        --bg: #121212;
+        --text: #f0f0f0;
+        --header-bg: #1e1e1e;
+        --input-bg: #1c1c1c;
+        --button-bg: #333;
+        --button-hover: #555;
+}
 
     * {
       box-sizing: border-box;
@@ -66,14 +66,22 @@
     }
 
     #theme-toggle {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      cursor: pointer;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        cursor: pointer;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        transition: background 0.3s ease, border 0.3s ease;
+    }
+
+    #theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: #fff;
     }
 
     #chat-container {
