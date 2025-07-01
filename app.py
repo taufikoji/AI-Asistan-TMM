@@ -191,8 +191,8 @@ def download_brosur():
 
 # ====================== ADMIN LOGIN & STATS =======================
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
     if request.method == "POST":
         password = request.form.get("password")
         if password == ADMIN_PASSWORD:
@@ -204,7 +204,7 @@ def login():
 @app.route("/admin/stats")
 def admin_stats():
     if not session.get("admin_logged_in"):
-        return redirect(url_for("login"))
+        return redirect(url_for("admin_login"))
 
     try:
         with open("chat_history.json", "r", encoding="utf-8") as f:
@@ -219,10 +219,10 @@ def admin_stats():
 
     return render_template("stats.html", stats=stats)
 
-@app.route("/logout")
-def logout():
+@app.route("/admin/logout")
+def admin_logout():
     session.pop("admin_logged_in", None)
-    return redirect(url_for("login"))
+    return redirect(url_for("admin_login"))
 
 # ====================== RUN APP =======================
 
