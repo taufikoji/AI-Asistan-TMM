@@ -98,7 +98,7 @@ def index():
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    data = request.get_json(silent=True)
+    data = request.get_json()
     message = data.get("message", "").strip()
 
     if not message:
@@ -116,14 +116,14 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
-    # ✅ Jika permintaan brosur
+    # ✅ Permintaan brosur
     if kategori == "brosur":
-        base_url = request.url_root.rstrip("/")
-        download_url = f"{base_url}/download-brosur"
+        base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
+        brosur_url = f"{base_url}/download-brosur"
         reply = (
             "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
-            f"<a href='{download_url}' download='brosur_tmm.pdf'>📄 Klik di sini untuk mengunduh brosur PDF</a><br><br>"
-            "Jika tidak otomatis terunduh, klik kanan dan pilih 'Save link as...'"
+            f"<a href='{brosur_url}' download='brosur_tmm.pdf' target='_blank' rel='noopener noreferrer'>📄 Klik di sini untuk mengunduh brosur PDF</a><br><br>"
+            "Jika tidak otomatis terunduh, tekan dan tahan lalu pilih 'Download Tautan' atau 'Simpan link'."
         )
         save_chat(corrected, reply)
         return jsonify({
@@ -132,7 +132,7 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # Prompt ke AI
+    # Prompt untuk AI
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa Indonesia. "
@@ -160,7 +160,7 @@ def chat():
             generation_config={"temperature": 0.3, "top_p": 0.9, "max_output_tokens": 1024}
         )
         result = model.generate_content(system_prompt + prompt)
-        raw = getattr(result, "text", "").strip()
+        raw = result.text.strip()
         reply = clean_response(raw).replace("TSM", "TMM")
 
         if not reply:
@@ -182,15 +182,11 @@ def chat():
 @app.route("/download-brosur")
 def download_brosur():
     try:
-        directory = os.path.join(app.root_path, "static")
-        filename = "brosur_tmm.pdf"
-        file_path = os.path.join(directory, filename)
-
+        file_path = os.path.join("static", "brosur_tmm.pdf")
         if not os.path.exists(file_path):
-            logger.error(f"File brosur tidak ditemukan: {file_path}")
+            logger.error(f"File brosur_tmm.pdf tidak ditemukan di {file_path}")
             return jsonify({"error": "Brosur tidak tersedia saat ini."}), 404
-
-        return send_from_directory(directory, filename, as_attachment=True, cache_timeout=0)
+        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
     except Exception as e:
         logger.error(f"Error saat mengunduh brosur: {e}")
         return jsonify({"error": "Terjadi kesalahan saat mengunduh brosur."}), 500
