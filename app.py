@@ -116,16 +116,14 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
-    # ✅ Handling brosur
+    # ✅ Jika permintaan brosur
     if kategori == "brosur":
-        base_url = request.url_root.replace("http://", "https://").rstrip("/")
-        auto_url = f"{base_url}/auto-download"
-        direct_url = f"{base_url}/download-brosur"
+        base_url = request.url_root.rstrip("/")
+        download_url = f"{base_url}/download-brosur"
         reply = (
             "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
-            f"<a href='{auto_url}' target='_blank'>📥 Klik di sini untuk mulai unduhan otomatis</a><br><br>"
-            f"Jika tidak berhasil, Anda bisa unduh langsung di sini: "
-            f"<a href='{direct_url}' target='_blank'>{direct_url}</a>"
+            f"<a href='{download_url}' download='brosur_tmm.pdf'>📄 Klik di sini untuk mengunduh brosur PDF</a><br><br>"
+            "Jika tidak otomatis terunduh, klik kanan dan pilih 'Save link as...'"
         )
         save_chat(corrected, reply)
         return jsonify({
@@ -134,7 +132,7 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # Prompt AI
+    # Prompt ke AI
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa Indonesia. "
@@ -197,9 +195,5 @@ def download_brosur():
         logger.error(f"Error saat mengunduh brosur: {e}")
         return jsonify({"error": "Terjadi kesalahan saat mengunduh brosur."}), 500
 
-@app.route("/auto-download")
-def auto_download():
-    return render_template("auto_download.html")
-    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
