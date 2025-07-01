@@ -4,7 +4,7 @@ python-dotenv
 flask-cors
 google-generativeai
 langdetect==1.0.9
-pyspellchecker==0.7.0
+#pyspellchecker==0.7.0
 gunicorn
 textblob==0.17.1
 idnspell==1.1.0
