@@ -6,6 +6,7 @@ google-generativeai
 langdetect==1.0.9
 pyspellchecker==0.7.0
 gunicorn
+textblob==0.17.1
 #beautifulsoup4
 #sentence-transformers
 #faiss-cpu
