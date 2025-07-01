@@ -179,8 +179,8 @@ def chat():
         logger.error(f"[Error Internal] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
 
-@app.route("/download-brosur")
-def download_brosur():
+        @app.route("/download-brosur")
+    def download_brosur():
     try:
         file_path = os.path.join("static", "brosur_tmm.pdf")
         if not os.path.exists(file_path):
