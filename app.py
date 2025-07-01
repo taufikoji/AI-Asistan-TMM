@@ -9,7 +9,13 @@ import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 import re
 from langdetect import detect
-from symspellpy.symspellpy import SymSpell, Verbosity
+
+# Setup SymSpell (dari symspellpy)
+try:
+    from symspellpy.symspellpy import SymSpell, Verbosity
+except ImportError:
+    SymSpell, Verbosity = None, None
+    logging.warning("SymSpell tidak terinstal. Koreksi ejaan akan dinonaktifkan.")
 
 # Setup logging
 logging.basicConfig(
@@ -22,10 +28,15 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    logger.critical("GEMINI_API_KEY tidak ditemukan di environment variables.")
+    raise ValueError("API Key Gemini tidak dikonfigurasi.")
+
+FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "your-secret-key")
 
 # Setup Flask
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "your-secret-key")
+app.secret_key = FLASK_SECRET_KEY
 CORS(app)
 
 # Configure Gemini
@@ -46,10 +57,25 @@ except Exception as e:
     TRISAKTI = {}
 
 # Setup SymSpell
-symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
-dictionary_path = "indonesia_dictionary_3000.txt"
-if not symspell.load_dictionary(dictionary_path, term_index=0, count_index=1):
-    logger.warning("Gagal memuat kamus SymSpell.")
+symspell = None
+if SymSpell is not None:
+    symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
+    dictionary_path = "indonesia_dictionary_3000.txt"
+    if not symspell.load_dictionary(dictionary_path, term_index=0, count_index=1):
+        logger.warning("Gagal memuat kamus SymSpell. Menggunakan teks asli tanpa koreksi.")
+        def correct_typo(text):
+            return text
+    else:
+        def correct_typo(text):
+            corrected_words = []
+            for word in text.split():
+                suggestion = symspell.lookup(word, Verbosity.CLOSEST, max_edit_distance=2)
+                corrected_words.append(suggestion[0].term if suggestion else word)
+            return " ".join(corrected_words)
+else:
+    def correct_typo(text):
+        logger.warning("SymSpell tidak tersedia. Menggunakan teks asli.")
+        return text
 
 def detect_language(text):
     try:
@@ -57,13 +83,6 @@ def detect_language(text):
     except Exception as e:
         logger.warning(f"Deteksi bahasa gagal: {e}")
         return "unknown"
-
-def correct_typo(text):
-    corrected_words = []
-    for word in text.split():
-        suggestion = symspell.lookup(word, Verbosity.CLOSEST, max_edit_distance=2)
-        corrected_words.append(suggestion[0].term if suggestion else word)
-    return " ".join(corrected_words)
 
 def save_chat(user_msg, ai_msg):
     try:
@@ -118,22 +137,14 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
-        # ✅ JIKA PENGGUNA MINTA BROSUR — BALAS LANGSUNG TANPA GEMINI
     if kategori == "brosur":
-        brosur_url = request.host_url.rstrip("/") + "/download-brosur"
+        brosur_url = request.host_url.replace("http://", "https://", 1).rstrip("/") + "/download-brosur"
         reply = (
             "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
             f"Anda dapat mengunduhnya melalui tautan berikut: "
-            f"<a href={brosur_url}  'target='_blank'>Download Brosur PDF</a><br><br>"
+            f"<a href='{brosur_url}' target='_blank'>Download Brosur PDF</a><br><br>"
             "Jika tidak dapat membuka, salin dan tempel link di browser Anda."
         )
-        save_chat(corrected, reply)
-        return jsonify({
-            "reply": reply,
-            "language": lang,
-            "corrected": corrected if corrected != message else None
-        })
-        
         save_chat(corrected, reply)
         return jsonify({
             "reply": reply,
@@ -144,10 +155,10 @@ def chat():
     # Prompt untuk AI
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
-        "Anda Menguasai semua Bahasa"
+        "Anda menguasai semua bahasa. "
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa Indonesia. "
         "Jika pengguna menggunakan bahasa Inggris, jawab dalam bahasa Inggris formal. "
-        "Jika pengguna menggunakan bahasa Jawa, jawab dalam bahasa jawa halus."
+        "Jika pengguna menggunakan bahasa Jawa, jawab dalam bahasa Jawa halus. "
         "Gunakan data berikut sebagai referensi:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
@@ -193,7 +204,11 @@ def chat():
 
 @app.route("/download-brosur")
 def download_brosur():
-    return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
+    try:
+        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
+    except FileNotFoundError:
+        logger.error("File brosur_tmm.pdf tidak ditemukan di folder static.")
+        return jsonify({"error": "Brosur tidak tersedia saat ini."}), 404
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
