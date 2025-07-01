@@ -197,7 +197,9 @@ header h1 {
   transition: transform 0.2s ease;
 }
 
-a.download-btn {
+/* 🔽 Tombol Brosur dan WhatsApp */
+a.download-btn,
+a.whatsapp-btn {
   display: inline-block;
   padding: 0.6rem 1.2rem;
   background: var(--button-bg);
@@ -208,12 +210,25 @@ a.download-btn {
   box-shadow: 0 0 10px rgba(185, 28, 28, 0.6);
   transition: 0.3s;
   font-family: 'Orbitron', sans-serif;
+  margin-top: 0.5rem;
 }
-a.download-btn:hover {
+
+a.download-btn:hover,
+a.whatsapp-btn:hover {
   background: var(--button-hover);
   transform: scale(1.05);
 }
 
+/* Tombol WA beda warna */
+a.whatsapp-btn {
+  background-color: #25D366;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
+}
+a.whatsapp-btn:hover {
+  background-color: #1DA851;
+}
+
+/* Footer dan Responsif */
 footer {
   text-align: center;
   font-size: 0.8rem;
