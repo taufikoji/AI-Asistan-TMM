@@ -118,6 +118,23 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
+    # ✅ JIKA PENGGUNA MINTA BROSUR — BALAS LANGSUNG TANPA GEMINI
+    if kategori == "brosur":
+        brosur_url = request.host_url.rstrip("/") + "/download-brosur"
+        reply = (
+            "Berikut adalah brosur resmi Trisakti School of Multimedia.\n\n"
+            f"📄 Anda dapat mengunduhnya melalui tautan berikut:\n"
+            f"<a href='{brosur_url}' target='_blank'>Download Brosur PDF</a>\n\n"
+            "Jika tidak dapat membuka, salin dan tempel link di browser Anda."
+        )
+        save_chat(corrected, reply)
+        return jsonify({
+            "reply": reply,
+            "language": lang,
+            "corrected": corrected if corrected != message else None
+        })
+
+    # Prompt untuk AI
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
         "Anda Menguasai semua Bahasa"
@@ -152,7 +169,7 @@ def chat():
         if not reply:
             reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan."
         else:
-            reply +=""
+            reply += ""
 
         save_chat(corrected, reply)
         return jsonify({
