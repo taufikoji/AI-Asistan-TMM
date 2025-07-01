@@ -122,13 +122,12 @@ def chat():
     if kategori == "brosur":
         brosur_url = request.host_url.rstrip("/") + "/download-brosur"
         reply = (
-            brosur_url = request.host_url.rstrip("/") + "/download-brosur"
-        reply = (
-    "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
-    f"Anda dapat mengunduhnya melalui tautan berikut: "
-    f"<a href='{brosur_url}' target='_blank'>Download Brosur PDF</a><br><br>"
-    "Jika tidak dapat membuka, salin dan tempel link di browser Anda."
-)
+            
+            "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
+            f"Anda dapat mengunduhnya melalui tautan berikut: "
+            f"<a href='{brosur_url}' target='_blank'>Download Brosur PDF</a><br><br>"
+            "Jika tidak dapat membuka, salin dan tempel link di browser Anda."
+        )
         )
         save_chat(corrected, reply)
         return jsonify({
