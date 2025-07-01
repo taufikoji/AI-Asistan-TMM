@@ -26,13 +26,13 @@
     }
 
     [data-theme="dark"] {
-        --bg: #121212;
-        --text: #f0f0f0;
-        --header-bg: #1e1e1e;
-        --input-bg: #1c1c1c;
-        --button-bg: #333;
-        --button-hover: #555;
-}
+      --bg: #121212;
+      --text: #f0f0f0;
+      --header-bg: #1e1e1e;
+      --input-bg: #1c1c1c;
+      --button-bg: #333;
+      --button-hover: #555;
+    }
 
     * {
       box-sizing: border-box;
@@ -66,22 +66,22 @@
     }
 
     #theme-toggle {
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: white;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-        cursor: pointer;
-        padding: 0.4rem 0.8rem;
-        border-radius: 8px;
-        transition: background 0.3s ease, border 0.3s ease;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      transition: background 0.3s ease, border 0.3s ease;
     }
 
     #theme-toggle:hover {
-        background: rgba(255, 255, 255, 0.3);
-        border-color: #fff;
+      background: rgba(255, 255, 255, 0.3);
+      border-color: #fff;
     }
 
     #chat-container {
@@ -91,7 +91,7 @@
       margin: auto;
       overflow-y: auto;
       scroll-behavior: smooth;
-      margin-bottom: 130px; /* supaya tidak tertutup input */
+      margin-bottom: 130px;
     }
 
     .message {
@@ -318,7 +318,20 @@
 
         const data = await res.json();
         chat.lastChild.remove();
-        append("ai", data.reply || "Maaf, terjadi kesalahan.");
+
+        let fullReply = data.reply || "Maaf, terjadi kesalahan.";
+
+        if (data.corrected) {
+          fullReply += `<br><br><em><small>✍️ Koreksi ejaan: <code>${DOMPurify.sanitize(data.corrected)}</code></small></em>`;
+        }
+
+        if (data.language) {
+          const langMap = { id: "Indonesia", en: "Inggris", fr: "Prancis", unknown: "Tidak diketahui" };
+          const langLabel = langMap[data.language] || data.language.toUpperCase();
+          fullReply += `<br><small>🌐 Bahasa terdeteksi: <strong>${langLabel}</strong></small>`;
+        }
+
+        append("ai", fullReply);
       } catch {
         chat.lastChild.remove();
         append("ai", "Maaf, terjadi kesalahan koneksi.");
@@ -332,12 +345,8 @@
       }
     });
 
-    // Auto-scroll fix
     window.onload = () => {
       append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
-      setTimeout(() => {
-        chat.scrollTop = chat.scrollHeight;
-      }, 500);
     };
   </script>
 </body>
