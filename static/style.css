@@ -197,6 +197,23 @@ header h1 {
   transition: transform 0.2s ease;
 }
 
+a.download-btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background: var(--button-bg);
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(185, 28, 28, 0.6);
+  transition: 0.3s;
+  font-family: 'Orbitron', sans-serif;
+}
+a.download-btn:hover {
+  background: var(--button-hover);
+  transform: scale(1.05);
+}
+
 footer {
   text-align: center;
   font-size: 0.8rem;
