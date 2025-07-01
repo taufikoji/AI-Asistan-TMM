@@ -25,8 +25,10 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Setup Flask
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "your-secret-key")
 CORS(app)
+#app = Flask(__name__)
+#app.secret_key = os.getenv("FLASK_SECRET_KEY", "your-secret-key")
+#CORS(app)
 
 # Configure Gemini
 try:
