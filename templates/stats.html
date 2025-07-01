@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>Statistik Chat TIMU</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1e1e1e;
+      --primary: #7b1f2d;
+      --radius: 12px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #f0f0f0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Orbitron', sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--primary);
+    }
+
+    canvas {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: var(--radius);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 100%;
+    }
+
+    .chart-container {
+      max-width: 800px;
+      margin: 0 auto 3rem auto;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 2rem;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Statistik Chat TIMU</h1>
+
+  <div class="chart-container">
+    <canvas id="dailyChart"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="categoryChart"></canvas>
+  </div>
+
+  <a class="back-link" href="/">← Kembali ke Chatbot</a>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const dailyData = {{ daily|tojson }};
+    const categoryData = {{ categories|tojson }};
+
+    const days = Object.keys(dailyData);
+    const dayCounts = Object.values(dailyData);
+
+    const catLabels = Object.keys(categoryData);
+    const catCounts = Object.values(categoryData);
+
+    new Chart(document.getElementById("dailyChart"), {
+      type: "line",
+      data: {
+        labels: days,
+        datasets: [{
+          label: "Jumlah Chat per Hari",
+          data: dayCounts,
+          borderColor: "#7b1f2d",
+          backgroundColor: "rgba(123, 31, 45, 0.1)",
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
+    });
+
+    new Chart(document.getElementById("categoryChart"), {
+      type: "bar",
+      data: {
+        labels: catLabels,
+        datasets: [{
+          label: "Topik yang Paling Sering Ditanyakan",
+          data: catCounts,
+          backgroundColor: "#7b1f2d"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
