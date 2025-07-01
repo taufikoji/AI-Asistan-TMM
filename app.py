@@ -1,22 +1,18 @@
 import os
 import json
 import logging
+import re
 from flask import Flask, request, jsonify, render_template, send_from_directory, session
 from dotenv import load_dotenv
 from flask_cors import CORS
 from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
-import re
 from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    filename="app.log"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="app.log")
 logger = logging.getLogger(__name__)
 
 # Load environment variables
@@ -104,9 +100,11 @@ def chat():
     if not message:
         return jsonify({"error": "Pesan kosong."}), 400
 
+    # Deteksi bahasa dan koreksi
     lang = detect_language(message)
     corrected = correct_typo(message)
 
+    # Simpan sesi
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
@@ -116,15 +114,17 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
-    # ✅ Permintaan brosur
-            if kategori == "brosur":
+    # ✅ Balasan khusus untuk brosur
+    if kategori == "brosur":
         reply = (
             "Berikut adalah brosur resmi Trisakti School of Multimedia.<br><br>"
             "<a href='/download-brosur' download='brosur_tmm.pdf' "
-            "class='download-btn' target='_blank' rel='noopener noreferrer'>"
-            "📄 Klik di sini untuk mengunduh brosur PDF</a><br><br>"
+            "target='_blank' rel='noopener noreferrer' class='download-btn'>"
+            "📄 Klik di sini untuk mengunduh brosur PDF"
+            "</a><br><br>"
             "Jika tidak otomatis terunduh, tekan dan tahan lalu pilih 'Download Tautan'."
         )
+
         save_chat(corrected, reply)
         return jsonify({
             "reply": reply,
@@ -135,6 +135,7 @@ def chat():
     # Prompt untuk AI
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
+        "Anda Menguasai semua Bahasa. "
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa Indonesia. "
         "Jika pengguna menggunakan bahasa Inggris, jawab dalam bahasa Inggris formal. "
         "Jika pengguna menggunakan bahasa Jawa, jawab dalam bahasa jawa halus. "
@@ -179,8 +180,8 @@ def chat():
         logger.error(f"[Error Internal] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
 
-        @app.route("/download-brosur")
-    def download_brosur():
+@app.route("/download-brosur")
+def download_brosur():
     try:
         file_path = os.path.join("static", "brosur_tmm.pdf")
         if not os.path.exists(file_path):
