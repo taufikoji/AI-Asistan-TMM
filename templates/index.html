@@ -104,17 +104,17 @@
     }
 
     .text {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            font-size: 1rem;
-            line-height: 1.7;
-            max-width: 85vw;
-            padding: 0.9rem;
-            border-radius: var(--radius);
-            background: var(--input-bg);
-            color: var(--text);
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            box-shadow: var(--shadow);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 85vw;
+      padding: 0.9rem;
+      border-radius: var(--radius);
+      background: var(--input-bg);
+      color: var(--text);
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      box-shadow: var(--shadow);
     }
 
     .user .text {
@@ -324,9 +324,12 @@
       }
     });
 
-    // Sambutan awal
+    // Auto-scroll fix
     window.onload = () => {
       append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
+      setTimeout(() => {
+        chat.scrollTop = chat.scrollHeight;
+      }, 500);
     };
   </script>
 </body>
