@@ -197,6 +197,25 @@ header h1 {
   transition: transform 0.2s ease;
 }
 
+.logout-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  background: #b91c1c;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-family: 'Orbitron', sans-serif;
+  box-shadow: 0 0 8px rgba(185, 28, 28, 0.6);
+  transition: 0.3s ease;
+}
+.logout-btn:hover {
+  background: #9c2e3f;
+  transform: scale(1.05);
+}
+
 /* 🔽 Tombol Brosur dan WhatsApp */
 a.download-btn,
 a.whatsapp-btn {
