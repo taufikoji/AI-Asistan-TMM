@@ -150,7 +150,7 @@ def chat():
         if not reply:
             reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan."
         else:
-            reply += f"Apakah ada pertanyaan lain yang bisa saya bantu?"
+            reply +=
 
         save_chat(corrected, reply)
         return jsonify({
