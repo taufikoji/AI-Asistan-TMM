@@ -3,6 +3,9 @@ requests
 python-dotenv
 flask-cors
 google-generativeai
+langdetect==1.0.9
+pyspellchecker==0.7.0
+gunicorn
 #beautifulsoup4
 #sentence-transformers
 #faiss-cpu
