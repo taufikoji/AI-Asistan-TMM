@@ -1,52 +1,58 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
   <title>Statistik Chat - Admin TIMU</title>
   <style>
     body {
-      background: #1e1e2f;
+      background: #121212;
       color: white;
       font-family: sans-serif;
       padding: 40px;
     }
-    h1 { margin-bottom: 20px; }
+    h1 {
+      color: crimson;
+    }
     .logout-btn {
       float: right;
-      color: #ff4081;
+      color: white;
       text-decoration: none;
-      font-weight: bold;
+      background: crimson;
+      padding: 6px 12px;
+      border-radius: 5px;
     }
-    ul {
+    .chat-log {
       margin-top: 20px;
-      padding-left: 20px;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
     }
-    li {
-      margin-bottom: 10px;
-      background: #2d2d3a;
+    .chat-entry {
+      margin-bottom: 20px;
       padding: 10px;
-      border-radius: 6px;
+      border-bottom: 1px solid #444;
     }
-    .label {
-      color: #aaa;
-      font-size: 14px;
+    .chat-entry:last-child {
+      border-bottom: none;
+    }
+    .timestamp {
+      font-size: 0.8em;
+      color: #999;
     }
   </style>
 </head>
 <body>
   <a href="{{ url_for('logout') }}" class="logout-btn">🔓 Logout</a>
-  <h1>📊 Statistik Chat</h1>
-  <p>Total interaksi: <strong>{{ stats.total_chats }}</strong></p>
-  <h2>Chat Terbaru</h2>
-  <ul>
+  <h1>Dashboard Admin</h1>
+  <p>Total Chat: {{ stats.total_chats }}</p>
+  <div class="chat-log">
     {% for chat in stats.latest %}
-      <li>
-        <div class="label">🕒 {{ chat.timestamp }}</div>
-        <div><strong>User:</strong> {{ chat.user }}</div>
-        <div><strong>AI:</strong> {{ chat.ai|safe }}</div>
-      </li>
+      <div class="chat-entry">
+        <div class="timestamp">{{ chat.timestamp }}</div>
+        <strong>User:</strong> {{ chat.user }}<br/>
+        <strong>TIMU:</strong> {{ chat.ai }}
+      </div>
     {% endfor %}
-  </ul>
+  </div>
 </body>
 </html>
