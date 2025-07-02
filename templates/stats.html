@@ -1,117 +1,52 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Statistik Chat - Admin TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <style>
-    .admin-stats-container {
-      max-width: 900px;
-      margin: 3rem auto;
-      background: var(--input-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-    }
-
-    .admin-stats-container h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .stats-box {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .stats-item {
-      background: var(--bg);
-      padding: 1.5rem;
-      border-radius: var(--radius);
-      text-align: center;
-      box-shadow: var(--shadow);
-      flex: 1;
-    }
-
-    .stats-item h3 {
-      margin: 0;
-      font-size: 2rem;
-      color: var(--maroon);
-    }
-
-    .chat-history {
-      border-top: 1px solid #ccc;
-      padding-top: 1rem;
-    }
-
-    .chat-entry {
-      background: var(--bg);
-      border: 1px solid #ccc;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: var(--radius);
-    }
-
-    .chat-entry small {
-      display: block;
-      font-size: 0.75rem;
-      margin-bottom: 0.3rem;
-      color: #888;
-    }
-
-    .chat-entry strong {
-      color: var(--button-bg);
-    }
-
-    .logout-btn {
-      position: absolute;
-      top: 1.2rem;
-      right: 1.5rem;
-      padding: 0.5rem 1rem;
-      background: #b91c1c;
+    body {
+      background: #1e1e2f;
       color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-      font-family: 'Orbitron', sans-serif;
-      box-shadow: 0 0 8px rgba(185, 28, 28, 0.6);
-      transition: 0.3s ease;
+      font-family: sans-serif;
+      padding: 40px;
     }
-
-    .logout-btn:hover {
-      background: #9c2e3f;
-      transform: scale(1.05);
+    h1 { margin-bottom: 20px; }
+    .logout-btn {
+      float: right;
+      color: #ff4081;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    ul {
+      margin-top: 20px;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 10px;
+      background: #2d2d3a;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .label {
+      color: #aaa;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
   <a href="{{ url_for('logout') }}" class="logout-btn">🔓 Logout</a>
-
-  <div class="admin-stats-container">
-    <h2>📊 Statistik Penggunaan TIMU</h2>
-
-    <div class="stats-box">
-      <div class="stats-item">
-        <h3>{{ stats.total_chats }}</h3>
-        <p>Total Interaksi</p>
-      </div>
-    </div>
-
-    <div class="chat-history">
-      <h4>Riwayat Terbaru</h4>
-      {% for item in stats.latest %}
-        <div class="chat-entry">
-          <small>{{ item.timestamp }}</small>
-          <strong>👤 Pengguna:</strong> {{ item.user }}<br>
-          <strong>🤖 TIMU:</strong> {{ item.ai }}
-        </div>
-      {% else %}
-        <p>Tidak ada riwayat terbaru.</p>
-      {% endfor %}
-    </div>
-  </div>
+  <h1>📊 Statistik Chat</h1>
+  <p>Total interaksi: <strong>{{ stats.total_chats }}</strong></p>
+  <h2>Chat Terbaru</h2>
+  <ul>
+    {% for chat in stats.latest %}
+      <li>
+        <div class="label">🕒 {{ chat.timestamp }}</div>
+        <div><strong>User:</strong> {{ chat.user }}</div>
+        <div><strong>AI:</strong> {{ chat.ai|safe }}</div>
+      </li>
+    {% endfor %}
+  </ul>
 </body>
 </html>
