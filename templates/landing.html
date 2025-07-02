@@ -3,43 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TIMU - Asisten AI Trisakti</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <title>Selamat Datang di TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}" />
 </head>
 <body>
-  <div class="background-video">
-    <video autoplay loop muted>
-      <source src="{{ url_for('static', filename='stars.mp4') }}" type="video/mp4">
-    </video>
-    <div class="overlay"></div>
-  </div>
+  <video autoplay muted loop id="bg-video">
+    <source src="{{ url_for('static', filename='stars.mp4') }}" type="video/mp4">
+    Browser Anda tidak mendukung video latar belakang.
+  </video>
 
-  <header>
-    <img src="{{ url_for('static', filename='timu-glow.png') }}" alt="TIMU Avatar" class="avatar-glow">
-    <h1>TIMU</h1>
-    <p>Asisten AI Futuristik Trisakti School of Multimedia</p>
-  </header>
-
-  <main>
-    <div class="glass-box">
-      <h2>Selamat Datang di Era AI!</h2>
-      <p>TIMU siap membantu Anda menemukan informasi seputar TMM secara instan, cepat, dan interaktif. Cukup klik tombol di bawah ini untuk memulai percakapan.</p>
-      <a href="{{ url_for('index') }}" class="cta-button">💬 Mulai Percakapan</a>
+  <div class="glass-container">
+    <img src="{{ url_for('static', filename='timu_avatar.png') }}" alt="TIMU Avatar" class="avatar" />
+    <h1>Halo, Saya <span class="highlight">TIMU</span></h1>
+    <p>Asisten AI resmi dari Trisakti School of Multimedia</p>
+    <div class="buttons">
+      <a href="/" class="btn-glow">💬 Mulai Chat</a>
+      <a href="/login" class="btn-glass">🔐 Admin Login</a>
     </div>
-  </main>
-
-  <footer>
-    <button id="theme-toggle">🌓 Mode</button>
-    <p>&copy; {{ year }} Trisakti School of Multimedia</p>
-  </footer>
-
-  <script>
-    // Tombol Mode Gelap/Terang
-    const toggle = document.getElementById("theme-toggle");
-    toggle.onclick = () => {
-      document.body.classList.toggle("dark");
-    };
-  </script>
+    <footer>&copy; {{ year }} Trisakti School of Multimedia</footer>
+  </div>
 </body>
 </html>
