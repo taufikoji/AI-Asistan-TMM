@@ -234,6 +234,10 @@ def admin_stats():
 def logout():
     session.pop("admin_logged_in", None)
     return redirect(url_for("login"))
+    
+    @app.route("/landing")
+def landing():
+    return render_template("landing.html", year=datetime.now().year)
 
 # ========== RUN ==========
 if __name__ == "__main__":
