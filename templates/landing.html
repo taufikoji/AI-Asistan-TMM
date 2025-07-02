@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Selamat Datang di TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}" />
+  <meta charset="UTF-8">
+  <title>TIMU - Asisten AI Futuristik</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
 </head>
 <body>
   <video autoplay muted loop id="bg-video">
     <source src="{{ url_for('static', filename='stars.mp4') }}" type="video/mp4">
-    Browser Anda tidak mendukung video latar belakang.
   </video>
-
-  <div class="glass-container">
-    <img src="{{ url_for('static', filename='timu_avatar.png') }}" alt="TIMU Avatar" class="avatar" />
-    <h1>Halo, Saya <span class="highlight">TIMU</span></h1>
-    <p>Asisten AI resmi dari Trisakti School of Multimedia</p>
+  <div class="glass">
+    <img src="{{ url_for('static', filename='timu_avatar.png') }}" alt="TIMU" class="avatar">
+    <h1>Selamat Datang di TIMU</h1>
+    <p>Asisten AI Trisakti School of Multimedia yang siap membantu Anda.</p>
     <div class="buttons">
-      <a href="/" class="btn-glow">💬 Mulai Chat</a>
-      <a href="/login" class="btn-glass">🔐 Admin Login</a>
+      <a href="/" class="btn">💬 Mulai Chat</a>
+      <a href="/login" class="btn alt">🔐 Admin Login</a>
     </div>
-    <footer>&copy; {{ year }} Trisakti School of Multimedia</footer>
+    <footer>&copy; {{ year }} TMM - Powered by AI</footer>
   </div>
 </body>
 </html>
