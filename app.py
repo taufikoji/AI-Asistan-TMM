@@ -67,9 +67,12 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    # Deteksi dan ubah semua tautan mentah menjadi HTML rapi
-    url_pattern = re.compile(r"(https?://[^\s<>'\"]+)")
-    return url_pattern.sub(r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
+    # Deteksi dan ubah semua tautan mentah menjadi HTML rapi tanpa duplikat
+    url_pattern = re.compile(r"\(?https?://[^\s<>()]+")
+    urls = list(set(url_pattern.findall(text)))
+    for url in urls:
+        text = text.replace(url, f"<a href='{url}' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>")
+    return text
 
 def save_chat(user_msg, ai_msg):
     try:
@@ -144,7 +147,6 @@ def chat():
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa pengguna. "
         "Gunakan data berikut sebagai referensi:\n\n"
-        "Tampilkan semua tautan hanya dalam format HTML, jangan gunakan format markdown."
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Percakapan sebelumnya:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
