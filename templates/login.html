@@ -1,57 +1,111 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login Admin - TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
   <style>
-    body {
-      background: #0f0f0f;
-      font-family: Arial, sans-serif;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .login-box {
+    .login-container {
+      backdrop-filter: blur(20px);
       background: rgba(255, 255, 255, 0.05);
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(255, 0, 80, 0.5);
-      backdrop-filter: blur(10px);
+      padding: 3rem 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 0, 102, 0.3);
+      max-width: 400px;
+      width: 90%;
+      margin: 8vh auto;
+      color: #fff;
+      animation: fadeIn 0.8s ease-in-out;
     }
-    input[type="password"] {
-      padding: 10px;
+
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group input {
       width: 100%;
-      margin-top: 10px;
-      background: #222;
-      color: white;
+      padding: 12px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      color: white;
     }
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: crimson;
-      color: white;
+
+    .form-group input:focus {
+      outline: none;
+      background: rgba(255,255,255,0.25);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
       cursor: pointer;
+      transition: 0.3s;
     }
-    .error {
-      color: orange;
-      margin-top: 10px;
+
+    .btn-submit:hover {
+      background: linear-gradient(to right, #ff4b2b, #ff416c);
+    }
+
+    .back-link {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      text-decoration: none;
+      color: #ffffffcc;
+      background-color: rgba(255,255,255,0.08);
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    .back-link:hover {
+      background-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+
+    .error-message {
+      color: #ffb3b3;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1c1c2d, #000);
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <form method="POST" class="login-box">
-    <h2>Admin Login</h2>
-    <input type="password" name="password" placeholder="Masukkan Password" required />
-    <button type="submit">Masuk</button>
+  <a href="/landing" class="back-link">⬅️ Kembali ke Beranda</a>
+
+  <div class="login-container">
+    <h2>Login Admin TIMU</h2>
+
     {% if error %}
-      <div class="error">{{ error }}</div>
+      <div class="error-message">{{ error }}</div>
     {% endif %}
-  </form>
+
+    <form method="post" action="/login">
+      <div class="form-group">
+        <input type="password" name="password" placeholder="Masukkan Password" required />
+      </div>
+      <button type="submit" class="btn-submit">🔐 Masuk</button>
+    </form>
+  </div>
 </body>
 </html>
