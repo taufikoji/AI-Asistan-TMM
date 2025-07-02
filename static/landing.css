@@ -1,92 +1,52 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+body, html {
+  margin: 0; padding: 0;
+  height: 100%; overflow: hidden;
   font-family: 'Segoe UI', sans-serif;
 }
-
-body, html {
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-  background: black;
-}
-
 #bg-video {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  min-width: 100vw;
-  min-height: 100vh;
-  object-fit: cover;
-  z-index: -1;
-  filter: brightness(0.5) blur(2px);
+  position: fixed; right: 0; bottom: 0;
+  min-width: 100%; min-height: 100%;
+  object-fit: cover; z-index: -1;
 }
-
-.glass-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+.glass {
+  position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 40px;
-  text-align: center;
-  color: white;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 0 40px rgba(255, 0, 100, 0.3);
+  border-radius: 20px; padding: 40px;
+  backdrop-filter: blur(20px);
+  text-align: center; color: #fff;
 }
-
-.glass-container .avatar {
-  width: 100px;
-  animation: pulse 2s infinite;
+.avatar {
+  width: 120px; margin-bottom: 20px;
+  animation: pulse 3s infinite ease-in-out;
 }
-
-.highlight {
-  color: #ff4081;
-  text-shadow: 0 0 10px #ff4081;
+h1 {
+  font-size: 2.5em; margin-bottom: 0.5em;
 }
-
-.btn-glow, .btn-glass {
-  display: inline-block;
-  padding: 12px 24px;
-  margin: 15px 10px;
-  border: none;
-  border-radius: 30px;
-  background: #ff4081;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
+p {
+  margin-bottom: 2em; font-size: 1.2em;
+}
+.buttons .btn {
+  background: #ff0055; padding: 12px 30px;
+  border: none; border-radius: 30px;
+  margin: 10px; font-size: 1em;
+  text-decoration: none; color: white;
   transition: all 0.3s ease;
-  box-shadow: 0 0 20px #ff4081;
 }
-
-.btn-glass {
-  background: transparent;
-  border: 1px solid white;
-  box-shadow: none;
+.btn:hover {
+  background: #ff3366;
 }
-
-.btn-glow:hover {
-  background: white;
-  color: #ff4081;
-  box-shadow: 0 0 30px #ff4081;
+.alt {
+  background: #00c3ff;
 }
-
-.btn-glass:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ff4081;
+.alt:hover {
+  background: #33d4ff;
 }
-
-footer {
-  margin-top: 20px;
-  font-size: 14px;
-  opacity: 0.6;
-}
-
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
+}
+footer {
+  margin-top: 40px; font-size: 0.8em;
+  opacity: 0.7;
 }
