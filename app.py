@@ -67,15 +67,18 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    # Bersihkan format markdown [teks](url) → url
-    text = re.sub(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^$end:math:text$]+)\)", r"\2", text)
+    # Hapus duplikasi: [text](url) dan kemudian url mentahnya
+    markdown_pattern = re.compile(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^$end:math:text$]+)\)")
+    text = markdown_pattern.sub(r"\2", text)
 
-    # Deteksi dan ubah URL mentah ke HTML rapi
-    url_pattern = re.compile(r"https?://[^\s<>'\"()]+")
-    urls = list(set(url_pattern.findall(text)))
-    
-    for url in urls:
-        text = text.replace(url, f"<a href='{url}' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>")
+    # Hapus duplikat URL yang sama dua kali
+    text = re.sub(r"(https?://[^\s<>'\"()]+)\s+\1", r"\1", text)
+
+    # Ganti url mentah menjadi tautan HTML
+    url_pattern = re.compile(r"(https?://[^\s<>'\"()]+)")
+    text = url_pattern.sub(
+        r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text
+    )
     return text
 
 def save_chat(user_msg, ai_msg):
@@ -110,6 +113,10 @@ def get_category(msg):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/landing")
+def landing():
+    return render_template("landing.html", year=datetime.now().year)
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -238,12 +245,6 @@ def admin_stats():
 def logout():
     session.pop("admin_logged_in", None)
     return redirect(url_for("login"))
-
-# ========== LANDING PAGE ==========
-
-@app.route("/landing")
-def landing():
-    return render_template("landing.html", year=datetime.now().year)
 
 # ========== RUN ==========
 if __name__ == "__main__":
