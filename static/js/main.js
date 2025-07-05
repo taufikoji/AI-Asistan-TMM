@@ -1,83 +1,76 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const themeToggle = document.getElementById("theme-toggle");
-  const chatForm = document.getElementById("chat-form");
-  const userInput = document.getElementById("user-input");
-  const chatBox = document.getElementById("chat-box");
-  const chatArea = document.getElementById("chat-area");
-  const loadingDots = document.getElementById("loading-dots");
-  const backToLandingBtn = document.getElementById("back-to-landing");
+  // === LANDING PAGE NAVIGATION ===
+  const startChatBtn = document.getElementById("startChatBtn");
+  const adminLoginBtn = document.getElementById("adminLoginBtn");
 
-  // === MODE TERANG/GELAP ===
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme) {
-    document.documentElement.setAttribute("data-theme", savedTheme);
+  if (startChatBtn) {
+    startChatBtn.addEventListener("click", () => {
+      window.location.href = "/chat";
+    });
   }
 
-  themeToggle?.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme");
-    const newTheme = current === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-  });
+  if (adminLoginBtn) {
+    adminLoginBtn.addEventListener("click", () => {
+      window.location.href = "/login";
+    });
+  }
 
-  // === TOMBOL KEMBALI KE LANDING ===
-  backToLandingBtn?.addEventListener("click", () => {
-    window.location.href = "/";
-  });
+  // === CHATBOT FUNCTIONALITY ===
+  const chatForm = document.getElementById("chatForm");
+  const chatInput = document.getElementById("chatInput");
+  const chatBox = document.getElementById("chatBox");
 
-  // === LOGIKA CHAT ===
-  chatForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const message = userInput.value.trim();
+  const appendMessage = (sender, text) => {
+    const p = document.createElement("p");
+    p.className = sender;
+    p.innerHTML = text;
+    chatBox.appendChild(p);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  };
+
+  const sendMessage = async () => {
+    const message = chatInput.value.trim();
     if (!message) return;
 
     appendMessage("user", message);
-    userInput.value = "";
-    userInput.disabled = true;
-    loadingDots.style.display = "inline-block";
+    chatInput.value = "";
+    appendMessage("bot", "<em>...</em>");
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message }),
       });
 
       const data = await res.json();
+      chatBox.lastChild.remove(); // remove "... loading"
 
-      if (data.reply) {
-        appendMessage("ai", data.reply);
+      if (data.error) {
+        appendMessage("bot", `<span style="color:red;">${data.error}</span>`);
       } else {
-        appendMessage("ai", "Maaf, tidak bisa menjawab saat ini.");
+        appendMessage("bot", data.reply);
       }
     } catch (err) {
-      appendMessage("ai", "Terjadi kesalahan koneksi.");
+      chatBox.lastChild.remove();
+      appendMessage("bot", "<span style='color:red;'>Terjadi kesalahan koneksi.</span>");
     }
+  };
 
-    loadingDots.style.display = "none";
-    userInput.disabled = false;
-    userInput.focus();
-  });
-
-  // === FUNGSI TAMPILKAN CHAT ===
-  function appendMessage(sender, msg) {
-    const bubble = document.createElement("div");
-    bubble.className = `bubble ${sender}`;
-    bubble.innerHTML = msg;
-    chatBox.appendChild(bubble);
-    chatBox.scrollTop = chatBox.scrollHeight;
+  if (chatForm) {
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      sendMessage();
+    });
   }
 
-  // === LOGIKA HALAMAN LANDING ===
-  const startChatBtn = document.getElementById("start-chat");
-  const loginAdminBtn = document.getElementById("login-admin");
-
-  startChatBtn?.addEventListener("click", () => {
-    window.location.href = "/chat";
-  });
-
-  loginAdminBtn?.addEventListener("click", () => {
-    window.location.href = "/login";
-  });
-
+  // === ENTER KEY SHORTCUT ===
+  if (chatInput) {
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
 });
