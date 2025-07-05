@@ -1,76 +1,86 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // === LANDING PAGE NAVIGATION ===
-  const startChatBtn = document.getElementById("startChatBtn");
-  const adminLoginBtn = document.getElementById("adminLoginBtn");
-
-  if (startChatBtn) {
-    startChatBtn.addEventListener("click", () => {
-      window.location.href = "/chat";
+document.addEventListener("DOMContentLoaded", function () {
+  // === THEME TOGGLE ===
+  const themeToggle = document.getElementById("theme-toggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute("data-theme");
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
     });
+
+    // Set theme on load
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    }
   }
 
-  if (adminLoginBtn) {
-    adminLoginBtn.addEventListener("click", () => {
-      window.location.href = "/login";
-    });
-  }
-
-  // === CHATBOT FUNCTIONALITY ===
+  // === CHATROOM ===
   const chatForm = document.getElementById("chatForm");
   const chatInput = document.getElementById("chatInput");
   const chatBox = document.getElementById("chatBox");
 
-  const appendMessage = (sender, text) => {
-    const p = document.createElement("p");
-    p.className = sender;
-    p.innerHTML = text;
-    chatBox.appendChild(p);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  };
-
-  const sendMessage = async () => {
-    const message = chatInput.value.trim();
-    if (!message) return;
-
-    appendMessage("user", message);
-    chatInput.value = "";
-    appendMessage("bot", "<em>...</em>");
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
-
-      const data = await res.json();
-      chatBox.lastChild.remove(); // remove "... loading"
-
-      if (data.error) {
-        appendMessage("bot", `<span style="color:red;">${data.error}</span>`);
-      } else {
-        appendMessage("bot", data.reply);
-      }
-    } catch (err) {
-      chatBox.lastChild.remove();
-      appendMessage("bot", "<span style='color:red;'>Terjadi kesalahan koneksi.</span>");
-    }
-  };
-
-  if (chatForm) {
-    chatForm.addEventListener("submit", (e) => {
+  if (chatForm && chatInput && chatBox) {
+    chatForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      sendMessage();
+      const userMsg = chatInput.value.trim();
+      if (!userMsg) return;
+
+      appendBubble("user", userMsg);
+      chatInput.value = "";
+      chatInput.disabled = true;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMsg }),
+        });
+        const data = await res.json();
+
+        if (data.reply) {
+          appendBubble("ai", data.reply);
+        } else {
+          appendBubble("ai", "⚠️ Maaf, saya tidak dapat menjawab saat ini.");
+        }
+      } catch (err) {
+        appendBubble("ai", "❌ Koneksi gagal.");
+      } finally {
+        chatInput.disabled = false;
+        chatInput.focus();
+      }
+    });
+
+    function appendBubble(role, message) {
+      const bubble = document.createElement("div");
+      bubble.className = `bubble ${role}`;
+      bubble.innerHTML = message;
+      chatBox.appendChild(bubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  // === LOGIN PAGE: ENTER TO SUBMIT ===
+  const loginInput = document.querySelector("input[name='password']");
+  if (loginInput) {
+    loginInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        loginInput.form.submit();
+      }
     });
   }
 
-  // === ENTER KEY SHORTCUT ===
-  if (chatInput) {
-    chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
+  // === ANIMATED LOGO ===
+  const logo = document.querySelector(".logo-glow");
+  if (logo) {
+    logo.addEventListener("mouseenter", () => {
+      logo.style.transform = "scale(1.05)";
+    });
+    logo.addEventListener("mouseleave", () => {
+      logo.style.transform = "scale(1)";
     });
   }
 });
