@@ -2,34 +2,23 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TIMU – Asisten AI Trisakti Multimedia</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='img/logo-tmm.png') }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trisakti School of Multimedia – TIMU Chatbot</title>
+  <link rel="stylesheet" href="/static/css/landing.css"/>
 </head>
 <body>
-  <video autoplay muted loop id="bg-video">
-    <source src="{{ url_for('static', filename='media/background.mp4') }}" type="video/mp4">
-  </video>
-
-  <div class="glass-container">
-    <img src="{{ url_for('static', filename='img/logo-tmm.png') }}" alt="Logo TMM" class="logo" />
-
-    <h1 class="title-glow">Selamat Datang di TIMU</h1>
-    <p class="subtitle">Asisten AI Interaktif Trisakti School of Multimedia</p>
-
-    <div class="btn-group">
-      <a href="/index" class="btn-glass">💬 Mulai Bertanya</a>
-      <a href="/login" class="btn-outline">🔐 Login Admin</a>
-    </div>
-
-    <div class="toggle-theme">
-      <button id="toggleThemeBtn">🌗 Ganti Tema</button>
-    </div>
+  <div class="landing-wrapper">
+    <video autoplay muted loop id="bg-video">
+      <source src="/static/media/bg-futuristic.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+    <header>
+      <img src="/static/img/logo_tmm.png" alt="Logo TMM" class="logo"/>
+      <h1>Selamat datang di TMM • TIMU AI Assistant</h1>
+      <p>Kampus Multimedia & Kreatif – Siapakah membantu kamu hari ini?</p>
+      <a href="/chat" class="cta-button">Chat dengan TIMU Sekarang</a>
+    </header>
+    <footer>&copy; 2025 Trisakti School of Multimedia</footer>
   </div>
-
-  <img src="{{ url_for('static', filename='img/timu-glow.png') }}" class="avatar-glow" alt="TIMU Avatar" />
-
-  <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 </body>
 </html>
