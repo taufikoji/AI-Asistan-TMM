@@ -1,32 +1,35 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trisakti Multimedia | TIMU AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TIMU - Trisakti Multimedia AI Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
 </head>
-<body>
-  <!-- Video Background -->
+<body class="landing-body">
+
+  <!-- VIDEO BACKGROUND -->
   <video autoplay muted loop id="bg-video">
-    <source src="{{ url_for('static', filename='media/background.mp4') }}" type="video/mp4">
-    Your browser does not support HTML5 video.
+    <source src="{{ url_for('static', filename='media/hologram-bg.mp4') }}" type="video/mp4">
   </video>
 
-  <!-- Overlay -->
-  <div class="overlay">
-    <div class="logo-area">
-      <img src="{{ url_for('static', filename='img/timu-avatar.png') }}" alt="TMM Logo" class="logo-glow">
-      <h1>Trisakti School of Multimedia</h1>
-      <p>Asisten AI Interaktif: <strong>TIMU</strong></p>
-    </div>
+  <!-- OVERLAY -->
+  <div class="landing-overlay">
+    <header>
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="TIMU Logo" class="logo-glow">
+      <h1>Trisakti Multimedia</h1>
+      <h2>AI Asisten Futuristik Kampus</h2>
+    </header>
 
-    <div class="button-area">
-      <a href="{{ url_for('index') }}" class="btn-glow">💬 Chat dengan TIMU</a>
-      <a href="{{ url_for('login') }}" class="btn-glow secondary">🔐 Login Admin</a>
-    </div>
+    <main class="landing-content">
+      <p>Selamat datang di portal interaktif Trisakti School of Multimedia. Jelajahi informasi kampus atau masuk sebagai admin.</p>
+      <div class="landing-buttons">
+        <a href="{{ url_for('chat_room') }}" class="btn-glow">💬 Bicara dengan TIMU</a>
+        <a href="{{ url_for('login') }}" class="btn-outline">🔒 Login Admin</a>
+      </div>
+    </main>
   </div>
 
-  <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 </body>
 </html>
