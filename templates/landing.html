@@ -2,33 +2,26 @@
 <html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TIMU - Trisakti School of Multimedia</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trisakti School of Multimedia – TIMU</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="/static/img/logo.png" />
 </head>
 <body class="landing-body">
-  <div class="landing-container glassmorphism">
-    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo TMM" class="logo-glow">
+  <div class="landing-container glass">
+    <img src="/static/img/logo.png" alt="TMM Logo" class="landing-logo" />
 
-    <h1 class="title-glow">Selamat Datang di TIMU</h1>
-    <p class="subtitle">Asisten AI Interaktif dari Trisakti School of Multimedia</p>
+    <h1 class="landing-title">Selamat Datang di <span>TMM</span></h1>
+    <p class="landing-subtitle">Chatbot AI TIMU siap membantu informasi pendaftaran, jurusan, dan beasiswa.</p>
 
-    <div class="button-group">
-      <a href="{{ url_for('chatroom') }}" class="button-glow">💬 Mulai Bicara dengan TIMU</a>
-      <a href="{{ url_for('login') }}" class="button-outline">🔐 Login Admin</a>
+    <div class="landing-buttons">
+      <a href="/chat" class="landing-btn primary">💬 Mulai Bicara dengan TIMU</a>
+      <a href="/login" class="landing-btn secondary">🔐 Login Admin</a>
     </div>
   </div>
 
-  <!-- Background Video (jika ada) -->
-  <video autoplay muted loop id="bg-video">
-    <source src="{{ url_for('static', filename='video/space-loop.mp4') }}" type="video/mp4">
-  </video>
-
-  <!-- Particle Animation (jika ada) -->
-  <div id="particles-js"></div>
-
-  <script src="{{ url_for('static', filename='js/particles.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+  <div class="landing-footer">
+    &copy; 2025 Trisakti School of Multimedia. Powered by TIMU AI.
+  </div>
 </body>
 </html>
