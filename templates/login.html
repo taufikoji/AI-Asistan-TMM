@@ -1,32 +1,25 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login Admin - TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}" />
-  <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login Admin TIMU</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+  <div class="login-container glass">
+    <h2>🔐 Admin Login</h2>
 
-  <!-- Partikel Hologram -->
-  <div class="particles"></div>
-
-  <!-- Kartu Login -->
-  <div class="glass-card login-card">
-    <img src="{{ url_for('static', filename='img/timu_logo_glow.png') }}" alt="TIMU Logo" width="80" />
-    <h2>Login Admin</h2>
     {% if error %}
-      <p class="error-msg">{{ error }}</p>
+      <div class="error-message">{{ error }}</div>
     {% endif %}
-    <form method="post">
-      <input type="password" name="password" placeholder="Masukkan Password Admin" required />
-      <button type="submit" class="glass-btn">Masuk</button>
-    </form>
-    <a href="{{ url_for('landing') }}">
-      <button class="glass-btn back-btn">⬅️ Kembali ke Landing</button>
-    </a>
-  </div>
 
+    <form method="POST" class="login-form">
+      <input type="password" name="password" placeholder="Masukkan Password Admin" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <button class="back-btn" onclick="window.location.href='/'">🏠 Kembali ke Landing</button>
+  </div>
 </body>
 </html>
