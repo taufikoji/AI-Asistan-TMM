@@ -1,192 +1,260 @@
+/* ====================
+   Global Layout
+==================== */
 :root {
-  --primary-color: #7b1f2d;
-  --background-dark: #0a0a0a;
-  --background-light: #f9f9f9;
-  --glass-bg-dark: rgba(20, 20, 20, 0.65);
-  --glass-bg-light: rgba(255, 255, 255, 0.65);
-  --text-dark: #ffffff;
-  --text-light: #111111;
-  --input-bg: #111111;
-  --ai-color: #d71c3b;
+  --bg-dark: #0a0a0f;
+  --bg-light: #f0f0f0;
+  --primary: #ff004c;
+  --accent: #00f6ff;
+  --glass: rgba(255, 255, 255, 0.1);
+  --blur: blur(15px);
+  --font: 'Segoe UI', sans-serif;
 }
 
-html[data-theme="dark"] {
-  --bg-color: var(--background-dark);
-  --glass-bg: var(--glass-bg-dark);
-  --text-color: var(--text-dark);
+[data-theme="dark"] {
+  --bg: var(--bg-dark);
+  --text: #ffffff;
+  --panel: rgba(255, 255, 255, 0.05);
 }
 
-html[data-theme="light"] {
-  --bg-color: var(--background-light);
-  --glass-bg: var(--glass-bg-light);
-  --text-color: var(--text-light);
+[data-theme="light"] {
+  --bg: var(--bg-light);
+  --text: #000000;
+  --panel: rgba(255, 255, 255, 0.8);
 }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: var(--bg-color);
-  color: var(--text-color);
+  padding: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
   transition: background 0.3s, color 0.3s;
   overflow-x: hidden;
 }
 
-header {
+/* ====================
+   Background Video
+==================== */
+#bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+  z-index: -2;
+  object-fit: cover;
+  filter: brightness(0.4);
+}
+
+/* ====================
+   Header / Navbar
+==================== */
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--blur);
+  background-color: var(--glass);
+  position: sticky;
+  top: 0;
+  z-index: 10;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-header .logo {
+.header h1 {
   font-size: 1.5rem;
-  font-weight: bold;
+  color: var(--accent);
 }
 
-header .theme-toggle {
-  background: transparent;
+.mode-toggle {
   border: none;
-  font-size: 1.2rem;
-  color: var(--text-color);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-#chat-container {
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 20px;
-  border-radius: 16px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-#chat-box {
-  max-height: 550px;
-  overflow-y: auto;
-  padding: 10px;
+/* ====================
+   Landing Page
+==================== */
+.container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: 5rem 1rem;
+  text-align: center;
 }
 
-.chat-message {
-  padding: 10px 14px;
-  border-radius: 12px;
-  line-height: 1.5;
-  word-wrap: break-word;
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--text-color);
+.container h2 {
+  font-size: 2.5rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
 }
 
-.chat-message.user {
-  align-self: flex-end;
-  background: #333;
-  color: #fff;
-  border-left: 4px solid var(--primary-color);
+.container p {
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin-bottom: 2rem;
 }
 
-.chat-message.ai {
-  align-self: flex-start;
-  background: rgba(215, 28, 59, 0.15);
-  border-left: 4px solid var(--ai-color);
-}
-
-form#chat-form {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
-  align-items: flex-end;
-}
-
-#message-input {
-  flex: 1;
-  resize: none;
-  background: var(--input-bg);
-  color: #fff;
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid #444;
-  font-size: 1rem;
-  min-height: 36px;
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-#message-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-}
-
-button[type="submit"] {
-  background: var(--ai-color);
+.btn-glass {
+  background-color: var(--primary);
   border: none;
-  border-radius: 10px;
-  padding: 10px 16px;
   color: white;
+  padding: 0.8rem 1.5rem;
+  margin: 0.5rem;
+  font-size: 1rem;
+  border-radius: 50px;
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(215, 28, 59, 0.8);
-  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 0 15px var(--primary);
+  transition: all 0.3s ease;
 }
 
-button[type="submit"]:hover {
+.btn-glass:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(215, 28, 59, 1);
+  box-shadow: 0 0 25px var(--primary);
 }
 
+/* ====================
+   Chatroom
+==================== */
+.chat-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 2rem;
+  background: var(--panel);
+  border-radius: 20px;
+  backdrop-filter: var(--blur);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.05);
+}
+
+.message {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--glass);
+  border-radius: 15px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.message.user {
+  text-align: right;
+  background: rgba(255, 0, 76, 0.2);
+}
+
+.message.ai {
+  text-align: left;
+  background: rgba(0, 255, 255, 0.1);
+}
+
+.chat-input {
+  display: flex;
+  margin-top: 1rem;
+}
+
+textarea {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 15px 0 0 15px;
+  border: none;
+  resize: none;
+  background: #000;
+  color: white;
+}
+
+.send-btn {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 0 15px 15px 0;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.send-btn:hover {
+  background-color: #ff3366;
+}
+
+/* ====================
+   Avatar TIMU
+==================== */
+.avatar-timu {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  width: 64px;
+  height: 64px;
+  background: url('/static/img/timu_avatar.png') no-repeat center center / cover;
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--accent);
+  animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 10px var(--accent); }
+  50% { box-shadow: 0 0 25px var(--accent); }
+  100% { box-shadow: 0 0 10px var(--accent); }
+}
+
+/* ====================
+   Login & Admin Panel
+==================== */
+.login-box, .stats-box {
+  max-width: 400px;
+  margin: 5rem auto;
+  background: var(--panel);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+.login-box input {
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #222;
+  color: #fff;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.login-box button:hover {
+  background: #ff3366;
+}
+
+/* ====================
+   Brosur & Link Button
+==================== */
 .download-btn {
   display: inline-block;
-  margin-top: 10px;
-  padding: 10px 14px;
-  background-color: #d71c3b;
-  color: white;
-  border-radius: 8px;
+  background: var(--accent);
+  color: #000;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
   text-decoration: none;
-  box-shadow: 0 0 10px rgba(215, 28, 59, 0.7);
+  font-weight: bold;
+  box-shadow: 0 0 10px var(--accent);
+  transition: all 0.3s ease;
 }
 
 .download-btn:hover {
-  background-color: #a5122b;
-}
-
-.avatar-glow {
-  position: fixed;
-  bottom: 30px;
-  left: 30px;
-  width: 80px;
-  height: 80px;
-  background: url("/static/images/avatar_timu.png") no-repeat center/cover;
-  border-radius: 50%;
-  box-shadow: 0 0 25px 8px rgba(215, 28, 59, 0.7);
-  animation: pulseGlow 2.5s infinite;
-  z-index: 10;
-}
-
-@keyframes pulseGlow {
-  0% {
-    box-shadow: 0 0 25px 8px rgba(215, 28, 59, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 40px 15px rgba(215, 28, 59, 0.9);
-  }
-  100% {
-    box-shadow: 0 0 25px 8px rgba(215, 28, 59, 0.7);
-  }
-}
-
-@media screen and (max-width: 600px) {
-  #chat-container {
-    margin: 10px;
-    padding: 15px;
-  }
-  .avatar-glow {
-    width: 60px;
-    height: 60px;
-    bottom: 20px;
-    left: 20px;
-  }
+  transform: scale(1.05);
+  background: #00f6ff;
+  color: #000;
 }
