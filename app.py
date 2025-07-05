@@ -2,7 +2,7 @@ import os, json, logging, re
 from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
 from dotenv import load_dotenv
 from flask_cors import CORS
-from datetime import datetime, date
+from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 from langdetect import detect
@@ -12,7 +12,7 @@ from symspellpy.symspellpy import SymSpell, Verbosity
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="app.log")
 logger = logging.getLogger(__name__)
 
-# Load environment
+# Load env
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
@@ -20,13 +20,42 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "secret")
 CORS(app)
 
-# Konfigurasi Gemini
+# Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 
 # Load data kampus
+def update_context_with_today(data):
+    now = datetime.now()
+    data["current_context"]["date"] = now.strftime("%d %B %Y")
+    data["current_context"]["time"] = now.strftime("%H:%M WIB")
+    data["current_context"]["today_iso"] = now.strftime("%Y-%m-%d")
+    try:
+        # Cek status pendaftaran dinamis
+        status = []
+        today = now.date()
+        for jalur in data["registration"]["paths"]:
+            for gelombang in jalur["waves"]:
+                try:
+                    period = gelombang["period"]
+                    start_str, end_str = period.split(" - ")
+                    start = datetime.strptime(start_str.strip(), "%d %B %Y").date()
+                    end = datetime.strptime(end_str.strip(), "%d %B %Y").date()
+                    if today < start:
+                        gelombang["status"] = f"Akan dimulai dari {start.strftime('%d %B %Y')}"
+                    elif start <= today <= end:
+                        gelombang["status"] = f"Sedang berlangsung, ditutup {end.strftime('%d %B %Y')}"
+                    else:
+                        gelombang["status"] = f"Sudah ditutup pada {end.strftime('%d %B %Y')}"
+                except Exception as e:
+                    logger.warning(f"Format tanggal salah: {e}")
+        return data
+    except Exception as e:
+        logger.warning(f"Gagal update context tanggal: {e}")
+        return data
+
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
-        TRISAKTI = json.load(f)
+        TRISAKTI = update_context_with_today(json.load(f))
 except Exception as e:
     logger.critical(f"Gagal load JSON kampus: {e}")
     TRISAKTI = {}
@@ -36,7 +65,7 @@ symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# ===== Fungsi Bantuan =====
+# ==== Fungsi bantuan ====
 
 def detect_language(text):
     try:
@@ -76,35 +105,7 @@ def get_category(msg):
             return kategori
     return "general"
 
-def get_active_wave():
-    today = date.today()
-    hasil = []
-
-    for jalur in TRISAKTI.get("registration", {}).get("paths", []):
-        for gel in jalur.get("waves", []):
-            try:
-                start_str, end_str = gel["period"].split(" - ")
-                start_date = datetime.strptime(start_str.strip(), "%d %B %Y").date()
-                end_date = datetime.strptime(end_str.strip(), "%d %B %Y").date()
-
-                if start_date <= today <= end_date:
-                    status = "Sedang berlangsung"
-                elif today < start_date:
-                    status = f"Akan dibuka mulai {start_str}"
-                else:
-                    status = f"Telah ditutup pada {end_str}"
-
-                hasil.append({
-                    "jalur": jalur["name"],
-                    "gelombang": gel["wave"],
-                    "status": status,
-                    "periode": gel["period"]
-                })
-            except Exception as e:
-                logger.warning(f"Error parsing tanggal gelombang: {e}")
-    return hasil
-
-# ===== ROUTES =====
+# ==== ROUTES ====
 
 @app.route("/")
 def index():
@@ -120,18 +121,15 @@ def chat():
     lang = detect_language(message)
     corrected = correct_typo(message)
 
-    # Update waktu dinamis
-    TRISAKTI["current_context"]["date"] = datetime.now().strftime("%d %B %Y")
-    TRISAKTI["current_context"]["time"] = datetime.now().strftime("%H:%M WIB")
-
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
     session['conversation'] = session['conversation'][-5:]
 
     kategori = get_category(corrected)
+    TRISAKTI.update(update_context_with_today(TRISAKTI))
 
-    # ==== Respons khusus brosur ====
+    # Khusus brosur
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
@@ -147,29 +145,10 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # ==== Respons cerdas pendaftaran ====
-    if kategori == "pendaftaran":
-        gelombang = get_active_wave()
-        daftar_gel = "<br>".join([
-            f"📌 {g['jalur']} - {g['gelombang']}<br>Status: {g['status']}<br>Periode: {g['periode']}"
-            for g in gelombang
-        ])
-        reply = (
-            f"Halo! Berikut status terbaru pendaftaran:<br><br>{daftar_gel}<br><br>"
-            "📥 <a href='https://trisaktimultimedia.ecampuz.com/eadmisi/' target='_blank'>Klik di sini untuk daftar sekarang</a>."
-        )
-        save_chat(corrected, reply)
-        return jsonify({
-            "reply": reply,
-            "language": lang,
-            "corrected": corrected if corrected != message else None
-        })
-
-    # ==== Prompt untuk AI ====
+    # ==== Prompt AI ====
     system_prompt = (
         "Kamu adalah TIMU, asisten AI interaktif dari Trisakti School of Multimedia. "
-        "Jawab secara ramah dan langsung ke inti. Jangan terlalu panjang atau formal. "
-        "Gunakan data berikut jika relevan:\n\n"
+        "Jawab secara ramah dan langsung ke inti. Gunakan data berikut jika relevan:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Riwayat singkat percakapan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
     )
@@ -178,7 +157,7 @@ def chat():
         f"Tanggal: {TRISAKTI['current_context']['date']}, Jam: {TRISAKTI['current_context']['time']}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus jelas, singkat, dan bantu pengguna lanjut bertanya jika perlu."
+        "Jawaban harus singkat, natural, dan bantu pengguna lanjut bertanya jika perlu."
     )
 
     try:
@@ -247,6 +226,5 @@ def logout():
     session.pop("admin_logged_in", None)
     return redirect(url_for("login"))
 
-# ==== RUN ====
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
