@@ -1,49 +1,57 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("chat-form");
   const input = document.getElementById("message-input");
   const chatBox = document.getElementById("chat-box");
 
-  function appendMessage(sender, message, isHTML = false) {
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("chat-message", sender);
-    msgDiv.innerHTML = isHTML ? DOMPurify.sanitize(message) : `<p>${DOMPurify.sanitize(message)}</p>`;
-    chatBox.appendChild(msgDiv);
+  function appendMessage(sender, message) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = sender === "user" ? "chat-message user" : "chat-message ai";
+    messageDiv.innerHTML = DOMPurify.sanitize(message);
+    chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
     const message = input.value.trim();
     if (!message) return;
 
-    appendMessage("user", `<p>${message}</p>`);
+    appendMessage("user", `<strong>Kamu:</strong> ${message}`);
     input.value = "";
-    appendMessage("bot", "<p><em>...</em></p>");
+    input.style.height = "auto";
+
+    appendMessage("ai", "<em>TIMU sedang mengetik...</em>");
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message }),
       });
 
       const data = await res.json();
-      const lastBotMsg = chatBox.querySelector(".chat-message.bot:last-child");
-      if (lastBotMsg) lastBotMsg.remove();
-
+      const lastMsg = chatBox.querySelector(".chat-message.ai:last-child");
       if (data.reply) {
-        appendMessage("bot", data.reply, true);
-      } else if (data.error) {
-        appendMessage("bot", `<p>${data.error}</p>`);
+        lastMsg.innerHTML = DOMPurify.sanitize(`<strong>TIMU:</strong> ${data.reply}`);
       } else {
-        appendMessage("bot", "<p>Maaf, terjadi kesalahan.</p>");
+        lastMsg.innerHTML = "<em>Maaf, tidak ada balasan.</em>";
       }
     } catch (error) {
-      const lastBotMsg = chatBox.querySelector(".chat-message.bot:last-child");
-      if (lastBotMsg) lastBotMsg.remove();
-      appendMessage("bot", "<p>Gagal terhubung ke server.</p>");
+      const lastMsg = chatBox.querySelector(".chat-message.ai:last-child");
+      lastMsg.innerHTML = "<em>Terjadi kesalahan. Silakan coba lagi nanti.</em>";
     }
   });
+
+  input.addEventListener("input", function () {
+    input.style.height = "auto";
+    input.style.height = (input.scrollHeight > 36 ? input.scrollHeight : 36) + "px";
+  });
 });
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute("data-theme");
+  html.setAttribute("data-theme", current === "dark" ? "light" : "dark");
+}
