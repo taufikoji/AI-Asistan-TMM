@@ -5,6 +5,7 @@ flask-cors
 google-generativeai
 langdetect==1.0.9
 pyspellchecker==0.7.0
+python-dateutil
 #gunicorn
 textblob==0.17.1
 #idnspell==1.1.0
