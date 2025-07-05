@@ -1,28 +1,32 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TIMU - Trisakti Multimedia</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='assets/logo_tmm.png') }}" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TIMU AI - Trisakti Multimedia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/timu-avatar.png') }}">
 </head>
-<body class="landing-page">
-  <video autoplay muted loop id="background-video">
-    <source src="{{ url_for('static', filename='assets/background.mp4') }}" type="video/mp4">
+<body>
+
+  <video autoplay muted loop id="bg-video">
+    <source src="{{ url_for('static', filename='media/background.mp4') }}" type="video/mp4">
+    Your browser does not support HTML5 video.
   </video>
 
   <div class="overlay">
-    <header>
-      <img src="{{ url_for('static', filename='assets/logo_tmm.png') }}" alt="TMM Logo" class="logo" />
-      <h1>Selamat Datang di <span class="highlight">TIMU</span></h1>
-      <p>Asisten AI Interaktif Trisakti School of Multimedia</p>
-    </header>
+    <div class="content">
+      <img src="{{ url_for('static', filename='img/timu-avatar.png') }}" alt="Logo TMM" class="logo" />
+      <h1>Selamat Datang di <span>Trisakti School of Multimedia</span></h1>
+      <p class="sub">Jelajahi kampus secara interaktif bersama <strong>TIMU AI</strong>.</p>
 
-    <div class="action-buttons">
-      <a href="{{ url_for('index') }}" class="btn primary">💬 Mulai Bicara dengan TIMU</a>
-      <a href="{{ url_for('login') }}" class="btn secondary">🔐 Login Admin</a>
+      <div class="btn-group">
+        <a href="{{ url_for('index') }}" class="btn chat">💬 Bicara dengan TIMU</a>
+        <a href="{{ url_for('login') }}" class="btn admin">🔐 Login Admin</a>
+      </div>
     </div>
   </div>
+
+  <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 </body>
 </html>
