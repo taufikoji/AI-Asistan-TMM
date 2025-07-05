@@ -1,24 +1,67 @@
-/* landing.css */
-* { margin:0; padding:0; box-sizing:border-box; }
-body, html { height:100%; font-family: 'Segoe UI', sans-serif; overflow:hidden; }
-.landing-wrapper { position:relative; height:100%; width:100%; background:#000; color:#fff; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+/* Video background */
 #bg-video {
-  position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-2;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  z-index: -1;
 }
+
+/* Overlay area */
 .overlay {
-  position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:-1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 20, 0.5);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
 }
-.logo { width:120px; margin-bottom:16px; filter:drop-shadow(0 0 8px #0ff); }
-h1 { font-size:2.4rem; margin-bottom:8px; text-shadow:0 2px 8px rgba(0,255,255,.6); }
-p { font-size:1.2rem; margin-bottom:24px; }
-.cta-button {
-  padding:12px 24px; background: linear-gradient(135deg,#0ff,#06f); color:#000;
-  font-size:1rem; font-weight:600; text-decoration:none; border-radius:30px;
-  box-shadow: 0 4px 14px rgba(0,255,255,.5);
-  transition: transform .2s, box-shadow .2s;
+
+/* Logo area */
+.logo-area {
+  margin-bottom: 30px;
 }
-.cta-button:hover {
+.logo-area img {
+  width: 100px;
+  height: 100px;
+  animation: glow 3s infinite alternate;
+}
+@keyframes glow {
+  from {
+    filter: drop-shadow(0 0 5px #ff0040);
+  }
+  to {
+    filter: drop-shadow(0 0 20px #ff0040);
+  }
+}
+
+/* Buttons */
+.button-area .btn-glow {
+  display: inline-block;
+  margin: 10px;
+  padding: 15px 25px;
+  font-size: 1.1rem;
+  border: none;
+  color: white;
+  background: rgba(255, 0, 80, 0.8);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: 0.3s ease;
+  box-shadow: 0 0 15px #ff0040;
+}
+.button-area .btn-glow.secondary {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 15px #00c8ff;
+}
+.button-area .btn-glow:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(0,255,255,.7);
 }
-footer { position:absolute; bottom:12px; font-size:0.85rem; opacity:0.7; }
