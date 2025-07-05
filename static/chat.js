@@ -5,7 +5,7 @@ const themeToggle = document.getElementById("theme-toggle");
 const icon = document.getElementById("theme-icon");
 const label = document.getElementById("theme-label");
 
-// Theme setup
+// Theme logic
 const savedTheme = localStorage.getItem("theme") || "light";
 document.documentElement.setAttribute("data-theme", savedTheme);
 icon.textContent = savedTheme === "dark" ? "🌙" : "☀️";
@@ -23,6 +23,11 @@ function scrollToBottom() {
   chat.scrollTop = chat.scrollHeight;
 }
 
+function linkify(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+}
+
 function append(role, text) {
   const msg = document.createElement("div");
   msg.className = `message ${role}`;
@@ -33,7 +38,7 @@ function append(role, text) {
     : "/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png";
   const bubble = document.createElement("div");
   bubble.className = "text";
-  bubble.innerHTML = DOMPurify.sanitize(text.replace(/\n/g, "<br>"));
+  bubble.innerHTML = DOMPurify.sanitize(linkify(text).replace(/\n/g, "<br>"));
   msg.appendChild(avatar);
   msg.appendChild(bubble);
   chat.appendChild(msg);
@@ -71,7 +76,7 @@ form.onsubmit = async (e) => {
 
     let fullReply = data.reply || "Maaf, terjadi kesalahan.";
     if (data.corrected) {
-      fullReply += `<br><em><small>✍️ Koreksi ejaan: <code>${DOMPurify.sanitize(data.corrected)}</code></small></em>`;
+      fullReply += `<br><br><em><small>✍️ Koreksi ejaan: <code>${DOMPurify.sanitize(data.corrected)}</code></small></em>`;
     }
     if (data.language) {
       const langMap = { id: "Indonesia", en: "Inggris", fr: "Prancis", unknown: "Tidak diketahui" };
@@ -80,8 +85,7 @@ form.onsubmit = async (e) => {
     }
 
     append("ai", fullReply);
-  } catch (error) {
-    console.error("Chat error:", error);
+  } catch {
     chat.lastChild.remove();
     append("ai", "Maaf, terjadi kesalahan koneksi.");
   }
@@ -93,10 +97,3 @@ input.addEventListener("keydown", function (e) {
     form.requestSubmit();
   }
 });
-
-window.onload = () => {
-  if (!sessionStorage.getItem("greeted")) {
-    append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya TIMU, asisten AI kampus ini.");
-    sessionStorage.setItem("greeted", "true");
-  }
-};
