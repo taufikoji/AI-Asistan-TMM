@@ -1,75 +1,23 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard Admin - TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <style>
-    .dashboard {
-      max-width: 800px;
-      margin: 80px auto;
-      padding: 2rem;
-      background: var(--glass);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-      color: var(--text-color);
-    }
-    .dashboard h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .stat-box {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-    }
-    .chat-entry {
-      margin-bottom: 1rem;
-      padding: 1rem;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-left: 4px solid var(--accent);
-      border-radius: 10px;
-    }
-    .chat-entry p {
-      margin: 0.2rem 0;
-    }
-    .logout {
-      display: block;
-      text-align: center;
-      margin-top: 2rem;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: bold;
-    }
-  </style>
+  <title>Dashboard Admin – TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="dashboard">
+  <main class="dashboard">
     <h2>📊 Dashboard Admin</h2>
-    <div class="stat-box">
-      <span>Total Chat</span>
-      <strong>{{ stats.total_chats }}</strong>
-    </div>
-
-    <h3>Riwayat Terbaru</h3>
-    {% if stats.latest %}
-      {% for item in stats.latest %}
-        <div class="chat-entry">
-          <p><strong>🕒 {{ item.timestamp[:19].replace('T', ' ') }}</strong></p>
-          <p><strong>👤 Pengguna:</strong> {{ item.user }}</p>
-          <p><strong>🤖 TIMU:</strong> {{ item.ai }}</p>
-        </div>
+    <p>Total Percakapan: {{ stats.total_chats }}</p>
+    <h3>5 Chat Terakhir</h3>
+    <ul>
+      {% for chat in stats.latest %}
+        <li><strong>🧑‍💬 {{ chat.user }}</strong><br>🤖 {{ chat.ai }}</li>
       {% endfor %}
-    {% else %}
-      <p>Belum ada riwayat chat.</p>
-    {% endif %}
-
-    <a href="{{ url_for('logout') }}" class="logout">🚪 Logout</a>
-  </div>
+    </ul>
+    <a href="{{ url_for('logout') }}" class="btn-red">🔓 Logout</a>
+    <a href="{{ url_for('landing') }}" class="back-home">← Kembali ke Landing</a>
+  </main>
 </body>
 </html>
