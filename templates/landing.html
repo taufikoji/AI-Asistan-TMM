@@ -1,24 +1,40 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Selamat Datang di TIMU</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TIMU - Trisakti Multimedia</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Nunito&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="glass-container">
-    <div class="hologram">
-      <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="TIMU" class="avatar-glow" />
-    </div>
-    <h1>Selamat Datang di <span class="highlight">TIMU</span></h1>
-    <p>Asisten AI Resmi Trisakti School of Multimedia</p>
-    <div class="buttons">
-      <a href="/" class="btn">💬 Mulai Bertanya</a>
-      <a href="/login" class="btn btn-alt">🔐 Admin Login</a>
-    </div>
-    <footer>© {{ year }} TIMU AI — Trisakti School of Multimedia</footer>
+  <video autoplay muted loop id="bg-video">
+    <source src="{{ url_for('static', filename='media/background.mp4') }}" type="video/mp4">
+  </video>
+
+  <div class="overlay">
+    <header>
+      <div class="logo">TMM</div>
+      <button id="toggle-theme">🌓</button>
+    </header>
+
+    <main>
+      <h1>Selamat Datang di <span>Trisakti School of Multimedia</span></h1>
+      <p>Asisten AI Futuristik Siap Membantu Anda</p>
+      <div class="buttons">
+        <a href="/"><button class="start">💬 Mulai Chat</button></a>
+        <a href="/download-brosur"><button class="brosur">⬇️ Download Brosur</button></a>
+        <a href="/login"><button class="admin">🔐 Masuk Admin</button></a>
+      </div>
+    </main>
+
+    <img src="{{ url_for('static', filename='img/timu_avatar.png') }}" alt="TIMU Avatar" class="avatar-glow">
+
+    <canvas id="particles-js"></canvas>
   </div>
-  <div class="particles"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 </body>
 </html>
