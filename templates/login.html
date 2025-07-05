@@ -1,25 +1,20 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login Admin TIMU</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-  <div class="login-container glass">
-    <h2>🔐 Admin Login</h2>
-
-    {% if error %}
-      <div class="error-message">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST" class="login-form">
-      <input type="password" name="password" placeholder="Masukkan Password Admin" required>
+<body class="login-page">
+  <div class="login-container">
+    <h2>Login Admin</h2>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <form method="POST">
+      <input type="password" name="password" placeholder="Masukkan Password" required>
       <button type="submit">Login</button>
     </form>
-
-    <button class="back-btn" onclick="window.location.href='/'">🏠 Kembali ke Landing</button>
+    <a href="{{ url_for('landing') }}" class="back-link">⏪ Kembali ke Landing</a>
   </div>
 </body>
 </html>
