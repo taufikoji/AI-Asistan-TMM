@@ -1,67 +1,117 @@
-/* Video background */
-#bg-video {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  min-width: 100%;
-  min-height: 100%;
-  object-fit: cover;
-  z-index: -1;
+/* Font & Reset */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Overlay area */
-.overlay {
+:root {
+  --primary: #7b1f2d;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.2);
+  --text: #ffffff;
+  --holo: rgba(255, 255, 255, 0.5);
+  --transition: all 0.3s ease;
+}
+
+body {
+  font-family: 'Orbitron', sans-serif;
+  background: radial-gradient(circle at top, #0f0f1a, #000000);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Hologram Particles */
+.particles {
   position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(10, 10, 20, 0.5);
-  backdrop-filter: blur(10px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  text-align: center;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+  pointer-events: none;
+  animation: float 20s linear infinite;
 }
 
-/* Logo area */
-.logo-area {
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-40px, -40px); }
+}
+
+/* Glassmorphism Card */
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  padding: 40px;
+  text-align: center;
+  z-index: 1;
+  box-shadow: 0 0 20px rgba(123, 31, 45, 0.5);
+}
+
+.glass-card h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.glass-card p {
+  font-size: 1em;
+  color: var(--holo);
   margin-bottom: 30px;
-}
-.logo-area img {
-  width: 100px;
-  height: 100px;
-  animation: glow 3s infinite alternate;
-}
-@keyframes glow {
-  from {
-    filter: drop-shadow(0 0 5px #ff0040);
-  }
-  to {
-    filter: drop-shadow(0 0 20px #ff0040);
-  }
 }
 
 /* Buttons */
-.button-area .btn-glow {
-  display: inline-block;
-  margin: 10px;
-  padding: 15px 25px;
-  font-size: 1.1rem;
-  border: none;
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.glass-btn {
+  background: var(--primary);
   color: white;
-  background: rgba(255, 0, 80, 0.8);
-  text-decoration: none;
-  border-radius: 10px;
-  transition: 0.3s ease;
-  box-shadow: 0 0 15px #ff0040;
+  border: none;
+  padding: 15px 25px;
+  font-size: 1em;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 0 10px var(--primary);
 }
-.button-area .btn-glow.secondary {
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 15px #00c8ff;
-}
-.button-area .btn-glow:hover {
+
+.glass-btn:hover {
   transform: scale(1.05);
+  box-shadow: 0 0 20px var(--primary);
+  background: #a7283c;
+}
+
+/* Back to Home Button */
+.back-btn {
+  margin-top: 20px;
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  transition: var(--transition);
+}
+
+.back-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  .glass-card {
+    width: 90%;
+    padding: 30px 20px;
+  }
 }
