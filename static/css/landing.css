@@ -1,106 +1,118 @@
-:root {
-  --bg: rgba(0, 0, 0, 0.6);
-  --glass: rgba(255, 255, 255, 0.1);
-  --text: #ffffff;
-  --primary: #ff003c;
-}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
 
-[data-theme="light"] {
-  --bg: rgba(255, 255, 255, 0.8);
-  --glass: rgba(255, 255, 255, 0.4);
-  --text: #000000;
-  --primary: #7b1f2d;
-}
-
-body, html {
+body {
   margin: 0;
-  padding: 0;
-  font-family: 'Nunito', sans-serif;
-  color: var(--text);
-  background-color: var(--bg);
+  font-family: 'Orbitron', sans-serif;
   overflow: hidden;
-  height: 100vh;
+  background: black;
+  color: white;
 }
 
 #bg-video {
   position: fixed;
   top: 0; left: 0;
-  min-width: 100vw;
-  min-height: 100vh;
-  object-fit: cover;
-  z-index: -2;
-}
-
-.overlay {
-  position: relative;
-  z-index: 1;
-  backdrop-filter: blur(20px);
-  background: var(--glass);
-  width: 100%;
+  width: 100vw;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
+  object-fit: cover;
+  z-index: -1;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 2rem;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1.5rem;
-}
-
-main {
+.glass-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px;
   text-align: center;
-  margin-top: auto;
-  margin-bottom: auto;
+  max-width: 500px;
+  width: 90%;
 }
 
-main h1 {
-  font-size: 2.5rem;
+.logo {
+  width: 70px;
+  margin-bottom: 15px;
 }
 
-main span {
-  color: var(--primary);
+.title-glow {
+  font-size: 28px;
+  font-weight: bold;
+  text-shadow: 0 0 10px #ff0044, 0 0 20px #ff0044;
 }
 
-main p {
-  margin-top: 1rem;
-  font-size: 1.2rem;
+.subtitle {
+  font-size: 16px;
+  margin: 10px 0 30px;
+  color: #ccc;
 }
 
-.buttons {
-  margin-top: 2rem;
+.btn-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.buttons button {
-  margin: 0.5rem;
-  padding: 1rem 2rem;
-  border: none;
-  background: var(--primary);
+.btn-glass, .btn-outline {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #ff0044;
   color: white;
-  font-size: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 0 15px var(--primary);
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
-.buttons button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px var(--primary);
+.btn-glass:hover {
+  background: #ff0044;
+  box-shadow: 0 0 10px #ff0044, 0 0 20px #ff0044;
+}
+
+.btn-outline:hover {
+  background: transparent;
+  color: #ff0044;
+}
+
+.toggle-theme {
+  margin-top: 25px;
+}
+
+#toggleThemeBtn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .avatar-glow {
-  position: absolute;
+  position: fixed;
   bottom: 30px;
-  right: 30px;
-  width: 80px;
-  height: 80px;
-  animation: glow 2s infinite alternate;
+  left: 30px;
+  width: 60px;
+  animation: pulse 2s infinite alternate;
 }
 
-@keyframes glow {
-  0% { filter: drop-shadow(0 0 5px var(--primary)); }
-  100% { filter: drop-shadow(0 0 20px var(--primary)); }
+@keyframes pulse {
+  from {
+    filter: drop-shadow(0 0 5px #ff0044);
+  }
+  to {
+    filter: drop-shadow(0 0 20px #ff0044);
+  }
+}
+
+.light-mode {
+  background: #f2f2f2;
+  color: #111;
+}
+
+.light-mode .glass-container {
+  background: rgba(255, 255, 255, 0.7);
+  color: #000;
 }
