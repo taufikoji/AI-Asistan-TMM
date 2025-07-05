@@ -1,34 +1,31 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TIMU - Trisakti Multimedia AI Assistant</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trisakti Multimedia - Asisten TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}" />
 </head>
-<body class="landing-body">
+<body>
 
-  <!-- VIDEO BACKGROUND -->
-  <video autoplay muted loop id="bg-video">
-    <source src="{{ url_for('static', filename='media/hologram-bg.mp4') }}" type="video/mp4">
-  </video>
+  <!-- Partikel Hologram -->
+  <div class="particles"></div>
 
-  <!-- OVERLAY -->
-  <div class="landing-overlay">
-    <header>
-      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="TIMU Logo" class="logo-glow">
-      <h1>Trisakti Multimedia</h1>
-      <h2>AI Asisten Futuristik Kampus</h2>
-    </header>
-
-    <main class="landing-content">
-      <p>Selamat datang di portal interaktif Trisakti School of Multimedia. Jelajahi informasi kampus atau masuk sebagai admin.</p>
-      <div class="landing-buttons">
-        <a href="{{ url_for('chat_room') }}" class="btn-glow">💬 Bicara dengan TIMU</a>
-        <a href="{{ url_for('login') }}" class="btn-outline">🔒 Login Admin</a>
-      </div>
-    </main>
+  <!-- Kartu Utama -->
+  <div class="glass-card">
+    <img src="{{ url_for('static', filename='img/timu_logo_glow.png') }}" alt="TIMU Logo" width="100" style="margin-bottom: 20px;" />
+    <h1>Selamat Datang di TMM</h1>
+    <p>Jelajahi kampus Trisakti School of Multimedia bersama asisten AI kami: <strong>TIMU</strong></p>
+    
+    <div class="button-group">
+      <a href="{{ url_for('index') }}">
+        <button class="glass-btn">💬 Bicara dengan TIMU</button>
+      </a>
+      <a href="{{ url_for('login') }}">
+        <button class="glass-btn">🔐 Login Admin</button>
+      </a>
+    </div>
   </div>
 
 </body>
