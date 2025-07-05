@@ -1,44 +1,24 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chat bersama TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-
-  <div class="theme-toggle" onclick="toggleTheme()">🌓 Mode</div>
-
+<body class="chatroom">
   <div class="chat-container">
     <div class="chat-header">
-      <img src="{{ url_for('static', filename='images/avatar.png') }}" class="avatar-glow" alt="TIMU Avatar">
-      <h2>Obrolan dengan TIMU</h2>
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="TIMU" class="avatar" />
+      <h2>TIMU - Asisten AI TMM</h2>
+      <a href="{{ url_for('landing') }}" class="back-link">⏪ Kembali ke Landing</a>
     </div>
-
-    <div id="chat-box" class="chat-box">
-      <!-- Chat history will appear here -->
-    </div>
-
-    <div class="chat-input-area">
-      <textarea id="user-input" placeholder="Ketik pertanyaan..." rows="2"></textarea>
-      <button id="send-btn">✈️</button>
-    </div>
-
-    <div class="back-to-home">
-      <a href="{{ url_for('index') }}">← Kembali ke Landing</a>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="chat-input">
+      <textarea id="message" placeholder="Ketik pertanyaan..."></textarea>
+      <button onclick="sendMessage()">📤</button>
     </div>
   </div>
-
-  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
-  <script>
-    function toggleTheme() {
-      const html = document.documentElement;
-      const current = html.getAttribute("data-theme");
-      html.setAttribute("data-theme", current === "light" ? "dark" : "light");
-    }
-  </script>
-
+  <script src="{{ url_for('static', filename='chat.js') }}"></script>
 </body>
 </html>
