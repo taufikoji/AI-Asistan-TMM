@@ -99,7 +99,7 @@ def chat():
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
-    session['conversation'] = session['conversation'][-5:]  # hanya simpan 5 terakhir
+    session['conversation'] = session['conversation'][-55:]  # hanya simpan 55 terakhir
 
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
@@ -123,7 +123,7 @@ def chat():
     # ==== PROMPT BARU ====
     system_prompt = (
         "Kamu adalah TIMU, asisten AI interaktif dari Trisakti School of Multimedia. "
-        "Jawab secara ramah dan langsung ke inti. Jangan terlalu panjang atau formal. "
+        "Jawab secara ramah dan kurangi penggunaan kata hai dan langsung ke inti. Jangan terlalu panjang dan juga singkat atau formal. kamu harus pintar dan mengerti semua bahasa "
         "Gunakan data berikut jika relevan:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Riwayat singkat percakapan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
