@@ -11,8 +11,11 @@
 <body>
   <header>
     <h1>TIMU Asisten AI<br>Trisakti School Of Multimedia</h1>
-    <button id="theme-toggle"><span id="theme-icon">☀️</span> <span id="theme-label">Light Mode</span></button>
-    <a href="/admin/login" class="admin-login-btn">🔒 Admin</a>
+    <button id="theme-toggle">
+      <span id="theme-icon">☀️</span>
+      <span id="theme-label">Light Mode</span>
+    </button>
+    <a href="/login" class="admin-login-btn">🔒 Admin</a>
   </header>
 
   <main id="chat-container"></main>
@@ -31,7 +34,8 @@
     Seluruh pertanyaan dijawab oleh AI dan mungkin saja jawaban tidak sesuai.
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
+  <!-- Sanitizer & Script Chat -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js" integrity="sha512-kxITvZzXXxNuJItEiYOjAcv6UtVYyEBA5EzJxIFUXWML7MLqQm44yPhTmV+ECLPSkYQg+XJXXUAVfEjbd3JDMw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="{{ url_for('static', filename='chat.js') }}"></script>
 </body>
 </html>
