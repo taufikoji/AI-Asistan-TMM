@@ -38,8 +38,7 @@ symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# ==== FUNGSI BANTUAN ====
-
+# Fungsi bantu
 def detect_language(text):
     try:
         if len(text.strip().split()) <= 1:
@@ -59,9 +58,6 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    # Hapus markdown duplikat dan link ganda
-    text = re.sub(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^\\s)]+)$end:math:text$\s+\2", r"\2", text)
-    # Konversi URL jadi link HTML
     return re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
 
 def save_chat(user_msg, ai_msg):
@@ -79,6 +75,44 @@ def get_category(msg):
         if any(k in msg for k in keywords):
             return kategori
     return "general"
+
+def get_current_gelombang(info):
+    try:
+        today = datetime.today().date()
+        gelombang_aktif = None
+        semua_gelombang = info.get("pendaftaran", {}).get("gelombang", [])
+
+        for g in semua_gelombang:
+            mulai = datetime.strptime(g["mulai"], "%Y-%m-%d").date()
+            selesai = datetime.strptime(g["selesai"], "%Y-%m-%d").date()
+            if mulai <= today <= selesai:
+                gelombang_aktif = {
+                    "status": "berlangsung",
+                    "nama": g["nama"],
+                    "mulai": mulai.strftime("%d %B %Y"),
+                    "selesai": selesai.strftime("%d %B %Y")
+                }
+                break
+            elif today < mulai:
+                gelombang_aktif = {
+                    "status": "akan datang",
+                    "nama": g["nama"],
+                    "mulai": mulai.strftime("%d %B %Y"),
+                    "selesai": selesai.strftime("%d %B %Y")
+                }
+                break
+
+        if not gelombang_aktif and semua_gelombang:
+            gelombang_aktif = {
+                "status": "selesai",
+                "nama": semua_gelombang[-1]["nama"],
+                "selesai": datetime.strptime(semua_gelombang[-1]["selesai"], "%Y-%m-%d").strftime("%d %B %Y")
+            }
+
+        return gelombang_aktif
+    except Exception as e:
+        logger.error(f"Gagal menentukan gelombang: {e}")
+        return None
 
 # ==== ROUTES ====
 
@@ -99,12 +133,12 @@ def chat():
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
-    session['conversation'] = session['conversation'][-55:]  # hanya simpan 55 terakhir
+    session['conversation'] = session['conversation'][-55:]  # simpan 55 terakhir
 
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
+    context["gelombang_aktif"] = get_current_gelombang(TRISAKTI)
 
-    # Khusus brosur
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
@@ -120,12 +154,12 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # ==== PROMPT BARU ====
+    # ==== PROMPT FINAL ====
     system_prompt = (
-        "Kamu adalah TIMU, asisten AI interaktif dari Trisakti School of Multimedia. "
-        "Jawab secara ramah dan kurangi penggunaan kata hai dan langsung ke inti. Jangan terlalu panjang dan juga singkat atau formal. kamu harus pintar dan mengerti semua bahasa "
-        "Gunakan data berikut jika relevan:\n\n"
+        "Kamu adalah TIMU, asisten AI resmi Trisakti School of Multimedia. "
+        "Jawab langsung ke poin, tidak perlu menyapa. Jangan terlalu singkat atau terlalu panjang. Gunakan data berikut jika relevan:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
+        f"Status gelombang saat ini:\n{json.dumps(context.get('gelombang_aktif', {}), ensure_ascii=False)}\n\n"
         f"Riwayat singkat percakapan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
     )
 
@@ -133,7 +167,7 @@ def chat():
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus jelas, singkat, dan bantu pengguna lanjut bertanya jika perlu."
+        "Jawaban harus kontekstual, jelas, dan bantu pengguna jika mereka ingin bertanya lebih lanjut."
     )
 
     try:
