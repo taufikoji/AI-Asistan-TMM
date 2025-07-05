@@ -67,18 +67,21 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    # Hapus duplikasi: [text](url) dan kemudian url mentahnya
-    markdown_pattern = re.compile(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^$end:math:text$]+)\)")
-    text = markdown_pattern.sub(r"\2", text)
+    """
+    - Menghapus duplikasi tautan: [teks](url) diikuti url mentah yang sama.
+    - Mengubah url mentah menjadi tautan HTML interaktif.
+    """
+    markdown_and_url_pattern = re.compile(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^\\s)]+)$end:math:text$\s+\2")
+    text = markdown_and_url_pattern.sub(r"<a href='\2' target='_blank' rel='noopener noreferrer'>🔗 \1</a>", text)
 
-    # Hapus duplikat URL yang sama dua kali
-    text = re.sub(r"(https?://[^\s<>'\"()]+)\s+\1", r"\1", text)
+    markdown_pattern = re.compile(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^\\s)]+)$end:math:text$")
+    text = markdown_pattern.sub(r"<a href='\2' target='_blank' rel='noopener noreferrer'>🔗 \1</a>", text)
 
-    # Ganti url mentah menjadi tautan HTML
-    url_pattern = re.compile(r"(https?://[^\s<>'\"()]+)")
+    url_pattern = re.compile(r"(?<!href=['\"])(https?://[^\s<>'\"()]+)")
     text = url_pattern.sub(
         r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text
     )
+
     return text
 
 def save_chat(user_msg, ai_msg):
@@ -184,7 +187,7 @@ def chat():
         reply = format_links(reply)
 
         if not reply:
-            reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan."
+            reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI.get('institution', {}).get('contact', {}).get('whatsapp', '0812xxxxxxx')} untuk bantuan."
 
         save_chat(corrected, reply)
         return jsonify({
