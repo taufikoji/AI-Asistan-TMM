@@ -1,61 +1,42 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("chat-form");
-  const input = document.getElementById("user-input");
-  const container = document.getElementById("chat-container");
+  const chatForm = document.getElementById("chat-form");
+  const userInput = document.getElementById("user-input");
+  const chatContainer = document.getElementById("chat-container");
 
-  form.addEventListener("submit", async (e) => {
+  // Fungsi render chat
+  function renderMessage(role, message) {
+    const msg = document.createElement("div");
+    msg.className = `message ${role}`;
+    msg.innerHTML = DOMPurify.sanitize(message);
+    chatContainer.appendChild(msg);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // Kirim pesan ke backend
+  chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const message = input.value.trim();
+    const message = userInput.value.trim();
     if (!message) return;
 
-    // Tampilkan pesan pengguna
-    addMessage("user", message);
-    input.value = "";
-    autoResize();
+    renderMessage("user", `<span>${message}</span>`);
+    userInput.value = "";
 
     try {
-      const res = await fetch("/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message })
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (data.reply) {
-        addMessage("timu", data.reply);
+      if (data.error) {
+        renderMessage("ai", `<span style="color: red;">❌ ${data.error}</span>`);
       } else {
-        addMessage("timu", "Maaf, terjadi kesalahan saat memproses pertanyaan.");
+        renderMessage("ai", data.reply);
       }
     } catch (error) {
-      addMessage("timu", "Gagal terhubung ke server.");
+      renderMessage("ai", `<span style="color: red;">❌ Gagal terhubung ke server</span>`);
     }
   });
-
-  // Fungsi menambahkan pesan ke chat
-  function addMessage(sender, text) {
-    const msg = document.createElement("div");
-    msg.className = `chat-message ${sender}`;
-
-    if (sender === "timu") {
-      const avatar = document.createElement("div");
-      avatar.className = "avatar glow";
-      msg.appendChild(avatar);
-    }
-
-    const bubble = document.createElement("div");
-    bubble.className = "message";
-    bubble.innerHTML = DOMPurify.sanitize(text);
-    msg.appendChild(bubble);
-
-    container.appendChild(msg);
-    container.scrollTop = container.scrollHeight;
-  }
-
-  // Resize textarea otomatis
-  input.addEventListener("input", autoResize);
-  function autoResize() {
-    input.style.height = "auto";
-    input.style.height = input.scrollHeight + "px";
-  }
 });
