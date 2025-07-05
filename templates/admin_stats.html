@@ -1,24 +1,27 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard Admin</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Statistik Chat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body class="admin-page">
-  <div class="admin-container">
-    <h2>Statistik Chat TIMU</h2>
-    <p>Total Chat: {{ stats.total_chats }}</p>
-
-    <h3>Riwayat Terbaru</h3>
+  <div class="stats-container glass">
+    <h2>📊 Statistik Percakapan</h2>
+    <p>Total percakapan: <strong>{{ stats.total_chats }}</strong></p>
+    <h3>5 Percakapan Terakhir</h3>
     <ul>
-      {% for item in stats.latest %}
-        <li><strong>User:</strong> {{ item.user }}<br><strong>TIMU:</strong> {{ item.ai }}</li>
+      {% for entry in stats.latest %}
+        <li>
+          <strong>Kamu:</strong> {{ entry.user }}<br />
+          <strong>TIMU:</strong> {{ entry.ai }}
+        </li>
       {% endfor %}
     </ul>
-
-    <a href="{{ url_for('logout') }}" class="button logout-btn">Logout</a>
+    <a href="/logout" class="red-glow-btn">🚪 Logout</a>
   </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
