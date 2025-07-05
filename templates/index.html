@@ -4,41 +4,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#7b1f2d" />
-  <title>TIMU Asisten AI - Trisakti School of Multimedia</title>
+  <title>TIMU Asisten AI Trisakti School of Multimedia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="icon" href="{{ url_for('static', filename='logo-timu.png') }}" />
 </head>
 <body>
   <header>
-    <div class="logo-title">
-      <img src="{{ url_for('static', filename='logo-timu.png') }}" alt="Logo TIMU" class="logo" />
-      <h1 class="title">TIMU <span>AI</span></h1>
-    </div>
-    <div class="theme-toggle">
-      <button id="theme-toggle">🌓</button>
-    </div>
+    <h1>TIMU Asisten AI<br>Trisakti School Of Multimedia</h1>
+    <button id="theme-toggle">
+      <span id="theme-icon">☀️</span>
+      <span id="theme-label">Light Mode</span>
+    </button>
+    <a href="/login" class="admin-login-btn">🔒 Admin</a>
   </header>
 
-  <main>
-    <div class="chat-container">
-      <div class="chat-output"></div>
-      <form class="chat-form">
-        <textarea id="user-input" placeholder="Ketik pertanyaan kamu di sini..." rows="1" required></textarea>
-        <button type="submit" id="send-btn" title="Kirim">
-          <span class="send-icon">📨</span>
-        </button>
-      </form>
-    </div>
-    <div class="avatar-glow">
-      <img src="{{ url_for('static', filename='avatar-timu-glow.png') }}" alt="TIMU Avatar" />
-    </div>
-  </main>
+  <main id="chat-container"></main>
+
+  <form id="input-form">
+    <textarea id="message-input" rows="2" placeholder="Tulis pertanyaan Anda..." required></textarea>
+    <button type="submit" id="send-button" aria-label="Kirim">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="white" viewBox="0 0 24 24">
+        <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/>
+      </svg>
+    </button>
+  </form>
 
   <footer>
-    <p>© 2025 Trisakti School of Multimedia | TIMU Asisten AI</p>
-    <a href="/login" class="admin-link">Admin</a>
+    &copy; 2025 Trisakti School of Multimedia. Create by Taofik Faoji.<br />
+    Seluruh pertanyaan dijawab oleh AI dan mungkin saja jawaban tidak sesuai.
   </footer>
 
+  <!-- Sanitizer & Script Chat -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js" integrity="sha512-kxITvZzXXxNuJItEiYOjAcv6UtVYyEBA5EzJxIFUXWML7MLqQm44yPhTmV+ECLPSkYQg+XJXXUAVfEjbd3JDMw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="{{ url_for('static', filename='chat.js') }}"></script>
 </body>
 </html>
