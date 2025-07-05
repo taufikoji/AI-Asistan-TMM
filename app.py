@@ -9,53 +9,51 @@ from google.api_core import exceptions as google_exceptions
 from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
 
-# === Logging ===
+# Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="app.log")
 logger = logging.getLogger(__name__)
 
-# === Load environment ===
+# Load .env
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "secret123")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "secret")
 CORS(app)
 
-# === Konfigurasi Gemini ===
-try:
-    genai.configure(api_key=GEMINI_API_KEY)
-except Exception as e:
-    logger.critical(f"Gagal konfigurasi Gemini: {e}")
+# Konfigurasi Gemini
+genai.configure(api_key=GEMINI_API_KEY)
 
-# === Load data kampus ===
+# Load data kampus
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
-    now = datetime.now()
-    TRISAKTI["current_context"]["date"] = now.strftime("%d %B %Y")
-    TRISAKTI["current_context"]["time"] = now.strftime("%H:%M WIB")
+    TRISAKTI["current_context"]["date"] = datetime.now().strftime("%d %B %Y")
+    TRISAKTI["current_context"]["time"] = datetime.now().strftime("%H:%M WIB")
 except Exception as e:
     logger.critical(f"Gagal load JSON kampus: {e}")
     TRISAKTI = {}
 
-# === SymSpell ===
+# SymSpell
 symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# === Fungsi Bantuan ===
+# ==== UTILITAS ====
 
 def detect_language(text):
     try:
-        return detect(text) if len(text.strip().split()) > 1 else "id"
+        if len(text.strip().split()) <= 1:
+            return "id"
+        return detect(text)
     except:
         return "id"
 
 def correct_typo(text):
     corrected = []
     for word in text.split():
-        s = symspell.lookup(word, Verbosity.CLOSEST, max_edit_distance=2)
-        corrected.append(s[0].term if s else word)
+        suggestions = symspell.lookup(word, Verbosity.CLOSEST, max_edit_distance=2)
+        corrected.append(suggestions[0].term if suggestions else word)
     return " ".join(corrected)
 
 def clean_response(text):
@@ -67,17 +65,9 @@ def format_links(text):
 def save_chat(user_msg, ai_msg):
     try:
         file = "chat_history.json"
-        history = []
-        if os.path.exists(file):
-            with open(file, "r", encoding="utf-8") as f:
-                history = json.load(f)
-        history.append({
-            "timestamp": datetime.now().isoformat(),
-            "user": user_msg,
-            "ai": ai_msg
-        })
-        with open(file, "w", encoding="utf-8") as f:
-            json.dump(history, f, ensure_ascii=False, indent=2)
+        history = json.load(open(file, encoding="utf-8")) if os.path.exists(file) else []
+        history.append({"timestamp": datetime.now().isoformat(), "user": user_msg, "ai": ai_msg})
+        json.dump(history, open(file, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     except Exception as e:
         logger.warning(f"Gagal menyimpan chat: {e}")
 
@@ -106,101 +96,21 @@ def get_current_registration_status():
                     status = f"{wave_name} ({jalur['name']}) sedang berlangsung hingga {end.strftime('%d %B %Y')}."
                 else:
                     status = f"{wave_name} ({jalur['name']}) sudah ditutup pada {end.strftime('%d %B %Y')}."
-
                 summary.append(status)
         return "\n".join(summary)
     except Exception as e:
         logger.warning(f"Gagal menghitung status gelombang: {e}")
         return "Status pendaftaran tidak dapat ditentukan saat ini."
 
-# === ROUTES ===
+# ==== ROUTES ====
 
 @app.route("/")
-def index():
+def landing():
+    return render_template("landing.html")
+
+@app.route("/chat")
+def chat_room():
     return render_template("index.html")
-
-@app.route("/api/chat", methods=["POST"])
-def chat():
-    data = request.get_json()
-    message = data.get("message", "").strip()
-    if not message:
-        return jsonify({"error": "Pesan kosong."}), 400
-
-    lang = detect_language(message)
-    corrected = correct_typo(message)
-
-    if "conversation" not in session:
-        session["conversation"] = []
-    session["conversation"].append({"user": corrected})
-    session["conversation"] = session["conversation"][-50:]
-
-    kategori = get_category(corrected)
-    context = TRISAKTI.get("current_context", {})
-    registration_status_summary = get_current_registration_status()
-
-    # === Jika permintaan brosur
-    if kategori == "brosur":
-        base_url = request.host_url.replace("http://", "https://").rstrip("/")
-        brosur_url = f"{base_url}/download-brosur"
-        reply = (
-            "📄 Brosur resmi TMM siap diunduh!<br><br>"
-            f"<a href='{brosur_url}' class='download-btn' target='_blank'>⬇️ Klik di sini untuk mengunduh brosur</a><br><br>"
-            "Jika tidak bisa dibuka, salin link dan buka manual."
-        )
-        save_chat(corrected, reply)
-        return jsonify({"reply": reply, "language": lang, "corrected": corrected if corrected != message else None})
-
-    # === Prompt untuk Gemini
-    system_prompt = (
-        "Kamu adalah TIMU, asisten AI interaktif dari Trisakti School of Multimedia. "
-        "Jawab dengan ramah, tidak terlalu panjang, tidak terlalu singkat, langsung ke poin. "
-        "Kuasai semua bahasa dan jawablah berdasarkan data di bawah ini:\n\n"
-        f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
-        f"Status pendaftaran saat ini:\n{registration_status_summary}\n\n"
-        f"Riwayat percakapan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
-    )
-
-    prompt = (
-        f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
-        f"Pertanyaan pengguna: \"{corrected}\"\n"
-        f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus responsif, sopan, dan interaktif."
-    )
-
-    try:
-        model = genai.GenerativeModel("gemini-1.5-flash", generation_config={
-            "temperature": 0.3,
-            "top_p": 0.9,
-            "max_output_tokens": 1024
-        })
-        result = model.generate_content(system_prompt + "\n\n" + prompt)
-        raw = result.text.strip()
-        reply = clean_response(raw).replace("TSM", "TMM")
-        reply = format_links(reply)
-
-        if not reply:
-            reply = f"Maaf, saya belum punya informasi itu. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']}."
-
-        save_chat(corrected, reply)
-        return jsonify({"reply": reply, "language": lang, "corrected": corrected if corrected != message else None})
-    
-    except google_exceptions.GoogleAPIError as e:
-        logger.error(f"[Gemini API Error] {e}")
-        return jsonify({"error": "Koneksi AI gagal."}), 500
-    except Exception as e:
-        logger.error(f"[Internal Error] {e}")
-        return jsonify({"error": "Kesalahan sistem."}), 500
-
-@app.route("/download-brosur")
-def download_brosur():
-    try:
-        file_path = os.path.join("static", "brosur_tmm.pdf")
-        if not os.path.exists(file_path):
-            return jsonify({"error": "Brosur tidak ditemukan."}), 404
-        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
-    except Exception as e:
-        logger.error(f"Download error: {e}")
-        return jsonify({"error": "Gagal mengunduh brosur."}), 500
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -229,9 +139,95 @@ def admin_stats():
 @app.route("/logout")
 def logout():
     session.pop("admin_logged_in", None)
-    return redirect(url_for("login"))
+    return redirect(url_for("landing"))
 
-# === Start Flask ===
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    data = request.get_json()
+    message = data.get("message", "").strip()
+    if not message:
+        return jsonify({"error": "Pesan kosong."}), 400
+
+    lang = detect_language(message)
+    corrected = correct_typo(message)
+
+    if 'conversation' not in session:
+        session['conversation'] = []
+    session['conversation'].append({"user": corrected})
+    session['conversation'] = session['conversation'][-55:]
+
+    kategori = get_category(corrected)
+    context = TRISAKTI.get("current_context", {})
+    registration_status = get_current_registration_status()
+
+    # Jika minta brosur
+    if kategori == "brosur":
+        base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
+        brosur_url = f"{base_url}/download-brosur"
+        reply = (
+            "📄 Brosur resmi TMM siap diunduh!<br><br>"
+            f"<a href='{brosur_url}' class='download-btn' target='_blank'>⬇️ Klik di sini untuk mengunduh brosur</a><br><br>"
+            "Jika tidak bisa dibuka, salin link dan buka manual."
+        )
+        save_chat(corrected, reply)
+        return jsonify({
+            "reply": reply,
+            "language": lang,
+            "corrected": corrected if corrected != message else None
+        })
+
+    # Prompt AI
+    system_prompt = (
+        "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia. "
+        "Jawab jelas, ringkas, bantu pengguna memahami, hindari sapaan 'hai'. "
+        "Gunakan data kampus sebagai acuan.\n\n"
+        f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
+        f"Status pendaftaran:\n{registration_status}\n\n"
+        f"Riwayat chat:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
+    )
+
+    prompt = (
+        f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
+        f"Pertanyaan: \"{corrected}\"\nBahasa: {lang.upper()}\n"
+        "Berikan jawaban singkat, ramah, dan tepat sasaran."
+    )
+
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash", generation_config={
+            "temperature": 0.3, "top_p": 0.9, "max_output_tokens": 1024
+        })
+        result = model.generate_content(system_prompt + "\n\n" + prompt)
+        raw = result.text.strip()
+        reply = clean_response(raw).replace("TSM", "TMM")
+        reply = format_links(reply)
+
+        if not reply:
+            reply = f"Maaf, saya belum punya info itu. Hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']}."
+
+        save_chat(corrected, reply)
+        return jsonify({
+            "reply": reply,
+            "language": lang,
+            "corrected": corrected if corrected != message else None
+        })
+
+    except google_exceptions.GoogleAPIError as e:
+        logger.error(f"[Gemini API Error] {e}")
+        return jsonify({"error": "Koneksi AI gagal"}), 500
+    except Exception as e:
+        logger.error(f"[Internal Error] {e}")
+        return jsonify({"error": "Kesalahan sistem"}), 500
+
+@app.route("/download-brosur")
+def download_brosur():
+    try:
+        file_path = os.path.join("static", "brosur_tmm.pdf")
+        if not os.path.exists(file_path):
+            return jsonify({"error": "Brosur tidak tersedia."}), 404
+        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
+    except Exception as e:
+        logger.error(f"Error download brosur: {e}")
+        return jsonify({"error": "Gagal unduh brosur."}), 500
+
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=bool(os.getenv("DEBUG", False)))
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
