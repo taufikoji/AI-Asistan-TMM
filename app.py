@@ -9,22 +9,25 @@ from google.api_core import exceptions as google_exceptions
 from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
 
-# Logging
+# ===================== KONFIGURASI DASAR =====================
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="app.log")
 logger = logging.getLogger(__name__)
 
-# Load .env
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "secret")
 CORS(app)
 
-# Gemini config
+# ===================== GEMINI SETUP =====================
+
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Load JSON data kampus
+# ===================== LOAD DATA JSON =====================
+
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -34,12 +37,13 @@ except Exception as e:
     logger.critical(f"Gagal load JSON kampus: {e}")
     TRISAKTI = {}
 
-# SymSpell
+# ===================== SYMSPELL =====================
+
 symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# ===================== HELPER =====================
+# ===================== FUNGSI BANTUAN =====================
 
 def detect_language(text):
     try:
@@ -58,8 +62,7 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    text = re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
-    return text
+    return re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
 
 def save_chat(user_msg, ai_msg):
     try:
@@ -81,7 +84,6 @@ def get_current_registration_status():
     try:
         today = datetime.now().date()
         summary = []
-
         for jalur in TRISAKTI.get("registration", {}).get("paths", []):
             for wave in jalur.get("waves", []):
                 wave_name = wave.get("wave")
@@ -98,7 +100,6 @@ def get_current_registration_status():
                     status = f"{wave_name} ({jalur['name']}) sudah ditutup pada {end.strftime('%d %B %Y')}."
 
                 summary.append(status)
-
         return "\n".join(summary)
     except Exception as e:
         logger.warning(f"Gagal menghitung status gelombang: {e}")
@@ -143,6 +144,17 @@ def logout():
     session.pop("admin_logged_in", None)
     return redirect(url_for("login"))
 
+@app.route("/download-brosur")
+def download_brosur():
+    try:
+        file_path = os.path.join("static", "brosur_tmm.pdf")
+        if not os.path.exists(file_path):
+            return jsonify({"error": "Brosur tidak tersedia."}), 404
+        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
+    except Exception as e:
+        logger.error(f"Error download brosur: {e}")
+        return jsonify({"error": "Gagal unduh brosur."}), 500
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -178,8 +190,8 @@ def chat():
         })
 
     system_prompt = (
-        "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia. Jawab sopan, tapi tidak terlalu formal. "
-        "Kurangi sapaan seperti 'hai', langsung ke inti. Pahami konteks dan bantu lanjutkan percakapan.\n\n"
+        "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia. Jawab sopan, tidak kaku, dan langsung ke inti. "
+        "Kurangi sapaan seperti 'hai', bantu pengguna lanjut bertanya.\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Status terkini:\n{registration_status_summary}\n\n"
         f"Riwayat singkat:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
@@ -189,7 +201,7 @@ def chat():
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus jelas, tidak terlalu panjang, dan tidak terlalu singkat."
+        "Jawaban harus relevan, sopan, dan komunikatif."
     )
 
     try:
@@ -217,17 +229,6 @@ def chat():
     except Exception as e:
         logger.error(f"[Internal Error] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
-
-@app.route("/download-brosur")
-def download_brosur():
-    try:
-        file_path = os.path.join("static", "brosur_tmm.pdf")
-        if not os.path.exists(file_path):
-            return jsonify({"error": "Brosur tidak tersedia."}), 404
-        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
-    except Exception as e:
-        logger.error(f"Error download brosur: {e}")
-        return jsonify({"error": "Gagal unduh brosur."}), 500
 
 # ===================== RUN =====================
 
