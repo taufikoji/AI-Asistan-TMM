@@ -1,43 +1,22 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard Admin - TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}" />
-  <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-
-  <div class="particles"></div>
-
-  <!-- Dashboard Card -->
-  <div class="glass-card stats-card">
-    <img src="{{ url_for('static', filename='img/timu_logo_glow.png') }}" alt="TIMU Logo" width="80" />
-    <h2>Dashboard Admin</h2>
-
-    <p><strong>Total Chat Tersimpan:</strong> {{ stats.total_chats }}</p>
-
-    <h3>Riwayat Terbaru:</h3>
-    <ul class="chat-list">
+<body class="dashboard">
+  <div class="dashboard-container">
+    <h1>Statistik Chatbot</h1>
+    <p>Total Chat: {{ stats.total_chats }}</p>
+    <h3>5 Chat Terakhir:</h3>
+    <ul>
       {% for chat in stats.latest %}
-        <li>
-          <strong>🧑 Pengguna:</strong> {{ chat.user }}<br />
-          <strong>🤖 TIMU:</strong> {{ chat.ai }}<br />
-          <em>{{ chat.timestamp }}</em>
-        </li>
+        <li><b>User:</b> {{ chat.user }}<br><b>AI:</b> {{ chat.ai }}</li>
       {% endfor %}
     </ul>
-
-    <div class="button-group">
-      <a href="{{ url_for('logout') }}">
-        <button class="glass-btn danger">🚪 Logout</button>
-      </a>
-      <a href="{{ url_for('landing') }}">
-        <button class="glass-btn">🏠 Kembali ke Landing</button>
-      </a>
-    </div>
+    <a href="{{ url_for('logout') }}" class="btn">🔓 Logout</a>
   </div>
-
 </body>
 </html>
