@@ -1,25 +1,22 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <title>TIMU - Asisten AI TMM</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TIMU AI | Trisakti Multimedia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
-<body class="landing-page">
-  <header class="landing-header">
-    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo TMM" class="logo">
+<body class="landing">
+  <div class="landing-container glass">
+    <img src="{{ url_for('static', filename='images/timu_logo.png') }}" alt="TIMU Logo" class="logo-glow" />
     <h1>Selamat Datang di TIMU</h1>
-    <p>Asisten AI Trisakti School of Multimedia</p>
-  </header>
+    <p>Asisten AI dari Trisakti School of Multimedia</p>
+    <div class="btn-group">
+      <button id="startChatBtn" class="red-glow-btn">💬 Mulai Bicara</button>
+      <button id="adminLoginBtn">🔐 Login Admin</button>
+    </div>
+  </div>
 
-  <main class="landing-content">
-    <a href="{{ url_for('chatroom') }}" class="button">💬 Mulai Bertanya</a>
-    <a href="{{ url_for('login') }}" class="button">🔐 Login Admin</a>
-  </main>
-
-  <footer class="footer">
-    <p>&copy; {{ datetime.utcnow().year }} Trisakti School of Multimedia</p>
-  </footer>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
