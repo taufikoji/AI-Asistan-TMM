@@ -1,112 +1,20 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Trisakti Multimedia | TIMU AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <style>
-    body {
-      background: radial-gradient(circle at top left, #1a1a1a, #000000);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      overflow: hidden;
-    }
-
-    .glass-box {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 700px;
-      text-align: center;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 40px rgba(255, 50, 50, 0.2);
-      color: #fff;
-      animation: fadeIn 0.8s ease-out;
-    }
-
-    .glass-box h1 {
-      font-size: 2.5rem;
-      margin-bottom: 15px;
-    }
-
-    .glass-box p {
-      font-size: 1.2rem;
-      margin-bottom: 30px;
-      color: #ccc;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .landing-btn {
-      background-color: #ff2b2b;
-      color: #fff;
-      padding: 15px 25px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 0 15px rgba(255, 50, 50, 0.4);
-    }
-
-    .landing-btn:hover {
-      background-color: #ff5555;
-    }
-
-    .theme-toggle {
-      top: 20px;
-      right: 20px;
-    }
-
-    video#bgVideo {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-      filter: brightness(0.25);
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Selamat Datang di TMM</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-
-  <video id="bgVideo" autoplay muted loop>
-    <source src="{{ url_for('static', filename='videos/futuristic-bg.mp4') }}" type="video/mp4">
-  </video>
-
-  <div class="theme-toggle" onclick="toggleTheme()">🌓 Mode</div>
-
-  <div class="glass-box">
-    <img src="{{ url_for('static', filename='images/avatar.png') }}" alt="TIMU Logo" style="width: 100px; animation: pulse 3s infinite;">
-    <h1>Selamat Datang di TIMU</h1>
-    <p>Asisten AI Interaktif dari Trisakti School of Multimedia</p>
+<body class="landing">
+  <div class="landing-container">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo TMM" class="logo" />
+    <h1>Selamat Datang di Trisakti School of Multimedia</h1>
+    <p>Asisten AI siap membantu Anda</p>
     <div class="button-group">
-      <a href="{{ url_for('chat') }}">
-        <button class="landing-btn">💬 Bicara dengan TIMU</button>
-      </a>
-      <a href="{{ url_for('login') }}">
-        <button class="landing-btn">🔐 Login Admin</button>
-      </a>
+      <a href="{{ url_for('chatroom') }}" class="btn">💬 Berbicara dengan TIMU</a>
+      <a href="{{ url_for('login') }}" class="btn">🔐 Login Admin</a>
     </div>
   </div>
-
-  <script>
-    function toggleTheme() {
-      const html = document.documentElement;
-      const current = html.getAttribute("data-theme");
-      html.setAttribute("data-theme", current === "light" ? "dark" : "light");
-    }
-  </script>
-
 </body>
 </html>
