@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TIMU AI - Trisakti Multimedia</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trisakti Multimedia | TIMU AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='img/timu-avatar.png') }}">
 </head>
 <body>
-
+  <!-- Video Background -->
   <video autoplay muted loop id="bg-video">
     <source src="{{ url_for('static', filename='media/background.mp4') }}" type="video/mp4">
     Your browser does not support HTML5 video.
   </video>
 
+  <!-- Overlay -->
   <div class="overlay">
-    <div class="content">
-      <img src="{{ url_for('static', filename='img/timu-avatar.png') }}" alt="Logo TMM" class="logo" />
-      <h1>Selamat Datang di <span>Trisakti School of Multimedia</span></h1>
-      <p class="sub">Jelajahi kampus secara interaktif bersama <strong>TIMU AI</strong>.</p>
+    <div class="logo-area">
+      <img src="{{ url_for('static', filename='img/timu-avatar.png') }}" alt="TMM Logo" class="logo-glow">
+      <h1>Trisakti School of Multimedia</h1>
+      <p>Asisten AI Interaktif: <strong>TIMU</strong></p>
+    </div>
 
-      <div class="btn-group">
-        <a href="{{ url_for('index') }}" class="btn chat">💬 Bicara dengan TIMU</a>
-        <a href="{{ url_for('login') }}" class="btn admin">🔐 Login Admin</a>
-      </div>
+    <div class="button-area">
+      <a href="{{ url_for('index') }}" class="btn-glow">💬 Chat dengan TIMU</a>
+      <a href="{{ url_for('login') }}" class="btn-glow secondary">🔐 Login Admin</a>
     </div>
   </div>
 
