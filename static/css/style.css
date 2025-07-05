@@ -89,3 +89,61 @@ button#toggle-theme {
   border-radius: 5px;
   cursor: pointer;
 }
+.login-container,
+.dashboard {
+  max-width: 400px;
+  margin: 80px auto;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+}
+
+.login-container button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #ff0033;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #ff0033;
+}
+
+.error {
+  color: #f55;
+}
+
+.dashboard ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+  text-align: left;
+}
+
+.dashboard li {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+}
+
+.btn-red {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 14px;
+  background: crimson;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+}
