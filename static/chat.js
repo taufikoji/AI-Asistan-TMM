@@ -97,7 +97,3 @@ input.addEventListener("keydown", function (e) {
     form.requestSubmit();
   }
 });
-
-window.onload = () => {
-  append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
-};
