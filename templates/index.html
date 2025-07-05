@@ -2,32 +2,40 @@
 <html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#7b1f2d" />
-  <title>TIMU Asisten AI - Trisakti School of Multimedia</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <link rel="icon" href="/static/timu-avatar.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TIMU • Asisten AI TMM</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="/static/timu-avatar.png">
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.4/dist/purify.min.js"></script>
 </head>
 <body>
-  <div class="chat-container glass">
-    <div class="header">
-      <div class="avatar-glow">
-        <img src="/static/timu-avatar.png" alt="TIMU" class="avatar" />
-      </div>
-      <h1>TIMU - Asisten AI TMM</h1>
-      <div class="theme-toggle">
-        <button id="toggle-theme">🌓</button>
-        <a href="/login" class="admin-login">🔒</a>
+  <div class="theme-toggle">
+    <label class="switch">
+      <input type="checkbox" id="theme-toggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="chat-container glass-effect">
+    <div class="chat-header">
+      <img src="/static/timu-avatar.png" alt="TIMU" class="avatar-glow">
+      <div>
+        <h1>TIMU</h1>
+        <p>Asisten AI Trisakti School of Multimedia</p>
       </div>
     </div>
-    <div id="chatbox" class="chatbox">
-      <div class="message bot"><div class="text">👋 Halo! Saya TIMU, siap bantu info seputar TMM. Silakan bertanya.</div></div>
+    <div id="chat-box" class="chat-box">
+      <!-- Riwayat chat akan muncul di sini -->
     </div>
-    <div class="input-area">
-      <textarea id="user-input" placeholder="Ketik pertanyaan Anda..."></textarea>
-      <button id="send-button">🚀</button>
+    <div class="chat-input-area">
+      <textarea id="user-input" placeholder="Tulis pertanyaanmu..."></textarea>
+      <button id="send-btn">📨</button>
+    </div>
+    <div class="chat-footer">
+      <a href="/login" class="admin-link">🔒 Admin</a>
     </div>
   </div>
+
   <script src="/static/chat.js"></script>
 </body>
 </html>
