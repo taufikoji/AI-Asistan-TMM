@@ -1,25 +1,24 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chat dengan TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
-<body class="chat-page">
-  <div class="chat-container">
-    <div class="chat-header">
-      <img src="{{ url_for('static', filename='img/avatar.png') }}" class="avatar" alt="TIMU">
-      <h2>TIMU - Asisten AI TMM</h2>
-    </div>
+<body class="chatroom">
+  <header class="chat-header">
+    <img src="{{ url_for('static', filename='images/timu_logo.png') }}" alt="TIMU" class="logo-small" />
+    <h2>TIMU Asisten AI</h2>
+    <a href="/" class="back-btn">⬅ Kembali</a>
+  </header>
 
-    <div id="chat-box" class="chat-box"></div>
+  <main id="chatBox" class="chat-box"></main>
 
-    <form id="chat-form" class="chat-form">
-      <textarea id="user-input" placeholder="Ketik pertanyaan kamu di sini..." required></textarea>
-      <button type="submit" id="send-btn">🚀</button>
-    </form>
-  </div>
+  <form id="chatForm" class="chat-input-form">
+    <textarea id="chatInput" placeholder="Tulis pertanyaanmu..." rows="1" required></textarea>
+    <button type="submit" class="send-btn">📤</button>
+  </form>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
