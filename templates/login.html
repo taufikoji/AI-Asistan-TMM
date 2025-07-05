@@ -1,73 +1,22 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login Admin - TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <style>
-    .login-container {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 2rem;
-      background: var(--glass);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-    }
-    .login-container h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: var(--text-color);
-    }
-    .login-container input[type="password"] {
-      width: 100%;
-      padding: 0.8rem;
-      border-radius: 10px;
-      border: none;
-      margin-bottom: 1rem;
-      background-color: var(--input-bg);
-      color: var(--text-color);
-    }
-    .login-container button {
-      width: 100%;
-      padding: 0.8rem;
-      border: none;
-      border-radius: 10px;
-      background: var(--accent);
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .login-container button:hover {
-      background: #c62828;
-    }
-    .error {
-      color: red;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .back-home {
-      display: block;
-      text-align: center;
-      margin-top: 1rem;
-      color: var(--accent);
-      text-decoration: none;
-    }
-  </style>
+  <title>Login Admin – TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="login-container">
-    <h2>🔒 Login Admin</h2>
-    {% if error %}
-      <div class="error">{{ error }}</div>
-    {% endif %}
+  <main class="login-container">
+    <h2>🔐 Login Admin</h2>
     <form method="POST">
-      <input type="password" name="password" placeholder="Masukkan Password Admin" required />
-      <button type="submit">Login</button>
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+      <input type="password" name="password" placeholder="Masukkan password" required />
+      <button type="submit">Masuk</button>
     </form>
-    <a href="{{ url_for('index') }}" class="back-home">⬅️ Kembali ke Beranda</a>
-  </div>
+    <a href="{{ url_for('landing') }}" class="back-home">← Kembali ke Landing</a>
+  </main>
 </body>
 </html>
