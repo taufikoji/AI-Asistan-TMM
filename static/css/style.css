@@ -1,237 +1,239 @@
-/* ======= RESET DAN DASAR ======= */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  font-family: 'Segoe UI', sans-serif;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-  transition: background 0.5s, color 0.5s;
-}
-
-/* ======= VARIABEL TEMA ======= */
 :root {
-  --bg: #0d0d0d;
-  --text: #eaeaea;
-  --primary: #ff3c57;
-  --secondary: #1a1a1a;
-  --accent: #4fc3f7;
-  --glow: 0 0 15px rgba(255, 60, 87, 0.7);
+  --primary: #ff0033;
+  --bg-light: #f5f5f5;
+  --bg-dark: #0b0b0b;
+  --text-light: #111;
+  --text-dark: #f0f0f0;
+  --glass: rgba(255, 255, 255, 0.08);
+  --blur: blur(15px);
 }
 
 [data-theme="light"] {
-  --bg: #f5f5f5;
-  --text: #111;
-  --secondary: #fff;
+  --bg: var(--bg-light);
+  --text: var(--text-light);
+}
+[data-theme="dark"] {
+  --bg: var(--bg-dark);
+  --text: var(--text-dark);
 }
 
-/* ======= LANDING PAGE ======= */
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+  min-height: 100vh;
+}
+
+/* === LANDING PAGE === */
+
 .landing-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
   text-align: center;
-  padding: 80px 20px;
-  background: linear-gradient(135deg, #0d0d0d 40%, #1c1c1c);
-  position: relative;
-  z-index: 1;
+}
+
+.logo-glow {
+  width: 120px;
+  filter: drop-shadow(0 0 8px var(--primary));
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { filter: drop-shadow(0 0 5px var(--primary)); }
+  to { filter: drop-shadow(0 0 15px var(--primary)); }
 }
 
 .landing-container h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: var(--text);
-  text-shadow: 0 0 10px rgba(255,255,255,0.3);
+  font-size: 2.2rem;
+  margin-top: 1rem;
 }
 
 .landing-container p {
   max-width: 600px;
-  margin-bottom: 2rem;
-  line-height: 1.6;
-  color: #ccc;
+  margin: 1rem auto;
+  font-size: 1rem;
+  opacity: 0.9;
 }
 
 .landing-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
+  margin-top: 2rem;
 }
 
-.landing-buttons a {
-  padding: 12px 24px;
-  background: var(--primary);
-  color: #fff;
+.landing-buttons button {
+  margin: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary);
   border: none;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  box-shadow: var(--glow);
-  transition: 0.3s ease;
+  border-radius: 30px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--primary);
+  transition: background 0.3s;
 }
 
-.landing-buttons a:hover {
-  transform: scale(1.05);
-  background: #ff5f74;
+.landing-buttons button:hover {
+  background-color: #cc0029;
 }
 
-/* ======= CHATROOM ======= */
-.chat-container {
+/* === CHAT ROOM === */
+
+.chat-wrapper {
   display: flex;
   flex-direction: column;
+  max-width: 720px;
+  margin: 0 auto;
   height: 100vh;
-  background: var(--bg);
+  padding: 1rem;
 }
 
-.chat-header {
-  padding: 15px 20px;
-  background: var(--secondary);
-  color: var(--text);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.chat-body {
+#chat-box {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 1rem;
+  background: var(--glass);
+  border-radius: 12px;
+  backdrop-filter: var(--blur);
+  margin-bottom: 1rem;
 }
 
-.message {
-  margin: 10px 0;
-  padding: 12px 18px;
-  border-radius: 10px;
-  max-width: 80%;
+.bubble {
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  border-radius: 1rem;
+  max-width: 85%;
   line-height: 1.4;
+  animation: fadeIn 0.3s ease;
 }
 
-.message.user {
-  background: var(--primary);
+.bubble.user {
+  background-color: #222;
   color: #fff;
   align-self: flex-end;
+  border-bottom-right-radius: 0;
 }
 
-.message.bot {
-  background: #262626;
-  color: var(--text);
+.bubble.ai {
+  background-color: #fff;
+  color: #111;
   align-self: flex-start;
+  border-bottom-left-radius: 0;
 }
 
-.chat-input {
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-input-area {
   display: flex;
-  padding: 12px;
-  background: var(--secondary);
-  border-top: 1px solid #444;
+  gap: 0.5rem;
 }
 
-.chat-input textarea {
+#user-input {
   flex: 1;
-  padding: 12px;
-  background: #000;
-  color: #fff;
+  padding: 0.75rem;
   border: none;
-  border-radius: 6px;
-  resize: none;
+  border-radius: 25px;
+  background-color: #000;
+  color: #fff;
+  font-size: 1rem;
 }
 
-.chat-input button {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  margin-left: 10px;
-  padding: 0 18px;
-  border-radius: 6px;
-  box-shadow: var(--glow);
-  cursor: pointer;
+#user-input:focus {
+  outline: 2px solid var(--primary);
 }
 
-/* Avatar Glow */
-.avatar {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  width: 60px;
-  height: 60px;
-  background: url('/static/images/avatar_timu.png') no-repeat center/cover;
+.send-btn {
+  padding: 0 1rem;
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
   border-radius: 50%;
-  box-shadow: 0 0 20px rgba(255,60,87,0.8);
-  animation: pulseGlow 2s infinite;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--primary);
+  transition: transform 0.2s;
 }
 
-/* Animasi Glow */
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 10px rgba(255,60,87,0.4); }
-  50% { box-shadow: 0 0 20px rgba(255,60,87,0.9); }
-  100% { box-shadow: 0 0 10px rgba(255,60,87,0.4); }
+.send-btn:hover {
+  transform: scale(1.1);
 }
 
-/* ======= LOGIN & DASHBOARD ======= */
-.login-container, .admin-container {
-  max-width: 420px;
-  margin: 100px auto;
-  background: var(--secondary);
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: var(--glow);
+/* === ADMIN LOGIN & DASHBOARD === */
+
+.login-container,
+.stats-container {
+  max-width: 400px;
+  margin: 5rem auto;
+  padding: 2rem;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  border-radius: 10px;
   text-align: center;
 }
 
-.login-container input[type="password"] {
+.login-container input {
   width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  background: #000;
+  padding: 0.75rem;
+  margin: 1rem 0;
+  border-radius: 25px;
+  border: none;
+  background: #222;
   color: #fff;
-  border: 1px solid #444;
-  border-radius: 6px;
 }
 
 .login-container button {
-  margin-top: 20px;
-  padding: 12px 24px;
-  background: var(--primary);
-  border: none;
-  color: #fff;
-  border-radius: 6px;
   width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 25px;
+  background-color: var(--primary);
+  color: white;
+  font-weight: bold;
   cursor: pointer;
-  box-shadow: var(--glow);
+  transition: background 0.3s;
 }
 
 .login-container button:hover {
-  background: #ff5a70;
+  background-color: #b30027;
 }
 
-/* Tombol tema */
-.toggle-theme {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: var(--secondary);
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  color: var(--text);
+.theme-switch {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.theme-switch button {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  padding: 0.3rem 1rem;
+  border-radius: 25px;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(255,255,255,0.1);
 }
 
-/* RESPONSIVE */
-@media (max-width: 600px) {
-  .landing-container h1 {
-    font-size: 1.8rem;
-  }
-  .chat-input textarea {
-    font-size: 14px;
-  }
-  .chat-input button {
-    padding: 0 12px;
-  }
+/* === TAMBAHAN === */
+
+a.download-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 25px;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+#loading-dots {
+  display: none;
+  font-weight: bold;
+  margin-left: 0.5rem;
 }
