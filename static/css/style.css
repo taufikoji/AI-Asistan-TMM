@@ -129,3 +129,49 @@ body {
   color: #fff;
   cursor: pointer;
 }
+
+.login-container {
+  max-width: 400px;
+  margin: 8vh auto;
+  padding: 2rem;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 20px #111;
+  backdrop-filter: blur(12px);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.login-form input {
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  background: #111;
+  color: white;
+}
+
+.login-form button {
+  background: var(--red-glow);
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--red-glow);
+  transition: 0.3s;
+}
+
+.login-form button:hover {
+  background: #ff4d7d;
+}
+
+.error-message {
+  color: #ff4d7d;
+  margin-top: 1rem;
+}
