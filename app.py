@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify, render_template, send_from_directory,
 from dotenv import load_dotenv
 from flask_cors import CORS
 from datetime import datetime
-from dateutil.parser import parse as parse_date
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 from langdetect import detect
@@ -39,8 +38,7 @@ symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# ==== FUNGSI BANTUAN ====
-
+# Fungsi bantu
 def detect_language(text):
     try:
         if len(text.strip().split()) <= 1:
@@ -60,7 +58,6 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    text = re.sub(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^\\s)]+)$end:math:text$\s+\2", r"\2", text)
     return re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
 
 def save_chat(user_msg, ai_msg):
@@ -79,32 +76,43 @@ def get_category(msg):
             return kategori
     return "general"
 
-def get_current_registration_status():
+def get_current_gelombang(info):
     try:
-        today = datetime.now().date()
-        summary = []
+        today = datetime.today().date()
+        gelombang_aktif = None
+        semua_gelombang = info.get("pendaftaran", {}).get("gelombang", [])
 
-        for jalur in TRISAKTI.get("registration", {}).get("paths", []):
-            for wave in jalur.get("waves", []):
-                wave_name = wave.get("wave")
-                period = wave.get("period", "")
-                start_str, end_str = [s.strip() for s in period.split(" - ")]
-                start = parse_date(start_str, dayfirst=True).date()
-                end = parse_date(end_str, dayfirst=True).date()
+        for g in semua_gelombang:
+            mulai = datetime.strptime(g["mulai"], "%Y-%m-%d").date()
+            selesai = datetime.strptime(g["selesai"], "%Y-%m-%d").date()
+            if mulai <= today <= selesai:
+                gelombang_aktif = {
+                    "status": "berlangsung",
+                    "nama": g["nama"],
+                    "mulai": mulai.strftime("%d %B %Y"),
+                    "selesai": selesai.strftime("%d %B %Y")
+                }
+                break
+            elif today < mulai:
+                gelombang_aktif = {
+                    "status": "akan datang",
+                    "nama": g["nama"],
+                    "mulai": mulai.strftime("%d %B %Y"),
+                    "selesai": selesai.strftime("%d %B %Y")
+                }
+                break
 
-                if today < start:
-                    status = f"{wave_name} ({jalur['name']}) akan dibuka mulai {start.strftime('%d %B %Y')}."
-                elif start <= today <= end:
-                    status = f"{wave_name} ({jalur['name']}) sedang berlangsung hingga {end.strftime('%d %B %Y')}."
-                else:
-                    status = f"{wave_name} ({jalur['name']}) sudah ditutup pada {end.strftime('%d %B %Y')}."
+        if not gelombang_aktif and semua_gelombang:
+            gelombang_aktif = {
+                "status": "selesai",
+                "nama": semua_gelombang[-1]["nama"],
+                "selesai": datetime.strptime(semua_gelombang[-1]["selesai"], "%Y-%m-%d").strftime("%d %B %Y")
+            }
 
-                summary.append(status)
-
-        return "\n".join(summary)
+        return gelombang_aktif
     except Exception as e:
-        logger.warning(f"Gagal menghitung status gelombang: {e}")
-        return "Status pendaftaran tidak dapat ditentukan saat ini."
+        logger.error(f"Gagal menentukan gelombang: {e}")
+        return None
 
 # ==== ROUTES ====
 
@@ -125,10 +133,11 @@ def chat():
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
-    session['conversation'] = session['conversation'][-55:]
+    session['conversation'] = session['conversation'][-55:]  # simpan 55 terakhir
 
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
+    context["gelombang_aktif"] = get_current_gelombang(TRISAKTI)
 
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
@@ -145,15 +154,12 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    registration_status_summary = get_current_registration_status()
-
+    # ==== PROMPT FINAL ====
     system_prompt = (
-        "Kamu adalah TIMU, asisten AI interaktif dari Trisakti School of Multimedia. "
-        "Jawab secara ramah dan kurangi penggunaan kata sapaan seperti hai. Langsung ke inti, jangan terlalu panjang, juga jangan terlalu singkat atau formal. "
-        "Kamu sangat pintar, menguasai semua bahasa, dan menjawab berdasarkan konteks waktu dan data terkini.\n\n"
-        "Gunakan informasi berikut ini sebagai referensi utama jika relevan:\n\n"
+        "Kamu adalah TIMU, asisten AI resmi Trisakti School of Multimedia. "
+        "Jawab langsung ke poin, tidak perlu menyapa. Jangan terlalu singkat atau terlalu panjang. Gunakan data berikut jika relevan:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
-        f"Status terkini pendaftaran:\n{registration_status_summary}\n\n"
+        f"Status gelombang saat ini:\n{json.dumps(context.get('gelombang_aktif', {}), ensure_ascii=False)}\n\n"
         f"Riwayat singkat percakapan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
     )
 
@@ -161,7 +167,7 @@ def chat():
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus jelas, singkat, dan bantu pengguna lanjut bertanya jika perlu."
+        "Jawaban harus kontekstual, jelas, dan bantu pengguna jika mereka ingin bertanya lebih lanjut."
     )
 
     try:
@@ -230,5 +236,6 @@ def logout():
     session.pop("admin_logged_in", None)
     return redirect(url_for("login"))
 
+# ==== RUN ====
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
