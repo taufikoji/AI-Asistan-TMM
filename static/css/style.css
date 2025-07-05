@@ -1,70 +1,187 @@
-body {
+/* Reset & dasar */
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: 'Segoe UI', sans-serif;
-  background: #0d0d0d;
-  color: #fff;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.4s, color 0.4s;
 }
-a { text-decoration: none; color: #fff; }
-.btn {
-  display: inline-block;
-  background: #e53935;
-  padding: 10px 20px;
-  border-radius: 8px;
-  color: white;
-  font-weight: bold;
-  margin: 10px 5px;
-  transition: 0.3s;
+
+/* Tema light & dark */
+:root {
+  --bg-color: #f2f2f2;
+  --text-color: #111;
+  --card-bg: rgba(255, 255, 255, 0.25);
+  --input-bg: #fff;
+  --button-color: #ff3c3c;
 }
-.btn:hover { background: #c62828; }
-.landing-container, .login-container, .dashboard-container {
-  max-width: 500px;
-  margin: auto;
-  padding: 40px;
-  text-align: center;
+
+[data-theme="dark"] {
+  --bg-color: #0e0e0e;
+  --text-color: #f8f8f8;
+  --card-bg: rgba(255, 255, 255, 0.06);
+  --input-bg: #151515;
+  --button-color: #ff3c3c;
 }
-.logo { width: 80px; margin-bottom: 20px; }
+
+/* Container utama */
 .chat-container {
+  max-width: 800px;
+  margin: 70px auto 0;
+  padding: 20px;
+  border-radius: 16px;
+  backdrop-filter: blur(18px);
+  background: var(--card-bg);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+  min-height: 75vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background: #1e1e1e;
+  position: relative;
+  overflow: hidden;
 }
-.chat-header {
-  background: #212121;
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-.chat-box {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 15px;
-  background: #121212;
-}
-.chat-input {
-  display: flex;
-  padding: 15px;
-  background: #212121;
-}
-.chat-input textarea {
+
+/* Chat box */
+#chat-box {
   flex: 1;
+  overflow-y: auto;
   padding: 10px;
-  border: none;
-  border-radius: 6px;
-  background: #333;
+  margin-bottom: 12px;
+  scroll-behavior: smooth;
+}
+
+/* Pesan pengguna dan bot */
+.chat-message {
+  margin: 8px 0;
+  padding: 10px 16px;
+  border-radius: 12px;
+  max-width: 90%;
+  word-wrap: break-word;
+  backdrop-filter: blur(6px);
+}
+
+.chat-message.user {
+  background: #ff3c3c;
   color: white;
+  align-self: flex-end;
+  box-shadow: 0 0 12px rgba(255, 60, 60, 0.6);
+}
+
+.chat-message.bot {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+  align-self: flex-start;
+  border-left: 3px solid #ff3c3c;
+}
+
+/* Form chat */
+.chat-input-form {
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 12px;
+}
+
+textarea#message-input {
+  flex: 1;
   resize: none;
-}
-.chat-input button {
-  margin-left: 10px;
-  background: #e53935;
+  padding: 10px 14px;
+  background: var(--input-bg);
   border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  color: white;
-  font-size: 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--text-color);
+  height: 48px;
 }
-.avatar { width: 40px; height: 40px; border-radius: 50%; }
-.back-link { color: #ccc; font-size: 14px; margin-left: auto; }
-.error { color: red; }
+
+textarea#message-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--button-color);
+}
+
+/* Tombol kirim */
+button[type="submit"] {
+  background: var(--button-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease;
+  box-shadow: 0 0 12px rgba(255, 60, 60, 0.6);
+}
+
+button[type="submit"]:hover {
+  transform: scale(1.1);
+}
+
+/* Avatar AI TIMU */
+.avatar-timu {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  animation: glow 3s ease-in-out infinite;
+  z-index: 10;
+  border: 3px solid #ff3c3c;
+  background: #111;
+}
+
+.avatar-timu img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Efek animasi glow avatar */
+@keyframes glow {
+  0% { box-shadow: 0 0 10px #ff3c3c; }
+  50% { box-shadow: 0 0 20px #ff3c3c, 0 0 30px #ff5e5e; }
+  100% { box-shadow: 0 0 10px #ff3c3c; }
+}
+
+/* Tombol tema */
+.theme-toggle {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 99;
+  background: transparent;
+  border: 2px solid var(--button-color);
+  color: var(--button-color);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  backdrop-filter: blur(8px);
+}
+
+.theme-toggle:hover {
+  background: var(--button-color);
+  color: white;
+}
+
+/* Responsif */
+@media (max-width: 600px) {
+  .chat-container {
+    margin-top: 30px;
+    padding: 16px;
+    border-radius: 0;
+  }
+
+  .avatar-timu {
+    width: 52px;
+    height: 52px;
+  }
+}
