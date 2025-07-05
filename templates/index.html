@@ -3,26 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TIMU – Chatbot Trisakti Multimedia</title>
+  <meta name="theme-color" content="#7b1f2d">
+  <title>Chat TIMU - Trisakti Multimedia</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-  <header>
-    <a href="{{ url_for('landing') }}" class="back-home">← Kembali ke Landing</a>
-    <img src="{{ url_for('static', filename='img/timu-avatar.png') }}" alt="TIMU Logo" class="logo" />
-    <h1>TIMU – Asisten AI</h1>
+  <header class="chat-header">
+    <img src="{{ url_for('static', filename='img/timu_logo.png') }}" alt="TIMU" class="logo" />
+    <div class="theme-toggle">
+      <button id="toggleTheme">🌙 / ☀️</button>
+    </div>
   </header>
 
-  <main class="chat-container">
-    <div id="chat-box" class="glassbox"></div>
-    <div class="input-container">
-      <textarea id="user-input" placeholder="Tulis pertanyaan..." rows="1"></textarea>
-      <button id="send-btn">📨</button>
+  <main class="chat-container glass">
+    <div id="chatBox" class="chat-box">
+      <div class="message bot">
+        <div class="avatar glow"></div>
+        <div class="bubble">Halo! Saya TIMU, asisten AI dari Trisakti School of Multimedia. Ada yang bisa saya bantu?</div>
+      </div>
     </div>
+
+    <form id="chatForm" class="chat-form">
+      <textarea id="userInput" placeholder="Ketik pertanyaanmu..." required></textarea>
+      <button type="submit" id="sendBtn" title="Kirim">
+        <span class="paper-plane">🛩️</span>
+      </button>
+    </form>
   </main>
 
-  <footer>
-    <button id="toggle-theme">🌓 Mode</button>
+  <footer class="chat-footer">
+    <p>Trisakti School of Multimedia © 2025</p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
