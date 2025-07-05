@@ -1,42 +1,50 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const chatForm = document.getElementById("chat-form");
-  const userInput = document.getElementById("user-input");
-  const chatContainer = document.getElementById("chat-container");
+const chatBox = document.getElementById("chat-box");
+const userInput = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
 
-  // Fungsi render chat
-  function renderMessage(role, message) {
-    const msg = document.createElement("div");
-    msg.className = `message ${role}`;
-    msg.innerHTML = DOMPurify.sanitize(message);
-    chatContainer.appendChild(msg);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+function appendMessage(sender, text) {
+  const message = document.createElement("div");
+  message.className = `chat-message ${sender}`;
+  if (sender === "bot") {
+    message.innerHTML = `
+      <div class="avatar-glow"></div>
+      <div class="message-text">${DOMPurify.sanitize(text)}</div>
+    `;
+  } else {
+    message.innerHTML = `<div class="message-text user-text">${DOMPurify.sanitize(text)}</div>`;
   }
+  chatBox.appendChild(message);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-  // Kirim pesan ke backend
-  chatForm.addEventListener("submit", async (e) => {
+async function sendMessage() {
+  const text = userInput.value.trim();
+  if (!text) return;
+
+  appendMessage("user", text);
+  userInput.value = "";
+  sendBtn.disabled = true;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await response.json();
+    appendMessage("bot", data.reply || "❌ Maaf, tidak ada jawaban.");
+  } catch (err) {
+    appendMessage("bot", "⚠️ Gagal menghubungi server.");
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+sendBtn.addEventListener("click", sendMessage);
+userInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
-    const message = userInput.value.trim();
-    if (!message) return;
-
-    renderMessage("user", `<span>${message}</span>`);
-    userInput.value = "";
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        renderMessage("ai", `<span style="color: red;">❌ ${data.error}</span>`);
-      } else {
-        renderMessage("ai", data.reply);
-      }
-    } catch (error) {
-      renderMessage("ai", `<span style="color: red;">❌ Gagal terhubung ke server</span>`);
-    }
-  });
+    sendMessage();
+  }
 });
