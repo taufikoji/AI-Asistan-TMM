@@ -1,43 +1,32 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat bersama TIMU - AI Trisakti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruang Chat TIMU</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" />
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
 </head>
 <body class="chatroom-page">
-  <!-- Header -->
-  <header class="chat-header">
-    <a href="{{ url_for('index') }}" class="back-btn">← Kembali ke Landing</a>
-    <img src="{{ url_for('static', filename='images/logo-timu.png') }}" alt="Logo TIMU" class="logo-mini" />
-    <h2>Chat dengan TIMU</h2>
+  <header class="header-chat">
+    <a href="{{ url_for('landing') }}" class="back-button">← Kembali ke Beranda</a>
+    <img src="{{ url_for('static', filename='images/timu-logo-glow.png') }}" alt="TIMU Logo" class="logo-small">
+    <h2 class="chat-title">Chat bersama <span class="highlight">TIMU</span></h2>
   </header>
 
-  <!-- Chat Container -->
-  <div class="chat-container" id="chat-container">
-    <div class="avatar-timu-glow">
-      <img src="{{ url_for('static', filename='images/avatar-timu.png') }}" alt="Avatar TIMU">
-    </div>
+  <main id="chat-container" class="chat-container">
     <div id="chat-box" class="chat-box">
-      <div class="ai-message">
-        👋 Halo! Saya TIMU, asisten AI Trisakti Multimedia. Silakan tanyakan apapun tentang pendaftaran, program studi, atau kampus!
-      </div>
+      <!-- Riwayat percakapan muncul di sini -->
     </div>
+    <form id="chat-form" class="chat-form">
+      <textarea id="user-input" placeholder="Tulis pertanyaanmu..." required></textarea>
+      <button type="submit" id="send-btn" title="Kirim">
+        <span>📨</span>
+      </button>
+    </form>
+  </main>
 
-    <!-- Input -->
-    <div class="chat-input-container">
-      <textarea id="user-input" placeholder="Tulis pertanyaanmu..." rows="1"></textarea>
-      <button id="send-btn" class="send-btn">📨</button>
-    </div>
-  </div>
-
-  <!-- WhatsApp Support -->
-  <div class="whatsapp-support">
-    Butuh bantuan? <a href="https://wa.me/{{ whatsapp_number }}" target="_blank">Hubungi Admin</a>
-  </div>
+  <div id="chat-loading" class="loading-spinner" style="display: none;"></div>
 
   <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>
