@@ -13,7 +13,7 @@ from symspellpy.symspellpy import SymSpell, Verbosity
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="app.log")
 logger = logging.getLogger(__name__)
 
-# Load environment
+# Load .env
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
@@ -21,10 +21,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "secret")
 CORS(app)
 
-# Konfigurasi Gemini
+# Gemini config
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Load data kampus
+# Load JSON data kampus
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -39,13 +39,11 @@ symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# ==== FUNGSI ====
+# ===================== HELPER =====================
 
 def detect_language(text):
     try:
-        if len(text.strip().split()) <= 1:
-            return "id"
-        return detect(text)
+        return detect(text) if len(text.strip().split()) > 1 else "id"
     except:
         return "id"
 
@@ -106,7 +104,7 @@ def get_current_registration_status():
         logger.warning(f"Gagal menghitung status gelombang: {e}")
         return "Status pendaftaran tidak dapat ditentukan saat ini."
 
-# ==== ROUTES ====
+# ===================== ROUTES =====================
 
 @app.route("/")
 def landing():
@@ -115,6 +113,35 @@ def landing():
 @app.route("/chat")
 def chatroom():
     return render_template("chatroom.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if password == ADMIN_PASSWORD:
+            session["admin_logged_in"] = True
+            return redirect(url_for("admin_stats"))
+        return render_template("login.html", error="Password salah.")
+    return render_template("login.html")
+
+@app.route("/admin/stats")
+def admin_stats():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("login"))
+    try:
+        with open("chat_history.json", "r", encoding="utf-8") as f:
+            history = json.load(f)
+    except:
+        history = []
+    return render_template("stats.html", stats={
+        "total_chats": len(history),
+        "latest": history[-5:] if len(history) >= 5 else history
+    })
+
+@app.route("/logout")
+def logout():
+    session.pop("admin_logged_in", None)
+    return redirect(url_for("login"))
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -133,6 +160,7 @@ def chat():
 
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
+    registration_status_summary = get_current_registration_status()
 
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
@@ -149,15 +177,11 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    registration_status_summary = get_current_registration_status()
-
     system_prompt = (
-        "Kamu adalah TIMU, asisten AI interaktif dari Trisakti School of Multimedia. "
-        "Jawab dengan ramah dan langsung ke poin. Hindari sapaan berlebihan. "
-        "Jawaban cerdas, tidak terlalu panjang, tidak terlalu singkat.\n\n"
-        "Gunakan informasi ini jika relevan:\n"
+        "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia. Jawab sopan, tapi tidak terlalu formal. "
+        "Kurangi sapaan seperti 'hai', langsung ke inti. Pahami konteks dan bantu lanjutkan percakapan.\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
-        f"Status pendaftaran:\n{registration_status_summary}\n\n"
+        f"Status terkini:\n{registration_status_summary}\n\n"
         f"Riwayat singkat:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
     )
 
@@ -165,7 +189,7 @@ def chat():
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus informatif, singkat, membantu user lanjut bertanya."
+        "Jawaban harus jelas, tidak terlalu panjang, dan tidak terlalu singkat."
     )
 
     try:
@@ -205,34 +229,7 @@ def download_brosur():
         logger.error(f"Error download brosur: {e}")
         return jsonify({"error": "Gagal unduh brosur."}), 500
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        password = request.form.get("password")
-        if password == ADMIN_PASSWORD:
-            session["admin_logged_in"] = True
-            return redirect(url_for("admin_stats"))
-        return render_template("login.html", error="Password salah.")
-    return render_template("login.html")
-
-@app.route("/admin/stats")
-def admin_stats():
-    if not session.get("admin_logged_in"):
-        return redirect(url_for("login"))
-    try:
-        with open("chat_history.json", "r", encoding="utf-8") as f:
-            history = json.load(f)
-    except:
-        history = []
-    return render_template("stats.html", stats={
-        "total_chats": len(history),
-        "latest": history[-5:] if len(history) >= 5 else history
-    })
-
-@app.route("/logout")
-def logout():
-    session.pop("admin_logged_in", None)
-    return redirect(url_for("login"))
+# ===================== RUN =====================
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
