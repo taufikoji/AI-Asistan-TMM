@@ -1,79 +1,54 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("chat-form");
-  const input = document.getElementById("chat-input");
-  const messages = document.getElementById("chat-messages");
-  const sendButton = document.getElementById("send-button");
+  const input = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+  const chatBox = document.getElementById("chat-box");
 
-  // Fungsi menampilkan pesan
-  function addMessage(text, sender) {
-    const div = document.createElement("div");
-    div.className = `message ${sender}`;
-    div.innerHTML = text;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-  }
+  const scrollToBottom = () => {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  };
 
-  // Fungsi loading animasi
-  function addLoading() {
-    const loading = document.createElement("div");
-    loading.className = "message bot";
-    loading.id = "loading";
-    loading.innerHTML = `<span>...</span>`;
-    messages.appendChild(loading);
-    messages.scrollTop = messages.scrollHeight;
-  }
+  const addMessage = (text, type = "user") => {
+    const msg = document.createElement("div");
+    msg.className = type === "user" ? "user-message" : "ai-message";
+    msg.innerHTML = DOMPurify.sanitize(text);
+    chatBox.appendChild(msg);
+    scrollToBottom();
+  };
 
-  // Hapus loading
-  function removeLoading() {
-    const loading = document.getElementById("loading");
-    if (loading) loading.remove();
-  }
+  const sendMessage = async () => {
+    const message = input.value.trim();
+    if (!message) return;
 
-  // Kirim pesan ke backend
-  async function sendMessage(message) {
     addMessage(message, "user");
     input.value = "";
-    addLoading();
+    sendBtn.disabled = true;
 
     try {
-      const response = await fetch("/api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message }),
       });
 
-      const data = await response.json();
-      removeLoading();
+      const data = await res.json();
 
-      if (data.reply) {
-        addMessage(data.reply, "bot");
+      if (res.ok && data.reply) {
+        addMessage(data.reply, "ai");
       } else {
-        addMessage("❌ Gagal mendapatkan respons.", "bot");
+        addMessage("⚠️ Maaf, terjadi kesalahan pada sistem. Coba beberapa saat lagi.", "ai");
       }
-
-    } catch (error) {
-      removeLoading();
-      addMessage("⚠️ Koneksi gagal. Coba lagi.", "bot");
+    } catch (err) {
+      addMessage("⚠️ Koneksi gagal. Periksa jaringan internet Anda.", "ai");
+    } finally {
+      sendBtn.disabled = false;
     }
-  }
+  };
 
-  // Event submit form
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const message = input.value.trim();
-    if (message) sendMessage(message);
-  });
-
-  // Tekan Enter untuk kirim (tanpa shift)
-  input.addEventListener("keydown", (e) => {
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      form.dispatchEvent(new Event("submit"));
+      sendMessage();
     }
-  });
-
-  // Tombol send
-  sendButton.addEventListener("click", () => {
-    form.dispatchEvent(new Event("submit"));
   });
 });
