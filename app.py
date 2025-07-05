@@ -2,7 +2,7 @@ import os, json, logging, re
 from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
 from dotenv import load_dotenv
 from flask_cors import CORS
-from datetime import datetime
+from datetime import datetime, date
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 from langdetect import detect
@@ -27,8 +27,6 @@ genai.configure(api_key=GEMINI_API_KEY)
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
-    TRISAKTI["current_context"]["date"] = datetime.now().strftime("%d %B %Y")
-    TRISAKTI["current_context"]["time"] = datetime.now().strftime("%H:%M WIB")
 except Exception as e:
     logger.critical(f"Gagal load JSON kampus: {e}")
     TRISAKTI = {}
@@ -38,7 +36,7 @@ symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# ==== FUNGSI BANTUAN ====
+# ===== Fungsi Bantuan =====
 
 def detect_language(text):
     try:
@@ -59,10 +57,8 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    # Hapus markdown duplikat dan link ganda
-    text = re.sub(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^\\s)]+)$end:math:text$\s+\2", r"\2", text)
-    # Konversi URL jadi link HTML
-    return re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
+    text = re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
+    return text
 
 def save_chat(user_msg, ai_msg):
     try:
@@ -80,7 +76,35 @@ def get_category(msg):
             return kategori
     return "general"
 
-# ==== ROUTES ====
+def get_active_wave():
+    today = date.today()
+    hasil = []
+
+    for jalur in TRISAKTI.get("registration", {}).get("paths", []):
+        for gel in jalur.get("waves", []):
+            try:
+                start_str, end_str = gel["period"].split(" - ")
+                start_date = datetime.strptime(start_str.strip(), "%d %B %Y").date()
+                end_date = datetime.strptime(end_str.strip(), "%d %B %Y").date()
+
+                if start_date <= today <= end_date:
+                    status = "Sedang berlangsung"
+                elif today < start_date:
+                    status = f"Akan dibuka mulai {start_str}"
+                else:
+                    status = f"Telah ditutup pada {end_str}"
+
+                hasil.append({
+                    "jalur": jalur["name"],
+                    "gelombang": gel["wave"],
+                    "status": status,
+                    "periode": gel["period"]
+                })
+            except Exception as e:
+                logger.warning(f"Error parsing tanggal gelombang: {e}")
+    return hasil
+
+# ===== ROUTES =====
 
 @app.route("/")
 def index():
@@ -96,15 +120,18 @@ def chat():
     lang = detect_language(message)
     corrected = correct_typo(message)
 
+    # Update waktu dinamis
+    TRISAKTI["current_context"]["date"] = datetime.now().strftime("%d %B %Y")
+    TRISAKTI["current_context"]["time"] = datetime.now().strftime("%H:%M WIB")
+
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
-    session['conversation'] = session['conversation'][-5:]  # hanya simpan 5 terakhir
+    session['conversation'] = session['conversation'][-5:]
 
     kategori = get_category(corrected)
-    context = TRISAKTI.get("current_context", {})
 
-    # Khusus brosur
+    # ==== Respons khusus brosur ====
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
@@ -120,7 +147,25 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # ==== PROMPT BARU ====
+    # ==== Respons cerdas pendaftaran ====
+    if kategori == "pendaftaran":
+        gelombang = get_active_wave()
+        daftar_gel = "<br>".join([
+            f"📌 {g['jalur']} - {g['gelombang']}<br>Status: {g['status']}<br>Periode: {g['periode']}"
+            for g in gelombang
+        ])
+        reply = (
+            f"Halo! Berikut status terbaru pendaftaran:<br><br>{daftar_gel}<br><br>"
+            "📥 <a href='https://trisaktimultimedia.ecampuz.com/eadmisi/' target='_blank'>Klik di sini untuk daftar sekarang</a>."
+        )
+        save_chat(corrected, reply)
+        return jsonify({
+            "reply": reply,
+            "language": lang,
+            "corrected": corrected if corrected != message else None
+        })
+
+    # ==== Prompt untuk AI ====
     system_prompt = (
         "Kamu adalah TIMU, asisten AI interaktif dari Trisakti School of Multimedia. "
         "Jawab secara ramah dan langsung ke inti. Jangan terlalu panjang atau formal. "
@@ -130,7 +175,7 @@ def chat():
     )
 
     prompt = (
-        f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
+        f"Tanggal: {TRISAKTI['current_context']['date']}, Jam: {TRISAKTI['current_context']['time']}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa: {lang.upper()}\n"
         "Jawaban harus jelas, singkat, dan bantu pengguna lanjut bertanya jika perlu."
