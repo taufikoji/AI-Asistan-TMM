@@ -1,3 +1,3 @@
-document.getElementById("toggleThemeBtn").addEventListener("click", () => {
-  document.body.classList.toggle("light-mode");
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Landing page loaded.");
 });
