@@ -1,35 +1,24 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard Admin - TIMU</title>
+  <title>Dashboard Admin</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body class="admin-page">
-  <header class="admin-header">
-    <img src="{{ url_for('static', filename='images/timu-logo-glow.png') }}" class="logo-admin" alt="TIMU Logo">
-    <h1>Dashboard Admin</h1>
-    <a href="{{ url_for('logout') }}" class="logout-button">Keluar</a>
-  </header>
+  <div class="admin-container">
+    <h2>Statistik Chat TIMU</h2>
+    <p>Total Chat: {{ stats.total_chats }}</p>
 
-  <main class="admin-content glass">
-    <h2>Statistik Percakapan</h2>
-    <p>Total Chat: <strong>{{ stats.total_chats }}</strong></p>
-
-    <h3>5 Chat Terbaru</h3>
-    <ul class="chat-history">
-      {% for chat in stats.latest %}
-        <li>
-          <strong>🧑 Pengguna:</strong> {{ chat.user }}<br>
-          <strong>🤖 TIMU:</strong> {{ chat.ai }}
-          <hr>
-        </li>
-      {% else %}
-        <li>Belum ada riwayat percakapan.</li>
+    <h3>Riwayat Terbaru</h3>
+    <ul>
+      {% for item in stats.latest %}
+        <li><strong>User:</strong> {{ item.user }}<br><strong>TIMU:</strong> {{ item.ai }}</li>
       {% endfor %}
     </ul>
-  </main>
+
+    <a href="{{ url_for('logout') }}" class="button logout-btn">Logout</a>
+  </div>
 </body>
 </html>
