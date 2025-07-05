@@ -1,102 +1,180 @@
 :root {
-  --primary-color: #ff003c;
-  --bg-dark: #0d0d0d;
-  --glass-color: rgba(255, 255, 255, 0.05);
-  --text-glow: 0 0 8px #ff003c;
+  --dark-bg: #0e0e0e;
+  --dark-text: #f5f5f5;
+  --light-bg: #fefefe;
+  --light-text: #1a1a1a;
+  --primary-glow: #ff3c3c;
+  --accent: #7b1f2d;
+  --glass: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.12);
 }
 
-body.landing-body {
+/* Reset */
+body, html {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-dark);
-  overflow: hidden;
-  color: white;
+  font-family: 'Segoe UI', sans-serif;
+  scroll-behavior: smooth;
 }
 
-#bg-video {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  z-index: -1;
-  filter: brightness(0.2) blur(2px);
+/* Tema Light / Dark */
+[data-theme="light"] {
+  background: var(--light-bg);
+  color: var(--light-text);
+}
+[data-theme="dark"] {
+  background: var(--dark-bg);
+  color: var(--dark-text);
 }
 
-.landing-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  text-align: center;
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
-.glass-card {
-  background: var(--glass-color);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 40px 60px;
-  box-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
-  max-width: 500px;
-  animation: fadeIn 1s ease;
-}
-
-.timu-logo {
-  width: 80px;
-  margin-bottom: 20px;
-}
-
-.title {
-  font-size: 28px;
-  margin-bottom: 10px;
-  font-family: 'Orbitron', sans-serif;
-}
-
-.subtitle {
-  font-size: 16px;
-  margin-bottom: 30px;
-  color: #bbb;
-}
-
-.glow-text {
-  color: var(--primary-color);
-  text-shadow: var(--text-glow);
-}
-
-.btn-container {
+/* Container Chat */
+#chat-container {
+  max-height: 80vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
 }
 
-.btn {
-  padding: 14px;
-  font-size: 16px;
+/* Pesan Chat */
+.chat-message {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.chat-message.user {
+  justify-content: flex-end;
+}
+
+.chat-message .message {
+  max-width: 70%;
+  padding: 1rem;
+  border-radius: 1rem;
+  line-height: 1.5;
+  word-wrap: break-word;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.chat-message.user .message {
+  background-color: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 0;
+}
+
+.chat-message.timu .message {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
+  color: inherit;
+  border-bottom-left-radius: 0;
+}
+
+/* Avatar TIMU */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: url('/static/img/avatar.png') center center / cover no-repeat;
+  flex-shrink: 0;
+  position: relative;
+}
+.avatar.glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 12px 4px var(--primary-glow);
+  animation: pulse 2s infinite ease-in-out;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 8px 2px var(--primary-glow); }
+  50% { box-shadow: 0 0 18px 6px var(--primary-glow); }
+  100% { box-shadow: 0 0 8px 2px var(--primary-glow); }
+}
+
+/* Form Chat */
+#chat-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+#user-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
   border: none;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
+  font-size: 1rem;
+  resize: none;
+  background: #000;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+#user-input:focus {
+  outline: 2px solid var(--accent);
+}
+
+button[type="submit"] {
+  background: var(--primary-glow);
+  border: none;
+  color: #fff;
+  padding: 0 1rem;
+  border-radius: 50%;
+  font-size: 1.5rem;
   cursor: pointer;
+  box-shadow: 0 0 10px var(--primary-glow);
+  transition: transform 0.2s;
+}
+button[type="submit"]:hover {
+  transform: scale(1.1);
 }
 
-.btn-primary {
-  background: var(--primary-color);
-  color: white;
-  box-shadow: 0 0 12px var(--primary-color);
+/* Tombol interaktif */
+a.download-btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 0 10px var(--accent);
+}
+a.download-btn:hover {
+  background: #a83240;
 }
 
-.btn-secondary {
-  background: white;
-  color: var(--primary-color);
+/* Mode Toggle */
+.theme-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  border: none;
+  box-shadow: 0 0 5px #000;
 }
 
-.btn:hover {
-  transform: scale(1.05);
+/* Scrollbar */
+#chat-container::-webkit-scrollbar {
+  width: 6px;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
+#chat-container::-webkit-scrollbar-thumb {
+  background: var(--primary-glow);
+  border-radius: 3px;
 }
