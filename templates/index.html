@@ -1,35 +1,33 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TIMU - Trisakti School of Multimedia</title>
+  <meta name="theme-color" content="#7b1f2d" />
+  <title>TIMU Asisten AI - Trisakti School of Multimedia</title>
   <link rel="stylesheet" href="/static/style.css" />
-  <link rel="icon" href="/static/logo.png" type="image/png" />
+  <link rel="icon" href="/static/timu-avatar.png" />
 </head>
 <body>
-  <div class="theme-toggle">
-    <button id="theme-btn">🌓</button>
-  </div>
-
   <div class="chat-container glass">
-    <div class="chat-header">
-      <img src="/static/timu_avatar_glow.gif" alt="TIMU" class="avatar-glow" />
-      <h1>Asisten AI TIMU</h1>
-      <p>Selamat datang di Trisakti School of Multimedia</p>
+    <div class="header">
+      <div class="avatar-glow">
+        <img src="/static/timu-avatar.png" alt="TIMU" class="avatar" />
+      </div>
+      <h1>TIMU - Asisten AI TMM</h1>
+      <div class="theme-toggle">
+        <button id="toggle-theme">🌓</button>
+        <a href="/login" class="admin-login">🔒</a>
+      </div>
     </div>
-    <div id="chat-box" class="chat-box"></div>
-    <form id="chat-form">
-      <textarea id="user-input" placeholder="Tulis pertanyaanmu di sini..."></textarea>
-      <button type="submit" id="send-btn">📨</button>
-    </form>
+    <div id="chatbox" class="chatbox">
+      <div class="message bot"><div class="text">👋 Halo! Saya TIMU, siap bantu info seputar TMM. Silakan bertanya.</div></div>
+    </div>
+    <div class="input-area">
+      <textarea id="user-input" placeholder="Ketik pertanyaan Anda..."></textarea>
+      <button id="send-button">🚀</button>
+    </div>
   </div>
-
-  <div class="admin-link">
-    <a href="/login">🔐 Admin Login</a>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
   <script src="/static/chat.js"></script>
 </body>
 </html>
