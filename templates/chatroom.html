@@ -1,24 +1,45 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat bersama TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
 </head>
-<body class="chatroom">
-  <div class="chat-container">
-    <div class="chat-header">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="TIMU" class="avatar" />
-      <h2>TIMU - Asisten AI TMM</h2>
-      <a href="{{ url_for('landing') }}" class="back-link">⏪ Kembali ke Landing</a>
-    </div>
-    <div class="chat-box" id="chat-box"></div>
-    <div class="chat-input">
-      <textarea id="message" placeholder="Ketik pertanyaan..."></textarea>
-      <button onclick="sendMessage()">📤</button>
-    </div>
+<body class="chatroom-body">
+  <!-- Logo kiri atas -->
+  <div class="top-left-logo">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo TMM">
   </div>
-  <script src="{{ url_for('static', filename='chat.js') }}"></script>
+
+  <!-- Container utama -->
+  <div class="chat-container glassmorphism">
+    <div class="chat-header">
+      <h2 class="glow-title">TIMU - Asisten AI Trisakti Multimedia</h2>
+    </div>
+
+    <div id="chat-box" class="chat-box"></div>
+
+    <form id="chat-form" class="chat-form">
+      <textarea id="message-input" placeholder="Ketik pertanyaanmu di sini..."></textarea>
+      <button type="submit" id="send-btn" title="Kirim">
+        <img src="{{ url_for('static', filename='img/send.svg') }}" alt="Kirim">
+      </button>
+    </form>
+  </div>
+
+  <!-- Avatar TIMU -->
+  <div class="avatar-timu">
+    <img src="{{ url_for('static', filename='img/timu-glow.gif') }}" alt="TIMU Avatar" />
+  </div>
+
+  <!-- Tombol kembali ke landing -->
+  <div class="back-to-landing">
+    <a href="{{ url_for('landing') }}">← Kembali ke Landing</a>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
 </body>
 </html>
