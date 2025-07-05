@@ -4,42 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#7b1f2d" />
-  <title>TIMU Asisten AI – Trisakti School of Multimedia</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <link rel="icon" href="/static/logo_timu.png" />
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
+  <title>TIMU Asisten AI - Trisakti School of Multimedia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='logo-timu.png') }}" />
 </head>
 <body>
   <header>
-    <img src="/static/logo_timu.png" alt="Logo TIMU" class="logo-timu" />
+    <div class="logo-title">
+      <img src="{{ url_for('static', filename='logo-timu.png') }}" alt="Logo TIMU" class="logo" />
+      <h1 class="title">TIMU <span>AI</span></h1>
+    </div>
     <div class="theme-toggle">
-      <button onclick="setTheme('light')">🌞</button>
-      <button onclick="setTheme('dark')">🌙</button>
+      <button id="theme-toggle">🌓</button>
     </div>
   </header>
 
   <main>
     <div class="chat-container">
-      <div id="chat-output" class="chat-output">
-        <div class="bot-message glow-avatar">
-          <div class="avatar"></div>
-          <div class="message">Hai! Saya <strong>TIMU</strong>, asisten AI resmi Trisakti School of Multimedia. Apa yang ingin Anda tanyakan?</div>
-        </div>
-      </div>
-      <form id="chat-form" class="chat-form">
-        <textarea id="user-input" placeholder="Tulis pertanyaan Anda..." required></textarea>
-        <button type="submit" id="send-btn" aria-label="Kirim pesan">📨</button>
+      <div class="chat-output"></div>
+      <form class="chat-form">
+        <textarea id="user-input" placeholder="Ketik pertanyaan kamu di sini..." rows="1" required></textarea>
+        <button type="submit" id="send-btn" title="Kirim">
+          <span class="send-icon">📨</span>
+        </button>
       </form>
     </div>
-    <div class="fixed-buttons">
-      <a href="/login" class="admin-login">🔐 Admin</a>
+    <div class="avatar-glow">
+      <img src="{{ url_for('static', filename='avatar-timu-glow.png') }}" alt="TIMU Avatar" />
     </div>
   </main>
 
   <footer>
-    <p>&copy; 2025 Trisakti School of Multimedia • TIMU AI Chatbot</p>
+    <p>© 2025 Trisakti School of Multimedia | TIMU Asisten AI</p>
+    <a href="/login" class="admin-link">Admin</a>
   </footer>
 
-  <script src="/static/chat.js"></script>
+  <script src="{{ url_for('static', filename='chat.js') }}"></script>
 </body>
 </html>
