@@ -5,6 +5,7 @@ const themeToggle = document.getElementById("theme-toggle");
 const icon = document.getElementById("theme-icon");
 const label = document.getElementById("theme-label");
 
+// Theme setup
 const savedTheme = localStorage.getItem("theme") || "light";
 document.documentElement.setAttribute("data-theme", savedTheme);
 icon.textContent = savedTheme === "dark" ? "🌙" : "☀️";
@@ -95,7 +96,7 @@ input.addEventListener("keydown", function (e) {
 
 window.onload = () => {
   if (!sessionStorage.getItem("greeted")) {
-    append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
+    append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya TIMU, asisten AI kampus ini.");
     sessionStorage.setItem("greeted", "true");
   }
 };
