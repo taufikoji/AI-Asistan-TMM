@@ -1,45 +1,31 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat bersama TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+  <title>TIMU - Asisten AI TMM</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
 </head>
-<body class="chatroom-body">
-  <!-- Logo kiri atas -->
-  <div class="top-left-logo">
-    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo TMM">
-  </div>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
 
-  <!-- Container utama -->
-  <div class="chat-container glassmorphism">
-    <div class="chat-header">
-      <h2 class="glow-title">TIMU - Asisten AI Trisakti Multimedia</h2>
-    </div>
+  <div class="chat-container">
+    <div id="chat-box"></div>
 
-    <div id="chat-box" class="chat-box"></div>
-
-    <form id="chat-form" class="chat-form">
-      <textarea id="message-input" placeholder="Ketik pertanyaanmu di sini..."></textarea>
-      <button type="submit" id="send-btn" title="Kirim">
-        <img src="{{ url_for('static', filename='img/send.svg') }}" alt="Kirim">
-      </button>
+    <form id="chat-form" class="chat-input-form">
+      <textarea id="message-input" placeholder="Tulis pertanyaanmu..." rows="1" required></textarea>
+      <button type="submit">📤</button>
     </form>
   </div>
 
-  <!-- Avatar TIMU -->
+  <!-- Avatar AI TIMU -->
   <div class="avatar-timu">
-    <img src="{{ url_for('static', filename='img/timu-glow.gif') }}" alt="TIMU Avatar" />
+    <img src="{{ url_for('static', filename='img/avatar_timu.png') }}" alt="TIMU AI" />
   </div>
 
-  <!-- Tombol kembali ke landing -->
-  <div class="back-to-landing">
-    <a href="{{ url_for('landing') }}">← Kembali ke Landing</a>
-  </div>
-
+  <!-- Script -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
   <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
 </body>
 </html>
