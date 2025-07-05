@@ -5,7 +5,7 @@ import re
 from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
 from dotenv import load_dotenv
 from flask_cors import CORS
-from datetime import datetime
+from datetime import datetime, timedelta
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 from langdetect import detect
@@ -67,21 +67,15 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    """
-    - Menghapus duplikasi tautan: [teks](url) diikuti url mentah yang sama.
-    - Mengubah url mentah menjadi tautan HTML interaktif.
-    """
-    markdown_and_url_pattern = re.compile(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^\\s)]+)$end:math:text$\s+\2")
-    text = markdown_and_url_pattern.sub(r"<a href='\2' target='_blank' rel='noopener noreferrer'>🔗 \1</a>", text)
+    # Hapus duplikat URL seperti: [Tautan](url) lalu url mentahnya
+    markdown_pattern = re.compile(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^\\s)]+)$end:math:text$\s+\2")
+    text = markdown_pattern.sub(r'<a href="\2" target="_blank" rel="noopener noreferrer">\1</a>', text)
 
-    markdown_pattern = re.compile(r"$begin:math:display$([^$end:math:display$]+)\]$begin:math:text$(https?://[^\\s)]+)$end:math:text$")
-    text = markdown_pattern.sub(r"<a href='\2' target='_blank' rel='noopener noreferrer'>🔗 \1</a>", text)
-
-    url_pattern = re.compile(r"(?<!href=['\"])(https?://[^\s<>'\"()]+)")
+    # Ubah URL mentah jadi tombol
+    url_pattern = re.compile(r"(?<![\"'>])\b(https?://[^\s<>'\"()]+)")
     text = url_pattern.sub(
         r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text
     )
-
     return text
 
 def save_chat(user_msg, ai_msg):
@@ -140,6 +134,20 @@ def chat():
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
 
+    # ========== GREETING ==========
+    greeting = ""
+    now = datetime.utcnow()
+
+    if "last_active" not in session or "greeted" not in session:
+        greeting = "Halo! Saya TIMU, asisten AI resmi Trisakti School of Multimedia. Ada yang bisa saya bantu?"
+        session["greeted"] = True
+        session["last_active"] = now.isoformat()
+    else:
+        last_active = datetime.fromisoformat(session["last_active"])
+        if now - last_active > timedelta(minutes=10):
+            greeting = "Halo kembali! Ada yang bisa saya bantu?"
+            session["last_active"] = now.isoformat()
+
     # Tangani permintaan brosur
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
@@ -149,6 +157,8 @@ def chat():
             f"<a href='{brosur_url}' class='download-btn' target='_blank'>⬇️ Klik di sini untuk mengunduh brosur</a><br><br>"
             "Jika tidak bisa mengakses, salin dan buka link ini di browser Anda."
         )
+        if greeting:
+            reply = greeting + "<br><br>" + reply
         save_chat(corrected, reply)
         return jsonify({
             "reply": reply,
@@ -156,7 +166,7 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # Siapkan prompt untuk Gemini
+    # Prompt untuk Gemini
     system_prompt = (
         "Anda adalah TIMU, asisten AI resmi Trisakti School of Multimedia (TMM). "
         "Jawab dengan ramah, informatif, dan profesional dalam bahasa pengguna. "
@@ -187,9 +197,14 @@ def chat():
         reply = format_links(reply)
 
         if not reply:
-            reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI.get('institution', {}).get('contact', {}).get('whatsapp', '0812xxxxxxx')} untuk bantuan."
+            reply = f"Maaf, saya belum memiliki informasi yang sesuai. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']} untuk bantuan."
+
+        if greeting:
+            reply = greeting + "<br><br>" + reply
 
         save_chat(corrected, reply)
+        session["last_active"] = datetime.utcnow().isoformat()
+
         return jsonify({
             "reply": reply,
             "language": lang,
