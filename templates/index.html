@@ -1,42 +1,45 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#000000" />
-  <title>TIMU - Asisten AI TMM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#7b1f2d" />
+  <title>TIMU Asisten AI – Trisakti School of Multimedia</title>
   <link rel="stylesheet" href="/static/style.css" />
-  <link rel="icon" href="/static/logo-timu.png" type="image/png" />
+  <link rel="icon" href="/static/logo_timu.png" />
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
 </head>
 <body>
-  <header class="header">
-    <img src="/static/logo-timu.png" alt="Logo TIMU" class="logo" />
+  <header>
+    <img src="/static/logo_timu.png" alt="Logo TIMU" class="logo-timu" />
     <div class="theme-toggle">
-      <button id="toggle-theme">🌓</button>
+      <button onclick="setTheme('light')">🌞</button>
+      <button onclick="setTheme('dark')">🌙</button>
     </div>
   </header>
 
-  <main class="chat-container">
-    <div class="chat-box" id="chat-box">
-      <div class="bot-message glow">
-        <div class="avatar"><img src="/static/avatar-timu.png" alt="TIMU" /></div>
-        <div class="message">Halo! Saya TIMU, asisten AI Trisakti School of Multimedia. Ada yang bisa saya bantu?</div>
+  <main>
+    <div class="chat-container">
+      <div id="chat-output" class="chat-output">
+        <div class="bot-message glow-avatar">
+          <div class="avatar"></div>
+          <div class="message">Hai! Saya <strong>TIMU</strong>, asisten AI resmi Trisakti School of Multimedia. Apa yang ingin Anda tanyakan?</div>
+        </div>
       </div>
+      <form id="chat-form" class="chat-form">
+        <textarea id="user-input" placeholder="Tulis pertanyaan Anda..." required></textarea>
+        <button type="submit" id="send-btn" aria-label="Kirim pesan">📨</button>
+      </form>
     </div>
-    <form id="chat-form" autocomplete="off">
-      <div class="input-container">
-        <textarea id="user-input" rows="1" placeholder="Ketik pertanyaan kamu di sini..."></textarea>
-        <button type="submit" id="send-btn" title="Kirim"><span>📤</span></button>
-      </div>
-    </form>
-    <div class="extra-buttons">
-      <a href="/download-brosur" class="brosur-btn" target="_blank">📄 Download Brosur</a>
-      <a href="https://wa.me/6287742997808" target="_blank" class="wa-btn">💬 Hubungi Admin</a>
-      <a href="/login" class="admin-btn">🔐 Admin</a>
+    <div class="fixed-buttons">
+      <a href="/login" class="admin-login">🔐 Admin</a>
     </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.2/dist/purify.min.js"></script>
+  <footer>
+    <p>&copy; 2025 Trisakti School of Multimedia • TIMU AI Chatbot</p>
+  </footer>
+
   <script src="/static/chat.js"></script>
 </body>
 </html>
