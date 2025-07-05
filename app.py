@@ -39,7 +39,7 @@ symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("Gagal memuat kamus SymSpell.")
 
-# ======== FUNGSI ========
+# ==== FUNGSI ====
 
 def detect_language(text):
     try:
@@ -60,7 +60,8 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    return re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
+    text = re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
+    return text
 
 def save_chat(user_msg, ai_msg):
     try:
@@ -82,6 +83,7 @@ def get_current_registration_status():
     try:
         today = datetime.now().date()
         summary = []
+
         for jalur in TRISAKTI.get("registration", {}).get("paths", []):
             for wave in jalur.get("waves", []):
                 wave_name = wave.get("wave")
@@ -89,67 +91,30 @@ def get_current_registration_status():
                 start_str, end_str = [s.strip() for s in period.split(" - ")]
                 start = parse_date(start_str, dayfirst=True).date()
                 end = parse_date(end_str, dayfirst=True).date()
+
                 if today < start:
                     status = f"{wave_name} ({jalur['name']}) akan dibuka mulai {start.strftime('%d %B %Y')}."
                 elif start <= today <= end:
                     status = f"{wave_name} ({jalur['name']}) sedang berlangsung hingga {end.strftime('%d %B %Y')}."
                 else:
                     status = f"{wave_name} ({jalur['name']}) sudah ditutup pada {end.strftime('%d %B %Y')}."
+
                 summary.append(status)
+
         return "\n".join(summary)
     except Exception as e:
         logger.warning(f"Gagal menghitung status gelombang: {e}")
         return "Status pendaftaran tidak dapat ditentukan saat ini."
 
-# ======== ROUTES ========
+# ==== ROUTES ====
 
 @app.route("/")
 def landing():
     return render_template("landing.html")
 
-@app.route("/chatroom")
+@app.route("/chat")
 def chatroom():
     return render_template("chatroom.html")
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        password = request.form.get("password")
-        if password == ADMIN_PASSWORD:
-            session["admin_logged_in"] = True
-            return redirect(url_for("admin_stats"))
-        return render_template("login.html", error="Password salah.")
-    return render_template("login.html")
-
-@app.route("/admin/stats")
-def admin_stats():
-    if not session.get("admin_logged_in"):
-        return redirect(url_for("login"))
-    try:
-        with open("chat_history.json", "r", encoding="utf-8") as f:
-            history = json.load(f)
-    except:
-        history = []
-    return render_template("stats.html", stats={
-        "total_chats": len(history),
-        "latest": history[-5:] if len(history) >= 5 else history
-    })
-
-@app.route("/logout")
-def logout():
-    session.pop("admin_logged_in", None)
-    return redirect(url_for("landing"))
-
-@app.route("/download-brosur")
-def download_brosur():
-    try:
-        file_path = os.path.join("static", "brosur_tmm.pdf")
-        if not os.path.exists(file_path):
-            return jsonify({"error": "Brosur tidak tersedia."}), 404
-        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
-    except Exception as e:
-        logger.error(f"Error download brosur: {e}")
-        return jsonify({"error": "Gagal unduh brosur."}), 500
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -164,13 +129,11 @@ def chat():
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
-    session['conversation'] = session['conversation'][-50:]
+    session['conversation'] = session['conversation'][-55:]
 
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
-    registration_status_summary = get_current_registration_status()
 
-    # Jika brosur
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
@@ -180,23 +143,29 @@ def chat():
             "Jika tidak bisa dibuka, salin link dan buka manual."
         )
         save_chat(corrected, reply)
-        return jsonify({"reply": reply, "language": lang, "corrected": corrected if corrected != message else None})
+        return jsonify({
+            "reply": reply,
+            "language": lang,
+            "corrected": corrected if corrected != message else None
+        })
 
-    # System prompt
+    registration_status_summary = get_current_registration_status()
+
     system_prompt = (
-        "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia. "
-        "Jawab dengan ramah, tidak terlalu panjang, tidak terlalu formal. Jangan pakai sapaan. "
-        "Gunakan konteks berikut:\n\n"
+        "Kamu adalah TIMU, asisten AI interaktif dari Trisakti School of Multimedia. "
+        "Jawab dengan ramah dan langsung ke poin. Hindari sapaan berlebihan. "
+        "Jawaban cerdas, tidak terlalu panjang, tidak terlalu singkat.\n\n"
+        "Gunakan informasi ini jika relevan:\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Status pendaftaran:\n{registration_status_summary}\n\n"
-        f"Riwayat:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
+        f"Riwayat singkat:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
     )
 
     prompt = (
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
-        f"Pertanyaan: \"{corrected}\"\n"
+        f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus jelas, bantu pengguna lanjut bertanya."
+        "Jawaban harus informatif, singkat, membantu user lanjut bertanya."
     )
 
     try:
@@ -225,6 +194,45 @@ def chat():
         logger.error(f"[Internal Error] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
 
-# Run server
+@app.route("/download-brosur")
+def download_brosur():
+    try:
+        file_path = os.path.join("static", "brosur_tmm.pdf")
+        if not os.path.exists(file_path):
+            return jsonify({"error": "Brosur tidak tersedia."}), 404
+        return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
+    except Exception as e:
+        logger.error(f"Error download brosur: {e}")
+        return jsonify({"error": "Gagal unduh brosur."}), 500
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if password == ADMIN_PASSWORD:
+            session["admin_logged_in"] = True
+            return redirect(url_for("admin_stats"))
+        return render_template("login.html", error="Password salah.")
+    return render_template("login.html")
+
+@app.route("/admin/stats")
+def admin_stats():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("login"))
+    try:
+        with open("chat_history.json", "r", encoding="utf-8") as f:
+            history = json.load(f)
+    except:
+        history = []
+    return render_template("stats.html", stats={
+        "total_chats": len(history),
+        "latest": history[-5:] if len(history) >= 5 else history
+    })
+
+@app.route("/logout")
+def logout():
+    session.pop("admin_logged_in", None)
+    return redirect(url_for("login"))
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
