@@ -1,59 +1,83 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const modeToggle = document.getElementById("mode-toggle");
-  const theme = localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", theme);
-
-  if (modeToggle) {
-    modeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
-    modeToggle.addEventListener("click", () => {
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-      modeToggle.textContent = newTheme === "dark" ? "🌞" : "🌙";
-    });
-  }
-
-  // Chatroom functionality
+  const themeToggle = document.getElementById("theme-toggle");
   const chatForm = document.getElementById("chat-form");
-  const chatInput = document.getElementById("chat-input");
+  const userInput = document.getElementById("user-input");
   const chatBox = document.getElementById("chat-box");
+  const chatArea = document.getElementById("chat-area");
+  const loadingDots = document.getElementById("loading-dots");
+  const backToLandingBtn = document.getElementById("back-to-landing");
 
-  if (chatForm && chatInput && chatBox) {
-    chatForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const userInput = chatInput.value.trim();
-      if (!userInput) return;
+  // === MODE TERANG/GELAP ===
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme) {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }
 
-      appendMessage("user", userInput);
-      chatInput.value = "";
-      chatBox.scrollTop = chatBox.scrollHeight;
+  themeToggle?.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const newTheme = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+  });
 
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userInput }),
-        });
+  // === TOMBOL KEMBALI KE LANDING ===
+  backToLandingBtn?.addEventListener("click", () => {
+    window.location.href = "/";
+  });
 
-        const data = await response.json();
-        if (data.reply) {
-          appendMessage("bot", data.reply);
-        } else if (data.error) {
-          appendMessage("bot", `❌ ${data.error}`);
-        }
-      } catch (err) {
-        appendMessage("bot", "❌ Gagal terhubung ke server.");
+  // === LOGIKA CHAT ===
+  chatForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    appendMessage("user", message);
+    userInput.value = "";
+    userInput.disabled = true;
+    loadingDots.style.display = "inline-block";
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+
+      if (data.reply) {
+        appendMessage("ai", data.reply);
+      } else {
+        appendMessage("ai", "Maaf, tidak bisa menjawab saat ini.");
       }
+    } catch (err) {
+      appendMessage("ai", "Terjadi kesalahan koneksi.");
+    }
 
-      chatBox.scrollTop = chatBox.scrollHeight;
-    });
-  }
+    loadingDots.style.display = "none";
+    userInput.disabled = false;
+    userInput.focus();
+  });
 
-  function appendMessage(sender, message) {
+  // === FUNGSI TAMPILKAN CHAT ===
+  function appendMessage(sender, msg) {
     const bubble = document.createElement("div");
-    bubble.classList.add("bubble", sender);
-    bubble.innerHTML = message;
+    bubble.className = `bubble ${sender}`;
+    bubble.innerHTML = msg;
     chatBox.appendChild(bubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
+
+  // === LOGIKA HALAMAN LANDING ===
+  const startChatBtn = document.getElementById("start-chat");
+  const loginAdminBtn = document.getElementById("login-admin");
+
+  startChatBtn?.addEventListener("click", () => {
+    window.location.href = "/chat";
+  });
+
+  loginAdminBtn?.addEventListener("click", () => {
+    window.location.href = "/login";
+  });
+
 });
