@@ -1,73 +1,104 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.querySelector(".chat-form");
-  const input = document.getElementById("user-input");
-  const output = document.querySelector(".chat-output");
-  const sendBtn = document.getElementById("send-btn");
-  const themeToggle = document.getElementById("theme-toggle");
 
-  // Load theme
-  const currentTheme = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", currentTheme);
+const chat = document.getElementById("chat-container");
+const form = document.getElementById("input-form");
+const input = document.getElementById("message-input");
+const themeToggle = document.getElementById("theme-toggle");
+const icon = document.getElementById("theme-icon");
+const label = document.getElementById("theme-label");
 
-  // Theme toggle
-  themeToggle.addEventListener("click", () => {
-    const newTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-  });
+// Theme logic
+const savedTheme = localStorage.getItem("theme") || "light";
+document.documentElement.setAttribute("data-theme", savedTheme);
+icon.textContent = savedTheme === "dark" ? "🌙" : "☀️";
+label.textContent = savedTheme === "dark" ? "Dark Mode" : "Light Mode";
 
-  // Scroll to bottom
-  const scrollToBottom = () => {
-    output.scrollTop = output.scrollHeight;
-  };
+themeToggle.onclick = () => {
+  const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+  icon.textContent = theme === "dark" ? "🌙" : "☀️";
+  label.textContent = theme === "dark" ? "Dark Mode" : "Light Mode";
+};
 
-  // Show message
-  function appendMessage(content, sender = "bot") {
-    const wrapper = document.createElement("div");
-    wrapper.className = sender === "user" ? "user-message" : "bot-message";
+function scrollToBottom() {
+  chat.scrollTop = chat.scrollHeight;
+}
 
-    const avatar = document.createElement("div");
-    avatar.className = "avatar";
+function linkify(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+}
 
-    const bubble = document.createElement("div");
-    bubble.className = "message";
-    bubble.innerHTML = content;
+function append(role, text) {
+  const msg = document.createElement("div");
+  msg.className = `message ${role}`;
+  const avatar = document.createElement("img");
+  avatar.className = role === "user" ? "icon" : "icon avatar-glow";
+  avatar.src = role === "user"
+    ? "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+    : "/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png";
+  const bubble = document.createElement("div");
+  bubble.className = "text";
+  bubble.innerHTML = DOMPurify.sanitize(linkify(text).replace(/\n/g, "<br>"));
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  chat.appendChild(msg);
+  scrollToBottom();
+}
 
-    wrapper.appendChild(avatar);
-    wrapper.appendChild(bubble);
-    output.appendChild(wrapper);
-    scrollToBottom();
-  }
+function appendTyping() {
+  const typing = document.createElement("div");
+  typing.className = "message ai";
+  typing.innerHTML = `
+    <img class="icon avatar-glow" src="/static/6C774A82-6B38-40D2-BB31-C6F049A3848A.png" />
+    <div class="text"><em>TIMU sedang mengetik...</em></div>
+  `;
+  chat.appendChild(typing);
+  scrollToBottom();
+}
 
-  // Submit form
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const message = input.value.trim();
-    if (!message) return;
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  const msg = input.value.trim();
+  if (!msg) return;
+  append("user", msg);
+  input.value = "";
+  appendTyping();
 
-    appendMessage(message, "user");
-    input.value = "";
-    sendBtn.disabled = true;
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg })
+    });
 
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
+    const data = await res.json();
+    chat.lastChild.remove();
 
-      const data = await res.json();
-
-      if (data.error) {
-        appendMessage("⚠️ " + data.error);
-      } else {
-        const response = data.reply || "Maaf, tidak ada jawaban.";
-        appendMessage(response, "bot");
-      }
-    } catch (err) {
-      appendMessage("⚠️ Terjadi kesalahan koneksi.");
-    } finally {
-      sendBtn.disabled = false;
+    let fullReply = data.reply || "Maaf, terjadi kesalahan.";
+    if (data.corrected) {
+      fullReply += `<br><br><em><small>✍️ Koreksi ejaan: <code>${DOMPurify.sanitize(data.corrected)}</code></small></em>`;
     }
-  });
+    if (data.language) {
+      const langMap = { id: "Indonesia", en: "Inggris", fr: "Prancis", unknown: "Tidak diketahui" };
+      const langLabel = langMap[data.language] || data.language.toUpperCase();
+      fullReply += `<br><small>🌐 Bahasa terdeteksi: <strong>${langLabel}</strong></small>`;
+    }
+
+    append("ai", fullReply);
+  } catch {
+    chat.lastChild.remove();
+    append("ai", "Maaf, terjadi kesalahan koneksi.");
+  }
+};
+
+input.addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    form.requestSubmit();
+  }
 });
+
+window.onload = () => {
+  append("ai", "Hai, selamat datang di Trisakti School of Multimedia! Saya adalah TIMU, asisten AI yang siap membantu Anda 😊");
+};
