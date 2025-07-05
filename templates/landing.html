@@ -1,40 +1,35 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TIMU - Trisakti Multimedia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TIMU – Asisten AI Trisakti Multimedia</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Nunito&display=swap" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='img/logo-tmm.png') }}" />
 </head>
 <body>
   <video autoplay muted loop id="bg-video">
     <source src="{{ url_for('static', filename='media/background.mp4') }}" type="video/mp4">
   </video>
 
-  <div class="overlay">
-    <header>
-      <div class="logo">TMM</div>
-      <button id="toggle-theme">🌓</button>
-    </header>
+  <div class="glass-container">
+    <img src="{{ url_for('static', filename='img/logo-tmm.png') }}" alt="Logo TMM" class="logo" />
 
-    <main>
-      <h1>Selamat Datang di <span>Trisakti School of Multimedia</span></h1>
-      <p>Asisten AI Futuristik Siap Membantu Anda</p>
-      <div class="buttons">
-        <a href="/"><button class="start">💬 Mulai Chat</button></a>
-        <a href="/download-brosur"><button class="brosur">⬇️ Download Brosur</button></a>
-        <a href="/login"><button class="admin">🔐 Masuk Admin</button></a>
-      </div>
-    </main>
+    <h1 class="title-glow">Selamat Datang di TIMU</h1>
+    <p class="subtitle">Asisten AI Interaktif Trisakti School of Multimedia</p>
 
-    <img src="{{ url_for('static', filename='img/timu_avatar.png') }}" alt="TIMU Avatar" class="avatar-glow">
+    <div class="btn-group">
+      <a href="/index" class="btn-glass">💬 Mulai Bertanya</a>
+      <a href="/login" class="btn-outline">🔐 Login Admin</a>
+    </div>
 
-    <canvas id="particles-js"></canvas>
+    <div class="toggle-theme">
+      <button id="toggleThemeBtn">🌗 Ganti Tema</button>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+  <img src="{{ url_for('static', filename='img/timu-glow.png') }}" class="avatar-glow" alt="TIMU Avatar" />
+
   <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 </body>
 </html>
