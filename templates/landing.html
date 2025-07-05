@@ -1,32 +1,29 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trisakti Multimedia - Asisten TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}" />
-  <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TIMU AI - Trisakti School of Multimedia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="landing-body">
+  <div class="landing-wrapper">
+    <div class="glass-card">
+      <img src="{{ url_for('static', filename='images/timu_logo.png') }}" alt="TIMU Logo" class="timu-logo">
+      <h1 class="title">Selamat Datang di <span class="glow-text">TIMU AI</span></h1>
+      <p class="subtitle">Asisten Digital Trisakti School of Multimedia</p>
 
-  <!-- Partikel Hologram -->
-  <div class="particles"></div>
-
-  <!-- Kartu Utama -->
-  <div class="glass-card">
-    <img src="{{ url_for('static', filename='img/timu_logo_glow.png') }}" alt="TIMU Logo" width="100" style="margin-bottom: 20px;" />
-    <h1>Selamat Datang di TMM</h1>
-    <p>Jelajahi kampus Trisakti School of Multimedia bersama asisten AI kami: <strong>TIMU</strong></p>
-    
-    <div class="button-group">
-      <a href="{{ url_for('index') }}">
-        <button class="glass-btn">💬 Bicara dengan TIMU</button>
-      </a>
-      <a href="{{ url_for('login') }}">
-        <button class="glass-btn">🔐 Login Admin</button>
-      </a>
+      <div class="btn-container">
+        <a href="{{ url_for('chat_room') }}" class="btn btn-primary">🧠 Bicara dengan TIMU</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary">🔐 Login Admin</a>
+      </div>
     </div>
   </div>
 
+  <video autoplay muted loop id="bg-video">
+    <source src="{{ url_for('static', filename='media/bg-holo.mp4') }}" type="video/mp4">
+  </video>
 </body>
 </html>
