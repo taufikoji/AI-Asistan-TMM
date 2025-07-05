@@ -144,10 +144,21 @@ header h1 {
   color: white;
 }
 
+/* 🔗 Tautan interaktif dari AI */
 .text a {
-  color: #b30000;
-  text-decoration: underline;
+  color: #ff4d6d;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
   word-break: break-word;
+}
+
+.text a:hover {
+  color: #fff;
+  background: #ff4d6d;
+  padding: 2px 6px;
+  border-radius: 4px;
+  box-shadow: 0 0 8px #ff4d6d;
 }
 
 #input-form {
