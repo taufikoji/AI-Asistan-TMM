@@ -1,50 +1,28 @@
-const chatBox = document.getElementById("chat-box");
-const userInput = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
+const chatBox = document.getElementById('chat-box');
+const input = document.getElementById('message');
 
-function appendMessage(sender, text) {
-  const message = document.createElement("div");
-  message.className = `chat-message ${sender}`;
-  if (sender === "bot") {
-    message.innerHTML = `
-      <div class="avatar-glow"></div>
-      <div class="message-text">${DOMPurify.sanitize(text)}</div>
-    `;
-  } else {
-    message.innerHTML = `<div class="message-text user-text">${DOMPurify.sanitize(text)}</div>`;
-  }
-  chatBox.appendChild(message);
+function appendMessage(sender, message) {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = sender;
+  msgDiv.innerHTML = `<strong>${sender === 'user' ? 'Anda' : 'TIMU'}:</strong> ${message}`;
+  chatBox.appendChild(msgDiv);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-async function sendMessage() {
-  const text = userInput.value.trim();
+function sendMessage() {
+  const text = input.value.trim();
   if (!text) return;
-
-  appendMessage("user", text);
-  userInput.value = "";
-  sendBtn.disabled = true;
-
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text })
-    });
-
-    const data = await response.json();
-    appendMessage("bot", data.reply || "❌ Maaf, tidak ada jawaban.");
-  } catch (err) {
-    appendMessage("bot", "⚠️ Gagal menghubungi server.");
-  } finally {
-    sendBtn.disabled = false;
-  }
+  appendMessage('user', text);
+  input.value = '';
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: text })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.reply) appendMessage('ai', data.reply);
+    else appendMessage('ai', '❌ Maaf, terjadi kesalahan.');
+  })
+  .catch(() => appendMessage('ai', '⚠️ Gagal terhubung ke server.'));
 }
-
-sendBtn.addEventListener("click", sendMessage);
-userInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
