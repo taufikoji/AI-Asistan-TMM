@@ -1,27 +1,40 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trisakti School of Multimedia – TIMU</title>
-  <link rel="stylesheet" href="/static/css/style.css" />
-  <link rel="icon" href="/static/img/logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TIMU - Trisakti Multimedia AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" />
 </head>
-<body class="landing-body">
-  <div class="landing-container glass">
-    <img src="/static/img/logo.png" alt="TMM Logo" class="landing-logo" />
-
-    <h1 class="landing-title">Selamat Datang di <span>TMM</span></h1>
-    <p class="landing-subtitle">Chatbot AI TIMU siap membantu informasi pendaftaran, jurusan, dan beasiswa.</p>
-
-    <div class="landing-buttons">
-      <a href="/chat" class="landing-btn primary">💬 Mulai Bicara dengan TIMU</a>
-      <a href="/login" class="landing-btn secondary">🔐 Login Admin</a>
-    </div>
+<body class="landing-page">
+  <!-- Video Background -->
+  <div class="video-background">
+    <video autoplay loop muted playsinline>
+      <source src="{{ url_for('static', filename='media/bg-futuristic.mp4') }}" type="video/mp4">
+    </video>
+    <div class="overlay parallax-bg"></div>
   </div>
 
-  <div class="landing-footer">
-    &copy; 2025 Trisakti School of Multimedia. Powered by TIMU AI.
+  <!-- Header / Logo -->
+  <header class="header">
+    <img src="{{ url_for('static', filename='images/logo-timu.png') }}" alt="TIMU Logo" class="logo-glow" />
+    <h1>Selamat Datang di <span>Trisakti School of Multimedia</span></h1>
+    <p>Asisten AI Interaktif untuk Informasi Pendaftaran dan Kampus</p>
+  </header>
+
+  <!-- Menu Utama -->
+  <div class="main-buttons">
+    <a href="{{ url_for('chatroom') }}" class="btn-main">💬 Bicara dengan TIMU</a>
+    <a href="{{ url_for('login') }}" class="btn-secondary">🔐 Login Admin</a>
   </div>
+
+  <!-- Footer -->
+  <footer>
+    <button id="theme-toggle" class="theme-toggle">🌓 Ganti Tema</button>
+    <p>© {{ current_year }} Trisakti Multimedia. All rights reserved.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 </body>
 </html>
