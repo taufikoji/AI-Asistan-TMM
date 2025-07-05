@@ -1,313 +1,206 @@
-:root {
-  --maroon: #7b1f2d;
-  --user-msg: #b91c1c;
-  --ai-msg: #f1f5f9;
-  --radius: 12px;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --transition: all 0.3s ease;
-}
-
-[data-theme="light"] {
-  --bg: #ffffff;
-  --text: #1e1e1e;
-  --header-bg: var(--maroon);
-  --input-bg: #f9fafb;
-  --button-bg: var(--maroon);
-  --button-hover: #9c2e3f;
-}
-
-[data-theme="dark"] {
-  --bg: #121212;
-  --text: #f0f0f0;
-  --header-bg: #1e1e1e;
-  --input-bg: #1c1c1c;
-  --button-bg: #333;
-  --button-hover: #555;
-}
-
-* {
-  box-sizing: border-box;
-  font-family: 'Orbitron', sans-serif;
-}
-
+/* ========== Font & Reset ========== */
 body {
   margin: 0;
+  font-family: 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
 }
 
-header {
-  background: var(--header-bg);
-  color: white;
-  padding: 0.75rem 1rem;
+:root[data-theme="light"] {
+  --bg: #f4f4f4;
+  --text: #1a1a1a;
+  --input-bg: #fff;
+  --input-text: #000;
+  --btn-bg: #d32f2f;
+  --btn-glow: #ff5252;
+  --bubble-ai: #e0e0e0;
+  --bubble-user: #cfd8dc;
+}
+
+:root[data-theme="dark"] {
+  --bg: #121212;
+  --text: #ffffff;
+  --input-bg: #000;
+  --input-text: #fff;
+  --btn-bg: #ff1744;
+  --btn-glow: #ff5252;
+  --bubble-ai: #263238;
+  --bubble-user: #37474f;
+}
+
+/* ========== Header ========== */
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--shadow);
+  padding: 14px 24px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 999;
 }
 
-header h1 {
-  font-size: 1rem;
-  margin: 0;
-  line-height: 1.3;
+.logo {
+  height: 38px;
 }
 
-#theme-toggle {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+.theme-toggle {
+  background: none;
+  color: var(--text);
+  font-size: 20px;
+  border: none;
   cursor: pointer;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  transition: background 0.3s ease, border 0.3s ease;
+  margin-right: 10px;
 }
 
-#theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: #fff;
+.admin-login {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
 }
 
-#chat-container {
-  flex: 1;
-  padding: 1rem;
-  max-width: 960px;
-  margin: auto;
+/* ========== Chat UI ========== */
+.chat-container {
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-box {
+  max-height: 70vh;
   overflow-y: auto;
-  scroll-behavior: smooth;
-  margin-bottom: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 6px;
+  scrollbar-width: thin;
+}
+
+/* ========== Bubbles ========== */
+.ai-message, .user-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.ai-message .message {
+  background: var(--bubble-ai);
+}
+
+.user-message {
+  justify-content: flex-end;
+}
+
+.user-message .message {
+  background: var(--bubble-user);
 }
 
 .message {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
-.user {
-  flex-direction: row-reverse;
-}
-
-.icon {
-  width: 40px;
-  height: 40px;
-  margin: 0 12px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
+/* ========== Avatar Glow ========== */
 .avatar-glow {
-  position: relative;
-  z-index: 1;
-  box-shadow:
-    0 0 8px rgba(123, 31, 45, 0.6),
-    0 0 16px rgba(123, 31, 45, 0.4),
-    0 0 24px rgba(123, 31, 45, 0.3);
-  animation: glowPulse 2s ease-in-out infinite;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff1744, #9c27b0);
+  box-shadow: 0 0 12px #ff4081, 0 0 30px #d500f9;
+  animation: pulse 2s infinite ease-in-out;
 }
 
-@keyframes glowPulse {
-  0% {
-    box-shadow: 0 0 6px rgba(123, 31, 45, 0.4);
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px #ff4081, 0 0 30px #d500f9;
   }
   50% {
-    box-shadow: 0 0 20px rgba(123, 31, 45, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 6px rgba(123, 31, 45, 0.4);
+    box-shadow: 0 0 24px #ff4081, 0 0 50px #d500f9;
   }
 }
 
-.text {
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 1rem;
-  line-height: 1.7;
-  max-width: 85vw;
-  padding: 0.9rem;
-  border-radius: var(--radius);
-  background: var(--input-bg);
-  color: var(--text);
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  box-shadow: var(--shadow);
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.user .text {
-  background: var(--user-msg);
-  color: white;
-}
-
-/* 🔗 Tautan interaktif dari AI */
-.text a {
-  color: #ff4d6d;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-  word-break: break-word;
-}
-
-.text a:hover {
-  color: #fff;
-  background: #ff4d6d;
-  padding: 2px 6px;
-  border-radius: 4px;
-  box-shadow: 0 0 8px #ff4d6d;
-}
-
-#input-form {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--bg);
-  border-top: 1px solid #ccc;
-  z-index: 1000;
+/* ========== Chat Form ========== */
+form#chat-form {
   display: flex;
+  align-items: center;
+  margin-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 10px;
+  gap: 8px;
 }
 
-#message-input {
+#user-input {
   flex: 1;
-  font-size: 1rem;
-  padding: 0.75rem;
-  border-radius: var(--radius);
-  border: 1px solid #ccc;
-  background: var(--input-bg);
-  color: var(--text);
+  padding: 10px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  resize: none;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
 }
 
 #send-button {
-  margin-left: 1rem;
-  background: var(--button-bg);
+  background: var(--btn-bg);
   border: none;
+  padding: 10px 14px;
+  color: white;
+  font-size: 16px;
   border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 0 10px var(--button-bg), 0 0 20px rgba(185, 28, 28, 0.6);
+  box-shadow: 0 0 12px var(--btn-glow);
+  transition: 0.3s;
 }
 
 #send-button:hover {
-  background: var(--button-hover);
   transform: scale(1.1);
+  box-shadow: 0 0 20px var(--btn-glow);
 }
 
-#send-button:active svg {
-  transform: rotate(-30deg) scale(0.95);
-  transition: transform 0.2s ease;
-}
-
-.admin-login-btn {
-  font-size: 0.85rem;
-  color: white;
-  background: transparent;
-  border: 1px solid white;
-  padding: 6px 10px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: 0.3s;
-  margin-left: 1rem;
-}
-
-.admin-login-btn:hover {
-  background: white;
-  color: var(--maroon);
-}
-
-.logout-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 0.5rem 1rem;
-  background: #b91c1c;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  font-weight: bold;
-  font-family: 'Orbitron', sans-serif;
-  box-shadow: 0 0 8px rgba(185, 28, 28, 0.6);
-  transition: 0.3s ease;
-}
-.logout-btn:hover {
-  background: #9c2e3f;
-  transform: scale(1.05);
-}
-
-/* 🔽 Tombol Brosur dan WhatsApp */
-a.download-btn,
-a.whatsapp-btn {
-  display: inline-block;
-  padding: 0.6rem 1.2rem;
-  background: var(--button-bg);
-  color: white;
+/* ========== Link Button ========== */
+.download-btn {
+  background: #ffffff20;
+  color: var(--text);
+  padding: 10px 14px;
   border-radius: 8px;
   text-decoration: none;
-  font-weight: bold;
-  box-shadow: 0 0 10px rgba(185, 28, 28, 0.6);
-  transition: 0.3s;
-  font-family: 'Orbitron', sans-serif;
-  margin-top: 0.5rem;
+  font-weight: 500;
+  display: inline-block;
+  margin-top: 6px;
+  transition: all 0.3s;
+  border: 1px solid #ffffff40;
+}
+.download-btn:hover {
+  background: #ffffff40;
 }
 
-a.download-btn:hover,
-a.whatsapp-btn:hover {
-  background: var(--button-hover);
-  transform: scale(1.05);
+/* ========== Scrollbar ========== */
+.chat-box::-webkit-scrollbar {
+  width: 6px;
 }
-
-/* Tombol WA beda warna */
-a.whatsapp-btn {
-  background-color: #25D366;
-  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
-}
-a.whatsapp-btn:hover {
-  background-color: #1DA851;
-}
-
-/* Footer dan Responsif */
-footer {
-  text-align: center;
-  font-size: 0.8rem;
-  padding: 1rem;
-  background: var(--header-bg);
-  color: white;
-  margin-top: 2rem;
-}
-
-@media (max-width: 600px) {
-  header h1 {
-    font-size: 0.9rem;
-  }
-  #chat-container {
-    padding: 0.75rem;
-  }
-  #message-input, button {
-    font-size: 0.9rem;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.message.ai {
-  animation: slideUp 0.3s ease-out;
+.chat-box::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
 }
