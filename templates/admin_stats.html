@@ -1,42 +1,30 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard Admin - TIMU</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
 </head>
-<body class="admin-body">
+<body data-page="admin_stats">
   <div class="admin-container">
-    <header class="admin-header">
-      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="admin-logo">
-      <h1>Dashboard Admin</h1>
-      <a href="{{ url_for('logout') }}" class="admin-logout">Logout</a>
+    <header>
+      <h2>Dashboard Admin</h2>
+      <div class="admin-buttons">
+        <a href="{{ url_for('logout') }}" class="btn-outline small">🚪 Logout</a>
+        <a href="{{ url_for('landing') }}" class="btn-outline small">🏠 Landing</a>
+      </div>
     </header>
 
-    <main class="admin-content">
-      <div class="admin-summary">
-        <p><strong>Total Riwayat Chat:</strong> {{ stats.total_chats }}</p>
-      </div>
-
-      <h2>5 Chat Terbaru</h2>
-      <div class="chat-history">
-        {% if stats.latest %}
-          <ul>
-            {% for item in stats.latest %}
-              <li>
-                <strong>{{ item.timestamp }}:</strong><br>
-                <em>Pengguna:</em> {{ item.user }}<br>
-                <em>AI:</em> {{ item.ai }}
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p>Belum ada riwayat chat.</p>
-        {% endif %}
-      </div>
-    </main>
+    <div class="stats-section">
+      <p><strong>Total Riwayat Chat:</strong> {{ stats.total_chats }}</p>
+      <h3>Riwayat Terakhir:</h3>
+      <ul>
+        {% for chat in stats.latest %}
+          <li><strong>User:</strong> {{ chat.user }}<br><strong>TIMU:</strong> {{ chat.ai }}</li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
 </body>
 </html>
