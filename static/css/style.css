@@ -1,223 +1,210 @@
+/* =============== Root & Theme =============== */
 :root {
-  --bg-dark: #0e0e10;
-  --bg-light: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --text-light: #f0f0f0;
-  --text-dark: #1c1c1c;
-  --red-glow: #ff4c4c;
+  --color-bg-dark: #0d0d0d;
+  --color-bg-light: #ffffff;
+  --color-primary: #ff4d4d;
+  --color-accent: #1f1f1f;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(10px);
 }
 
 [data-theme="dark"] {
-  --bg: var(--bg-dark);
-  --text: var(--text-light);
+  --bg: var(--color-bg-dark);
+  --text: #f0f0f0;
+  --box: rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="light"] {
-  --bg: var(--bg-light);
-  --text: var(--text-dark);
+  --bg: var(--color-bg-light);
+  --text: #1a1a1a;
+  --box: rgba(0, 0, 0, 0.05);
 }
 
-body {
+html, body {
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", sans-serif;
-  background-color: var(--bg);
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg);
   color: var(--text);
   transition: background 0.3s, color 0.3s;
 }
 
-/* === Logo Glow === */
-.logo-glow, .logo-small {
-  width: 120px;
-  filter: drop-shadow(0 0 10px #ff4c4c);
+/* =============== Layout Global =============== */
+button, input, textarea, a {
+  font-family: inherit;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* =============== Landing Page =============== */
+.landing-body {
+  height: 100vh;
+  background: linear-gradient(135deg, #1b1b1b, #121212);
+  overflow: hidden;
+  position: relative;
+}
+
+.landing-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: 1;
+}
+
+.landing-header {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 4rem 1rem 1rem;
+}
+
+.landing-header img {
+  height: 80px;
   animation: glow 2s infinite alternate;
 }
 
-.logo-small {
-  width: 60px;
-  margin-right: 10px;
+.landing-title {
+  font-size: 2.2rem;
+  margin: 0.5rem 0;
 }
 
-@keyframes glow {
-  from { filter: drop-shadow(0 0 10px #ff4c4c); }
-  to { filter: drop-shadow(0 0 25px #ff4c4c); }
+.landing-subtitle {
+  font-size: 1rem;
+  opacity: 0.7;
 }
 
-/* === Glassmorphic container === */
-.glass {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
-  padding: 2rem;
-  max-width: 480px;
-  margin: auto;
-  text-align: center;
+.landing-main {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-/* === Buttons === */
-button, .red-glow-btn {
-  padding: 10px 20px;
-  margin: 8px;
-  background: var(--red-glow);
-  color: white;
-  border: none;
+.landing-buttons a {
+  padding: 0.9rem 1.5rem;
   border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 0 10px var(--red-glow);
-  transition: 0.3s;
-}
-
-button:hover, .red-glow-btn:hover {
-  box-shadow: 0 0 20px var(--red-glow);
-  transform: scale(1.05);
-}
-
-.back-btn {
-  display: inline-block;
-  margin-top: 1rem;
+  background: var(--box);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border);
   color: var(--text);
-  text-decoration: none;
-  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s;
 }
 
-/* === Chatroom === */
-.chatroom {
+.landing-buttons a:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* =============== Chatroom =============== */
+.chat-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background: var(--bg);
 }
 
-.chat-header {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
-}
-
-.chat-box {
+#chat-box {
   flex: 1;
-  padding: 1rem;
   overflow-y: auto;
-}
-
-.chat-box .bubble {
-  padding: 10px 15px;
-  margin-bottom: 12px;
-  border-radius: 12px;
-  max-width: 75%;
-  line-height: 1.4;
-  word-wrap: break-word;
-}
-
-.chat-box .user {
-  background: #2e8bff;
-  color: white;
-  align-self: flex-end;
-  margin-left: auto;
-}
-
-.chat-box .ai {
-  background: #eeeeee;
-  color: #1c1c1c;
-  align-self: flex-start;
-  margin-right: auto;
-}
-
-.chat-input-form {
-  display: flex;
   padding: 1rem;
-  border-top: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
 }
 
-#chatInput {
+.msg {
+  margin: 0.5rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  max-width: 75%;
+  word-wrap: break-word;
+  backdrop-filter: var(--glass-blur);
+  background: var(--box);
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: var(--color-primary);
+  color: white;
+}
+
+.msg.ai {
+  align-self: flex-start;
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+#message-input {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--box);
+  color: var(--text);
   resize: none;
-  font-size: 16px;
-  background: #222;
+}
+
+#send-button {
+  background: var(--color-primary);
   color: white;
-}
-
-.send-btn {
-  margin-left: 10px;
-  background: var(--red-glow);
-  border-radius: 8px;
-  font-size: 18px;
-}
-
-/* === Landing Page === */
-.landing {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: radial-gradient(circle at center, #111 0%, #000 100%);
-}
-
-.landing-container {
-  text-align: center;
-  padding: 2rem;
-}
-
-.btn-group {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-/* === Login Page === */
-.login-page, .admin-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #111 0%, #1c1c1c 100%);
-}
-
-.login-container input {
-  padding: 10px;
-  width: 80%;
-  margin-bottom: 12px;
-  border-radius: 8px;
   border: none;
-  background: #333;
-  color: white;
+  border-radius: 10px;
+  padding: 0 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-.error-msg {
-  color: red;
-  font-size: 14px;
-  margin-bottom: 10px;
+/* =============== Admin Stats =============== */
+.admin-header {
+  text-align: center;
+  margin-top: 2rem;
 }
 
-/* === Stats Page === */
-.stats-container ul {
+.admin-stats {
+  padding: 2rem;
+  background: var(--box);
+  max-width: 600px;
+  margin: 1rem auto;
+  border-radius: 10px;
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border);
+}
+
+.admin-stats ul {
   list-style: none;
-  padding-left: 0;
-  text-align: left;
+  padding: 0;
 }
 
-.stats-container li {
-  margin-bottom: 1rem;
-  background: rgba(255,255,255,0.05);
-  padding: 10px;
-  border-radius: 8px;
+.admin-stats li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
-a.download-btn {
+/* =============== Utility & Animation =============== */
+.download-btn {
   display: inline-block;
-  padding: 8px 16px;
-  background: #ff4c4c;
-  color: white;
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background: var(--color-primary);
+  color: #fff;
   border-radius: 6px;
-  text-decoration: none;
-  box-shadow: 0 0 10px #ff4c4c;
+  font-weight: 500;
+}
+
+@keyframes glow {
+  from {
+    filter: drop-shadow(0 0 5px #ff4d4d);
+  }
+  to {
+    filter: drop-shadow(0 0 20px #ff4d4d);
+  }
 }
