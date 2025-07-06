@@ -4,8 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBox = document.getElementById("chat-box");
     const typoBox = document.getElementById("typo-correction");
 
+    // Cek apakah semua elemen ada
     if (!form || !input || !chatBox || !typoBox) {
         console.error("Error: Salah satu elemen HTML (chat-form, user-input, chat-box, typo-correction) tidak ditemukan!");
+        console.log("Elemen yang ada:", { form, input, chatBox, typoBox });
         return;
     }
 
@@ -23,7 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+    })
     .then(data => initializeChat(data.conversation))
     .catch(err => console.error("Gagal menginisialisasi chat:", err));
 
@@ -33,8 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
         div.innerHTML = isHTML ? text : escapeHTML(text);
         chatBox.appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
-        div.style.opacity = 0;
-        setTimeout(() => div.style.opacity = 1, 10); // Efek fade-in
     }
 
     function escapeHTML(str) {
@@ -63,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function sendMessage(message) {
+        console.log("Mengirim pesan:", message); // Debugging
         appendMessage(message, "user");
         input.value = "";
         typoBox.style.display = "none";
@@ -76,11 +80,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ message }),
             });
 
+            console.log("Respons status:", res.status); // Debugging
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
 
             const data = await res.json();
+            console.log("Respons data:", data); // Debugging
             removeLoading();
 
             if (data.corrected) {
@@ -116,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (index > text.length) {
                 clearInterval(interval);
                 div.innerHTML = escapeHTML(text);
-                div.style.transform = "scale(1.05)"; // Efek kecil saat selesai
+                div.style.transform = "scale(1.05)";
                 setTimeout(() => div.style.transform = "scale(1)", 200);
             }
         }, speed);
@@ -125,7 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", (e) => {
         e.preventDefault();
         const message = input.value.trim();
-        if (!message) return;
+        if (!message) {
+            console.log("Pesan kosong, pengiriman dibatalkan."); // Debugging
+            return;
+        }
         sendMessage(message);
     });
 
