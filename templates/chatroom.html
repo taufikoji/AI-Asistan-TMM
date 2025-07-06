@@ -1,26 +1,20 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat TIMU - Trisakti Multimedia</title>
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <meta charset="UTF-8">
+  <title>Chat bersama TIMU</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <header class="chat-header">🧠 TIMU - Asisten AI Trisakti Multimedia</header>
+  <header>Chat Bersama TIMU</header>
 
-  <div id="chat-box" class="chat-box">
-    <div class="chat-message ai">
-      Hai! Saya TIMU, siap bantu pertanyaan seputar jurusan, beasiswa, pendaftaran, dan info TMM!
-    </div>
-  </div>
+  <div class="chat-box" id="chat-box"></div>
 
-  <div id="chat-status" class="chat-status">
-    Silakan mulai dengan mengetik pertanyaan Anda di bawah.
-  </div>
+  <div class="chat-status" id="chat-status">Menunggu pesan...</div>
 
-  <form id="chat-form" class="chat-form">
-    <input type="text" id="chat-input" placeholder="Ketik pesan di sini..." autocomplete="off" />
+  <form class="chat-form" id="chat-form">
+    <input type="text" id="user-input" placeholder="Ketik pesan di sini..." autocomplete="off" />
     <button type="submit">Kirim</button>
   </form>
 
