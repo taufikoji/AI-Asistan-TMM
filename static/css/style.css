@@ -1,215 +1,194 @@
-/* ====== RESET DASAR ====== */
+/* ========== Reset & Global ========== */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
 }
+
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f6f8;
+  background-color: #f8f8f8;
   color: #333;
-  line-height: 1.6;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* ====== HEADER ====== */
-header {
-  background-color: #800000;
-  color: white;
-  padding: 1rem;
-  text-align: center;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-/* ====== LANDING PAGE ====== */
-.landing-container {
-  max-width: 600px;
-  margin: auto;
-  padding: 2rem;
-  text-align: center;
-}
-.landing-container h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-.landing-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-.landing-buttons a {
-  padding: 0.75rem 1.5rem;
-  background-color: #800000;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: background-color 0.3s;
-}
-.landing-buttons a:hover {
-  background-color: #a00000;
-}
-
-/* ====== CHATROOM ====== */
-.chat-box {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 800px;
-  margin: auto;
-}
-.chat-message {
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  max-width: 80%;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  animation: fadeIn 0.3s ease-in-out;
-}
-.chat-message.user {
-  align-self: flex-end;
-  background-color: #e1e1e1;
-}
-.chat-message.ai {
-  align-self: flex-start;
-  background-color: #ffe6e6;
-  border-left: 4px solid #800000;
-}
-
-/* ====== CHAT FORM ====== */
-.chat-form {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
-  background: #fff;
-  border-top: 1px solid #ccc;
-}
-.chat-form input[type="text"] {
-  flex: 1;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-right: 1rem;
-}
-.chat-form button {
-  padding: 0.75rem 1.5rem;
-  background-color: #800000;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-.chat-form button:hover {
-  background-color: #a00000;
-}
-
-/* ====== STATUS BAR ====== */
-.chat-status {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #777;
-  padding-bottom: 0.5rem;
-}
-
-/* ====== LOGIN PAGE ====== */
-.login-container {
-  max-width: 400px;
-  margin: 3rem auto;
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-}
-.login-container h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-.login-container input[type="password"] {
-  width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-.login-container button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #800000;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-}
-.login-container button:hover {
-  background-color: #a00000;
-}
-.login-error {
-  color: red;
-  text-align: center;
-  margin-top: 1rem;
-}
-
-/* ====== ADMIN STATS ====== */
-.stats-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-}
-.stats-container h2 {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-.stat-item {
-  border-bottom: 1px solid #ddd;
-  padding: 1rem 0;
-}
-.stat-item:last-child {
-  border-bottom: none;
-}
-.stat-item strong {
-  color: #800000;
-}
-.logout-link {
-  display: block;
-  margin-top: 2rem;
-  text-align: center;
+a {
   color: #800000;
   text-decoration: none;
 }
-.logout-link:hover {
+a:hover {
   text-decoration: underline;
 }
 
-/* ====== DOWNLOAD BUTTON ====== */
-.download-btn {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background-color: #800000;
-  color: white;
-  border-radius: 5px;
-  text-decoration: none;
+/* ========== Container ========== */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
 }
-.download-btn:hover {
+
+/* ========== Header ========== */
+header {
+  background-color: #800000;
+  color: #fff;
+  padding: 15px 20px;
+  text-align: center;
+}
+header h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* ========== Chatroom ========== */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  max-height: 60vh;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+}
+
+.message {
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+.message.user {
+  background-color: #f0f0f0;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.message.bot {
+  background-color: #ffe6e6;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.message.typing {
+  font-style: italic;
+  color: #777;
+}
+
+/* ========== Chat Form ========== */
+#chat-form {
+  display: flex;
+  gap: 10px;
+}
+
+#user-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#send-btn, #suggest-btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 5px;
+  background-color: #800000;
+  color: #fff;
+  cursor: pointer;
+}
+#send-btn:hover,
+#suggest-btn:hover {
   background-color: #a00000;
 }
 
-/* ====== ANIMASI KEYFRAMES ====== */
-@keyframes fadeIn {
+/* ========== Landing Page ========== */
+.landing-menu {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.landing-menu a {
+  background-color: #800000;
+  color: #fff;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+.landing-menu a:hover {
+  background-color: #a00000;
+}
+
+/* ========== Login Page ========== */
+.login-box {
+  background: #fff;
+  padding: 25px;
+  max-width: 400px;
+  margin: 60px auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+
+.login-box h2 {
+  margin-bottom: 20px;
+  color: #800000;
+}
+
+.login-box input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 10px;
+  background: #800000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+.login-box button:hover {
+  background-color: #a00000;
+}
+
+/* ========== Stats Page ========== */
+.stats-box {
+  margin-top: 30px;
+}
+.stats-box h3 {
+  color: #800000;
+  margin-bottom: 10px;
+}
+.stats-box ul {
+  list-style: disc;
+  padding-left: 20px;
+}
+.stats-box li {
+  margin-bottom: 8px;
+}
+
+/* ========== Animation Keyframes (aman) ========== */
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -217,24 +196,26 @@ header {
   }
 }
 
-/* ====== RESPONSIF ====== */
+.message {
+  animation: fadeInUp 0.25s ease-in-out;
+}
+
+/* ========== Responsive ========== */
 @media (max-width: 600px) {
-  .landing-buttons {
+  .landing-menu {
     flex-direction: column;
-    gap: 1rem;
+    gap: 20px;
   }
-  .chat-message {
-    max-width: 95%;
-  }
-  .chat-form {
+
+  #chat-form {
     flex-direction: column;
-    gap: 1rem;
   }
-  .chat-form input[type="text"] {
+
+  #send-btn, #suggest-btn {
     width: 100%;
-    margin-right: 0;
   }
-  .chat-form button {
-    width: 100%;
+
+  #chat-messages {
+    max-height: 50vh;
   }
 }
