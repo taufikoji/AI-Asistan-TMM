@@ -1,35 +1,28 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Admin - TIMU</title>
-  <link rel="stylesheet" href="/static/css/style.css" />
-  <link rel="icon" href="/static/assets/img/logo.png" />
+  <title>Statistik Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <header class="admin-header glass">
-    <img src="/static/assets/img/logo.png" alt="Logo TMM" class="logo-small" />
-    <h1>Dashboard Admin TIMU</h1>
-    <a href="/logout" class="btn-logout">Logout</a>
-  </header>
+  <header>Dashboard Admin</header>
 
-  <main class="admin-content">
-    <section class="admin-stats">
-      <h2>Statistik Chat</h2>
-      <p>Total percakapan: <strong>{{ stats.total_chats }}</strong></p>
+  <div class="stats-container">
+    <h2>Statistik Chat Pengguna</h2>
+    <p>Total chat: <strong>{{ stats.total_chats }}</strong></p>
 
-      <h3>5 Riwayat Terakhir</h3>
-      <ul class="chat-history">
-        {% for item in stats.latest %}
-          <li class="chat-log-item glass">
-            <p><strong>🧑 User:</strong> {{ item.user }}</p>
-            <p><strong>🤖 TIMU:</strong> {{ item.ai }}</p>
-            <small>{{ item.timestamp }}</small>
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
-  </main>
+    <h3>5 Chat Terakhir</h3>
+    {% for item in stats.latest %}
+      <div class="stat-item">
+        <strong>{{ item.timestamp }}:</strong><br>
+        <em>User:</em> {{ item.user }}<br>
+        <em>AI:</em> {{ item.ai }}
+      </div>
+    {% endfor %}
+
+    <a href="/logout" class="logout-link">Keluar</a>
+  </div>
 </body>
 </html>
