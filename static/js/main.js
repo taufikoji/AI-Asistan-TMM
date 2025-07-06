@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBox = document.getElementById("chat-box");
     const typoBox = document.getElementById("typo-correction");
 
-    // Cek apakah semua elemen ada
     if (!form || !input || !chatBox || !typoBox) {
         console.error("Error: Salah satu elemen HTML (chat-form, user-input, chat-box, typo-correction) tidak ditemukan!");
         return;
@@ -12,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     input.focus();
 
-    // Inisialisasi chat dari backend
     function initializeChat(conversation) {
         if (conversation && Array.isArray(conversation)) {
             conversation.forEach(msg => {
@@ -21,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Ambil data awal dari server
     fetch('/api/chat?init=true', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
@@ -36,15 +33,17 @@ document.addEventListener("DOMContentLoaded", () => {
         div.innerHTML = isHTML ? text : escapeHTML(text);
         chatBox.appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
+        div.style.opacity = 0;
+        setTimeout(() => div.style.opacity = 1, 10); // Efek fade-in
     }
 
     function escapeHTML(str) {
         const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;'
+            '&': '&',
+            '<': '<',
+            '>': '>',
+            "'": ''',
+            '"': '"'
         };
         return str.replace(/[&<>'"]/g, tag => map[tag] || tag);
     }
@@ -109,14 +108,16 @@ document.addEventListener("DOMContentLoaded", () => {
         chatBox.appendChild(div);
 
         let index = 0;
-        const speed = lang === "id" ? 30 : 50; // Sesuaikan kecepatan berdasarkan bahasa
+        const speed = lang === "id" ? 30 : 50;
         const interval = setInterval(() => {
             div.innerHTML = `${escapeHTML(text.slice(0, index))}<span class='cursor'>▌</span>`;
             chatBox.scrollTop = chatBox.scrollHeight;
             index++;
             if (index > text.length) {
                 clearInterval(interval);
-                div.innerHTML = escapeHTML(text); // Gunakan escapeHTML untuk keamanan
+                div.innerHTML = escapeHTML(text);
+                div.style.transform = "scale(1.05)"; // Efek kecil saat selesai
+                setTimeout(() => div.style.transform = "scale(1)", 200);
             }
         }, speed);
     }
