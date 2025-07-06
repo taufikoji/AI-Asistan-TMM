@@ -1,26 +1,23 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login Admin - TIMU</title>
-  <link rel="stylesheet" href="/static/css/style.css" />
-  <link rel="icon" href="/static/assets/img/logo.png" />
+  <title>Login Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+  <header>Login Admin</header>
+
   <div class="login-container">
-    <div class="login-card glass">
-      <img src="/static/assets/img/logo.png" alt="TMM Logo" class="login-logo" />
-      <h2>Login Admin TIMU</h2>
-      {% if error %}
-        <p class="error-msg">{{ error }}</p>
-      {% endif %}
-      <form method="POST" class="login-form">
-        <input type="password" name="password" placeholder="Masukkan Password" required />
-        <button type="submit" class="btn-login">Masuk</button>
-      </form>
-      <a href="/" class="btn-back">⬅️ Kembali ke Landing</a>
-    </div>
+    <h2>Masukkan Password</h2>
+    <form method="post">
+      <input type="password" name="password" placeholder="Password admin" required />
+      <button type="submit">Masuk</button>
+    </form>
+    {% if error %}
+      <div class="login-error">{{ error }}</div>
+    {% endif %}
   </div>
 </body>
 </html>
