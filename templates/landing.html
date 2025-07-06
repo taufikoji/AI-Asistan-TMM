@@ -1,28 +1,41 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TIMU - Trisakti School of Multimedia</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trisakti Multimedia - TIMU AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='assets/img/timu-logo.png') }}" type="image/png" />
 </head>
-<body data-page="landing">
-  <div class="landing-container">
-    <header>
-      <img src="{{ url_for('static', filename='assets/img/logo-tmm.png') }}" alt="Logo TMM" class="logo">
-      <h1>Selamat Datang di TIMU</h1>
-      <p>Asisten AI Trisakti School of Multimedia</p>
-    </header>
+<body class="landing-page">
 
+  <!-- Video Background -->
+  <video autoplay muted loop class="bg-video">
+    <source src="{{ url_for('static', filename='assets/video/bg-hologram.mp4') }}" type="video/mp4" />
+  </video>
+
+  <!-- Overlay Gelap -->
+  <div class="overlay"></div>
+
+  <!-- Header Logo -->
+  <header class="header">
+    <img src="{{ url_for('static', filename='assets/img/timu-logo.png') }}" alt="TIMU Logo" class="logo" />
+    <h1 class="brand-title">Trisakti School of Multimedia</h1>
+  </header>
+
+  <!-- Konten Tengah -->
+  <main class="content">
+    <h2 class="slogan">Asisten AI Interaktif Resmi TMM</h2>
     <div class="button-group">
-      <a href="{{ url_for('chatroom') }}" class="btn-glow">💬 Bicaralah dengan TIMU</a>
-      <a href="{{ url_for('login') }}" class="btn-outline">🔐 Login Admin</a>
+      <a href="{{ url_for('chatroom') }}" class="btn primary">💬 Mulai Bicara dengan TIMU</a>
+      <a href="{{ url_for('login') }}" class="btn secondary">🔒 Login Admin</a>
     </div>
+  </main>
 
-    <video autoplay muted loop class="bg-video">
-      <source src="{{ url_for('static', filename='assets/video/landing.mp4') }}" type="video/mp4">
-    </video>
-  </div>
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; {{ datetime.utcnow().year }} Trisakti School of Multimedia. All rights reserved.</p>
+  </footer>
+
 </body>
 </html>
