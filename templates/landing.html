@@ -3,19 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TIMU AI | Trisakti Multimedia</title>
+  <title>Trisakti Multimedia - TIMU AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='assets/img/logo-tmm.png') }}">
 </head>
-<body class="landing">
-  <div class="landing-container glass">
-    <img src="{{ url_for('static', filename='images/timu_logo.png') }}" alt="TIMU Logo" class="logo-glow" />
-    <h1>Selamat Datang di TIMU</h1>
-    <p>Asisten AI dari Trisakti School of Multimedia</p>
-    <div class="btn-group">
-      <button id="startChatBtn" class="red-glow-btn">💬 Mulai Bicara</button>
-      <button id="adminLoginBtn">🔐 Login Admin</button>
-    </div>
+<body class="landing-body">
+  <video autoplay muted loop class="video-bg">
+    <source src="{{ url_for('static', filename='assets/video/bg-landing.mp4') }}" type="video/mp4">
+  </video>
+
+  <div class="overlay"></div>
+
+  <header class="landing-header">
+    <img src="{{ url_for('static', filename='assets/img/logo-tmm.png') }}" alt="Logo TMM" class="logo-tmm" />
+    <h1 class="title-glow">Selamat Datang di Trisakti School of Multimedia</h1>
+    <p class="subtitle-glow">Bicara langsung dengan <strong>TIMU</strong>, asisten AI interaktif kami.</p>
+  </header>
+
+  <div class="button-container">
+    <a href="{{ url_for('chatroom') }}" class="btn-glow">💬 Bicaralah dengan TIMU</a>
+    <a href="{{ url_for('login') }}" class="btn-glow secondary">🔐 Login Admin</a>
   </div>
+
+  <footer class="footer-glow">
+    <p>&copy; {{ datetime.utcnow().year }} Trisakti School of Multimedia. All rights reserved.</p>
+  </footer>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
