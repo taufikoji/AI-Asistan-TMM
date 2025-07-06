@@ -188,18 +188,20 @@ def chat():
         })
 
     system_prompt = (
-        "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia. Jawab sopan, tidak kaku, dan langsung ke inti. "
-        "Kurangi sapaan seperti 'hai', bantu pengguna lanjut bertanya.\n\n"
+        "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia. "
+        "Kamu bisa memahami dan menjawab pertanyaan dalam berbagai bahasa nasional dan daerah (seperti Jawa, Sunda, Betawi, dll), "
+        "jika ada pertanyaan di luar konteks kampus dan pendidikan. berikan jawaban sopan namun singkat dan kembali arahkan untuk bertanya tentang kampus."
+        "selama konteksnya masih seputar kampus dan pendidikan. Berikan jawaban sopan, natural, dan sesuai gaya bahasa pengguna.\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
-        f"Status terkini:\n{registration_status_summary}\n\n"
-        f"Riwayat singkat:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
+        f"Status pendaftaran saat ini:\n{registration_status_summary}\n\n"
+        f"Riwayat singkat obrolan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
     )
 
     prompt = (
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
-        f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus relevan, sopan, dan komunikatif."
+        f"Bahasa terdeteksi: {lang.upper()}\n"
+        "Berikan jawaban yang sopan, sesuai bahasa pengguna, tidak terlalu panjang, dan ajak pengguna lanjut bertanya."
     )
 
     try:
