@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chatroom - TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trisakti Multimedia Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="chatroom-body">
-  <div class="chat-container">
-    <div class="chat-header">
-      <h2>💬 Chat dengan Timu<span class="highlight">TIMU</span></h2>
-      <a href="/" class="btn small">🔙 Kembali</a>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4 max-w-lg">
+        <h2 class="text-2xl font-bold text-center mb-4">Chat dengan TIMU</h2>
+        <div class="bg-white p-4 rounded-lg shadow-md h-96 overflow-y-auto" id="chat-messages">
+            {% for msg in conversation %}
+                <div class="mb-2 {{ 'text-right' if msg.role == 'user' else 'text-left' }}">
+                    <div class="inline-block p-2 rounded-lg {{ 'bg-blue-100' if msg.role == 'user' else 'bg-gray-200' }}">
+                        {{ msg.content | safe }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <form method="post" action="/api/chat" class="mt-4">
+            <div class="flex">
+                <input type="text" name="message" class="flex-1 p-2 border rounded-l-lg" placeholder="Ketik pesan..." required>
+                <button type="submit" class="bg-blue-500 text-white p-2 rounded-r-lg">Kirim</button>
+            </div>
+        </form>
     </div>
-
-    <div class="chat-box" id="chat-box">
-      <div class="message bot">
-        Halo! Ada yang bisa saya bantu hari ini?
-      </div>
-    </div>
-
-    <div class="typo-correction" id="typo-correction" style="display: none;"></div>
-
-    <form id="chat-form" class="chat-form">
-      <input type="text" id="user-input" placeholder="Ketik pertanyaan di sini..." autocomplete="off" required />
-      <button type="submit">Kirim</button>
-    </form>
-  </div>
-
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    </script>
 </body>
 </html>
