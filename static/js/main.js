@@ -1,71 +1,87 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const chatBox = document.getElementById("chat-box");
-  const chatForm = document.getElementById("chat-form");
-  const chatInput = document.getElementById("chat-input");
-  const chatStatus = document.getElementById("chat-status");
+const chatMessages = document.getElementById("chat-messages");
+const chatForm = document.getElementById("chat-form");
+const userInput = document.getElementById("user-input");
 
-  // Fungsi menampilkan pesan ke UI
-  function appendMessage(text, sender = "user") {
-    const msg = document.createElement("div");
-    msg.className = `chat-message ${sender}`;
-    msg.innerHTML = text;
-    chatBox.appendChild(msg);
-    chatBox.scrollTop = chatBox.scrollHeight;
+// Fungsi scroll otomatis ke bawah
+function scrollToBottom() {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Fungsi tampilkan pesan ke UI
+function appendMessage(sender, text, type = "text") {
+  const message = document.createElement("div");
+  message.classList.add("message", sender);
+
+  if (type === "html") {
+    message.innerHTML = text;
+  } else {
+    message.textContent = text;
   }
 
-  // Fungsi menampilkan loader
-  function showTyping() {
-    const typing = document.createElement("div");
-    typing.className = "chat-message ai";
-    typing.id = "typing-indicator";
-    typing.innerHTML = `<span class="loader"></span> Sedang mengetik...`;
-    chatBox.appendChild(typing);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
+  chatMessages.appendChild(message);
+  scrollToBottom();
+}
 
-  function removeTyping() {
-    const typing = document.getElementById("typing-indicator");
-    if (typing) typing.remove();
-  }
+// Fungsi loading
+function showTyping() {
+  const typing = document.createElement("div");
+  typing.classList.add("message", "bot", "typing");
+  typing.textContent = "Mengetik...";
+  typing.id = "typing-indicator";
+  chatMessages.appendChild(typing);
+  scrollToBottom();
+}
 
-  // Event submit chat
-  chatForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const message = chatInput.value.trim();
-    if (!message) return;
+// Hapus typing
+function removeTyping() {
+  const typing = document.getElementById("typing-indicator");
+  if (typing) typing.remove();
+}
 
-    appendMessage(message, "user");
-    chatInput.value = "";
-    chatStatus.innerText = "Menunggu jawaban TIMU...";
-    showTyping();
+// Fungsi mengirim pesan
+async function sendMessage(event) {
+  event.preventDefault();
+  const message = userInput.value.trim();
+  if (!message) return;
 
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
+  appendMessage("user", message);
+  userInput.value = "";
 
-      const data = await res.json();
-      removeTyping();
+  showTyping();
 
-      if (res.ok && data.reply) {
-        appendMessage(data.reply, "ai");
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
 
-        if (data.corrected && data.corrected !== message) {
-          chatStatus.innerText = `✏️ Diperbaiki menjadi: "${data.corrected}"`;
-        } else {
-          chatStatus.innerText = "Silakan lanjut bertanya.";
-        }
-      } else {
-        appendMessage("Maaf, terjadi kesalahan. Coba lagi nanti.", "ai");
-        chatStatus.innerText = "Gagal memuat jawaban.";
-      }
-    } catch (err) {
-      removeTyping();
-      appendMessage("🚫 Gagal menghubungi server. Pastikan koneksi Anda aktif.", "ai");
-      chatStatus.innerText = "Tidak dapat terhubung.";
-      console.error(err);
+    const data = await res.json();
+    removeTyping();
+
+    if (data.error) {
+      appendMessage("bot", "❌ Terjadi kesalahan: " + data.error);
+      return;
     }
-  });
-});
+
+    // Jika ada koreksi ejaan
+    if (data.corrected) {
+      appendMessage("bot", `🔎 Kamu maksud: <i>${data.corrected}</i>?`, "html");
+    }
+
+    appendMessage("bot", data.reply, "html");
+  } catch (err) {
+    removeTyping();
+    appendMessage("bot", "❌ Gagal menghubungi server.");
+  }
+}
+
+// Tombol 'Saran Jurusan'
+function suggestJurusan() {
+  const input = document.getElementById("user-input");
+  input.value = "Saya ingin tahu jurusan atau program studi yang cocok dengan minat dan bakat saya.";
+  document.getElementById("send-btn").click();
+}
+
+// Jalankan saat form dikirim
+chatForm.addEventListener("submit", sendMessage);
