@@ -1,87 +1,77 @@
-const chatMessages = document.getElementById("chat-messages");
-const chatForm = document.getElementById("chat-form");
-const userInput = document.getElementById("user-input");
+document.addEventListener("DOMContentLoaded", () => {
+  const chatForm = document.getElementById("chat-form");
+  const chatInput = document.getElementById("chat-input");
+  const chatBox = document.getElementById("chat-box");
+  const loadingBubble = document.createElement("div");
+  loadingBubble.className = "message ai typing";
+  loadingBubble.innerHTML = "<p>✍️ TIMU sedang mengetik...</p>";
 
-// Fungsi scroll otomatis ke bawah
-function scrollToBottom() {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// Fungsi tampilkan pesan ke UI
-function appendMessage(sender, text, type = "text") {
-  const message = document.createElement("div");
-  message.classList.add("message", sender);
-
-  if (type === "html") {
-    message.innerHTML = text;
-  } else {
-    message.textContent = text;
+  function addMessage(content, type = "user") {
+    const message = document.createElement("div");
+    message.className = `message ${type}`;
+    message.innerHTML = `<div class="bubble">${content}</div>`;
+    chatBox.appendChild(message);
+    scrollToBottom();
   }
 
-  chatMessages.appendChild(message);
-  scrollToBottom();
-}
-
-// Fungsi loading
-function showTyping() {
-  const typing = document.createElement("div");
-  typing.classList.add("message", "bot", "typing");
-  typing.textContent = "Mengetik...";
-  typing.id = "typing-indicator";
-  chatMessages.appendChild(typing);
-  scrollToBottom();
-}
-
-// Hapus typing
-function removeTyping() {
-  const typing = document.getElementById("typing-indicator");
-  if (typing) typing.remove();
-}
-
-// Fungsi mengirim pesan
-async function sendMessage(event) {
-  event.preventDefault();
-  const message = userInput.value.trim();
-  if (!message) return;
-
-  appendMessage("user", message);
-  userInput.value = "";
-
-  showTyping();
-
-  try {
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
-    });
-
-    const data = await res.json();
-    removeTyping();
-
-    if (data.error) {
-      appendMessage("bot", "❌ Terjadi kesalahan: " + data.error);
-      return;
-    }
-
-    // Jika ada koreksi ejaan
-    if (data.corrected) {
-      appendMessage("bot", `🔎 Kamu maksud: <i>${data.corrected}</i>?`, "html");
-    }
-
-    appendMessage("bot", data.reply, "html");
-  } catch (err) {
-    removeTyping();
-    appendMessage("bot", "❌ Gagal menghubungi server.");
+  function scrollToBottom() {
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
-}
 
-// Tombol 'Saran Jurusan'
-function suggestJurusan() {
-  const input = document.getElementById("user-input");
-  input.value = "Saya ingin tahu jurusan atau program studi yang cocok dengan minat dan bakat saya.";
-  document.getElementById("send-btn").click();
-}
+  function showTyping(show) {
+    if (show) {
+      chatBox.appendChild(loadingBubble);
+    } else if (chatBox.contains(loadingBubble)) {
+      chatBox.removeChild(loadingBubble);
+    }
+    scrollToBottom();
+  }
 
-// Jalankan saat form dikirim
-chatForm.addEventListener("submit", sendMessage);
+  async function sendMessage(message) {
+    addMessage(message, "user");
+    showTyping(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+
+      if (data.reply) {
+        showTyping(false);
+        setTimeout(() => {
+          addMessage(data.reply, "ai");
+        }, 300);
+      } else {
+        showTyping(false);
+        addMessage("<p>⚠️ Jawaban tidak tersedia. Coba lagi nanti.</p>", "ai");
+      }
+    } catch (err) {
+      console.error(err);
+      showTyping(false);
+      addMessage("<p>❌ Gagal terhubung ke server. Coba periksa koneksi Anda.</p>", "ai");
+    }
+  }
+
+  chatForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const message = chatInput.value.trim();
+    if (message !== "") {
+      sendMessage(message);
+      chatInput.value = "";
+    }
+  });
+
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      chatForm.dispatchEvent(new Event("submit"));
+    }
+  });
+
+  // Auto-focus saat halaman dibuka
+  chatInput.focus();
+});
