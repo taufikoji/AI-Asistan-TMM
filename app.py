@@ -9,7 +9,7 @@ from google.api_core import exceptions as google_exceptions
 from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
 
-# ===================== KONFIGURASI DASAR =====================
+# ===================== KONFIG =====================
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="app.log")
 logger = logging.getLogger(__name__)
 
@@ -21,10 +21,9 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "secret")
 CORS(app)
 
-# ===================== GEMINI SETUP =====================
 genai.configure(api_key=GEMINI_API_KEY)
 
-# ===================== LOAD DATA JSON =====================
+# ===================== LOAD JSON DATA =====================
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -103,6 +102,14 @@ def get_current_registration_status():
     except Exception as e:
         logger.warning(f"Gagal menghitung status gelombang: {e}")
         return "Status pendaftaran tidak dapat ditentukan saat ini."
+
+def find_program_by_alias(query):
+    query = query.lower()
+    for program in TRISAKTI.get("academic_programs", []):
+        for alias in program.get("aliases", []):
+            if query in alias.lower() or alias.lower() in query:
+                return program
+    return None
 
 # ===================== ROUTES =====================
 @app.route("/")
@@ -187,11 +194,31 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
+    # Cek apakah mengandung alias jurusan
+    matched_program = find_program_by_alias(corrected)
+    if matched_program:
+        reply = (
+            f"Program **{matched_program['name']}** adalah jurusan yang {matched_program['description'].lower()}<br><br>"
+            f"📚 Spesialisasi: {', '.join(matched_program['specializations'])}<br>"
+            f"🎓 Prospek Karier: {', '.join(matched_program['career_prospects'])}<br>"
+            f"🏫 Akreditasi: {matched_program['accreditation']}<br>"
+            f"{'🕓 Tersedia kelas malam.' if matched_program['evening_class'] else 'Tidak tersedia kelas malam.'}"
+        )
+        save_chat(corrected, reply)
+        return jsonify({
+            "reply": reply,
+            "language": lang,
+            "corrected": corrected if corrected != message else None
+        })
+
+    # Jika tidak cocok ke alias, teruskan ke AI
     system_prompt = (
         "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia. "
-        "Kamu bisa memahami dan menjawab pertanyaan dalam berbagai bahasa nasional dan daerah (seperti Jawa, Sunda, Betawi, dll), "
-        "jika ada pertanyaan di luar konteks kampus dan pendidikan. berikan jawaban sopan namun singkat dan kembali arahkan untuk bertanya tentang kampus."
-        "selama konteksnya masih seputar kampus dan pendidikan. Berikan jawaban sopan, natural, dan sesuai gaya bahasa pengguna.\n\n"
+        "Kamu bisa menjawab pertanyaan tentang kampus, program studi, beasiswa, fasilitas, dll. "
+        "kamu bisa memahami seluruh bahasa negara dan menjawab serta menulis sesuai bahasa yang digunakan."
+        "kamu juga bisa diajak bercanda atau humoris tapi tidak berlebihan"
+        "kamu juga bisa diajak berdiskusi bebas namun di utamakan tentang pendidikan."
+        "Kamu juga memahami bahasa daerah dan bisa menjawab secara sopan, natural, dan responsif.\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Status pendaftaran saat ini:\n{registration_status_summary}\n\n"
         f"Riwayat singkat obrolan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
@@ -201,7 +228,7 @@ def chat():
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa terdeteksi: {lang.upper()}\n"
-        "Berikan jawaban yang sopan, sesuai bahasa pengguna, tidak terlalu panjang, dan ajak pengguna lanjut bertanya."
+        "Jawaban harus natural, sopan, dan sesuai gaya bahasa pengguna."
     )
 
     try:
@@ -230,6 +257,6 @@ def chat():
         logger.error(f"[Internal Error] {e}")
         return jsonify({"error": "Kesalahan sistem"}), 500
 
-# ===================== RUN =====================
+# ===================== JALANKAN =====================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
