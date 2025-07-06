@@ -16,9 +16,9 @@
     "values": ["Kreativitas", "Teknologi", "Budaya"],
     "address": "Jl. Jend. A. Yani Kav. 85, Rawasari, Jakarta Timur 13210",
     "contact": {
-      "whatsapp": "+62 877 4299 7808",
+      "whatsapp": "+6287742997808",
       "email": "info@trisaktimultimedia.ac.id",
-      "phone": ["+62-21-4895787"],
+      "phone": ["+62214895787"],
       "office_hours": "Senin-Jumat, 08:00-16:00 WIB",
       "social_media": {
         "instagram": "@trisaktimultimedia",
@@ -33,9 +33,9 @@
       {"menu": "Pendaftaran", "description": "Syarat, prosedur, dan link pendaftaran."},
       {"menu": "Berita & Kegiatan", "description": "Agenda, acara, kerja sama, dan berita."},
       {"menu": "Kontak", "description": "Alamat, telepon, email, dan formulir kontak."}
-    ],
+    ]
   },
-    "academic_programs": [
+  "academic_programs": [
     {
       "name": "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
       "short": "D4 Kemasan",
@@ -46,18 +46,18 @@
       "evening_class": true,
       "curriculum": "Mata kuliah meliputi desain kemasan, teknologi produksi, dan manajemen branding. Mahasiswa belajar merancang kemasan inovatif dengan teknologi terkini.",
       "aliases": [
-      "TG",
-      "Desain Kemasan",
-      "Teknologi Kemasan",
-      "D4 Kemasan",
-      "Kemasan",
-      "Desain dan Kemasan",
-      "Kemasan Modern",
-      "Packaging Design",
-      "Packaging",
-      "D4 Packaging",
-      "Kemasan Visual"
-        ],
+        "TG",
+        "Desain Kemasan",
+        "Teknologi Kemasan",
+        "D4 Kemasan",
+        "Kemasan",
+        "Desain dan Kemasan",
+        "Kemasan Modern",
+        "Packaging Design",
+        "Packaging",
+        "D4 Packaging",
+        "Kemasan Visual"
+      ]
     },
     {
       "name": "Sarjana Desain Animasi dan Games (S1)",
@@ -69,17 +69,17 @@
       "evening_class": false,
       "curriculum": "Mata kuliah mencakup animasi 2D/3D, storytelling, pengembangan game interaktif, dan teknologi animasi digital.",
       "aliases": [
-      "Animasi",
-      "Desain Game",
-      "Game Developer",
-      "Desain Animasi",
-      "S1 Animasi",
-      "S1 Games",
-      "Game Design",
-      "Animation",
-      "Animasi dan Game",
-      "Desain Permainan"
-        ],
+        "Animasi",
+        "Desain Game",
+        "Game Developer",
+        "Desain Animasi",
+        "S1 Animasi",
+        "S1 Games",
+        "Game Design",
+        "Animation",
+        "Animasi dan Game",
+        "Desain Permainan"
+      ]
     },
     {
       "name": "Sarjana Desain Kreatif Visual Periklanan (S1)",
@@ -89,19 +89,19 @@
       "career_prospects": ["Creative Director", "Visual Branding Specialist", "Art Director"],
       "accreditation": "B",
       "evening_class": false,
-      "curriculum": "Mata kuliah meliputi komunikasi visual, strategi branding, dan desain iklan kreatif."
+      "curriculum": "Mata kuliah meliputi komunikasi visual, strategi branding, dan desain iklan kreatif.",
       "aliases": [
-      "DKV",
-      "Desain Komunikasi Visual",
-      "Iklan",
-      "S1 Iklan",
-      "Desain Iklan",
-      "Visual Advertising",
-      "Periklanan",
-      "Creative Visual",
-      "Graphic Advertising",
-      "Branding Visual"
-        ],
+        "DKV",
+        "Desain Komunikasi Visual",
+        "Iklan",
+        "S1 Iklan",
+        "Desain Iklan",
+        "Visual Advertising",
+        "Periklanan",
+        "Creative Visual",
+        "Graphic Advertising",
+        "Branding Visual"
+      ]
     },
     {
       "name": "Sarjana Desain Multimedia Broadcasting (S1)",
@@ -113,18 +113,18 @@
       "evening_class": false,
       "curriculum": "Mata kuliah mencakup produksi multimedia, teknologi siaran, dan pengeditan audio-visual.",
       "aliases": [
-      "BC",
-      "Broadcasting",
-      "Multimedia",
-      "Desain Multimedia",
-      "Penyiaran Digital",
-      "S1 Broadcasting",
-      "Multimedia Broadcasting",
-      "Multimedia Penyiaran",
-      "Broadcast Media",
-      "Content Creator",
-      "Siaran Multimedia"
-        ],
+        "BC",
+        "Broadcasting",
+        "Multimedia",
+        "Desain Multimedia",
+        "Penyiaran Digital",
+        "S1 Broadcasting",
+        "Multimedia Broadcasting",
+        "Multimedia Penyiaran",
+        "Broadcast Media",
+        "Content Creator",
+        "Siaran Multimedia"
+      ]
     }
   ],
   "accreditation": {
@@ -146,7 +146,7 @@
     "Wi-Fi Gratis di Seluruh Kampus",
     "Kantin Mahasiswa"
   ],
-    "registration": {
+  "registration": {
     "link": "https://trisaktimultimedia.ecampuz.com/eadmisi/",
     "cost": "Gratis",
     "requirements": [
@@ -162,11 +162,11 @@
         "waves": [
           {
             "wave": "Gelombang 2",
-            "period": "01 April 2025 - 30 Juni 2025"
+            "period": "2025-04-01 - 2025-06-30"
           },
           {
             "wave": "Gelombang 3",
-            "period": "01 Juli 2025 - 31 Juli 2025"
+            "period": "2025-07-01 - 2025-07-31"
           }
         ]
       },
@@ -175,11 +175,11 @@
         "waves": [
           {
             "wave": "Gelombang 2",
-            "period": "01 April 2025 - 30 Juni 2025"
+            "period": "2025-04-01 - 2025-06-30"
           },
           {
             "wave": "Gelombang 3",
-            "period": "01 Juli 2025 - 31 Juli 2025"
+            "period": "2025-07-01 - 2025-07-31"
           }
         ]
       },
@@ -188,11 +188,11 @@
         "waves": [
           {
             "wave": "Gelombang 2",
-            "period": "01 April 2025 - 30 Juni 2025"
+            "period": "2025-04-01 - 2025-06-30"
           },
           {
             "wave": "Gelombang 3",
-            "period": "01 Juli 2025 - 31 Juli 2025"
+            "period": "2025-07-01 - 2025-07-31"
           }
         ]
       }
@@ -212,10 +212,11 @@
     }
   },
   "current_context": {
-    "date": "06 Juli 2025",
-    "registration_status": "Gelombang 3 sedang berlangsung sampai 31 Juli 2025."
+    "date": "2025-07-07",
+    "time": "03:56:00+07:00",
+    "registration_status": "Pendaftaran Gelombang 3 sedang berlangsung hingga 2025-07-31."
   },
-    "scholarships": [
+  "scholarships": [
     {
       "name": "Beasiswa KIP Kuliah",
       "description": "Beasiswa pemerintah untuk mahasiswa berprestasi dari keluarga kurang mampu.",
@@ -225,7 +226,7 @@
         "Transkrip nilai SMA/SMK",
         "Pendaftaran via https://kip-kuliah.kemdikbud.go.id"
       ],
-      "process": "Pendaftaran online, seleksi berdasarkan nilai dan dokumen, batas 31 Oktober 2025."
+      "process": "Pendaftaran online, seleksi berdasarkan nilai dan dokumen, batas 2025-10-31."
     },
     {
       "name": "Yayasan Beasiswa Trisakti",
@@ -281,44 +282,44 @@
     "kontak": ["nomor telepon", "hubungi", "whatsapp", "email kampus"],
     "testimoni": ["pengalaman alumni", "testimoni", "cerita mahasiswa"]
   },
-    "academic_calendar": {
+  "academic_calendar": {
     "semester_1_2025": {
-      "start": "15 Agustus 2025",
-      "end": "20 Desember 2025",
-      "holidays": ["25 Desember 2025 - Natal"]
+      "start": "2025-08-15",
+      "end": "2025-12-20",
+      "holidays": ["2025-12-25 - Natal"]
     },
     "semester_2_2025": {
-      "start": "12 Januari 2026",
-      "end": "30 Mei 2026",
-      "holidays": ["1 Februari 2026 - Imlek", "1 Mei 2026 - Hari Buruh"]
+      "start": "2026-01-12",
+      "end": "2026-05-30",
+      "holidays": ["2026-02-01 - Imlek", "2026-05-01 - Hari Buruh"]
     }
   },
   "events": [
     {
       "title": "Diseminasi Permendikbudristek No. 53 Tahun 2023",
-      "date": "25 Juni 2025",
+      "date": "2025-06-25",
       "description": "Acara untuk meningkatkan standar mutu pendidikan tinggi, selaras dengan regulasi nasional."
     },
     {
       "title": "Kerja Sama dengan Poltek Harapan Bersama",
-      "date": "26 Mei 2025",
+      "date": "2025-05-26",
       "description": "Penandatanganan kerja sama untuk ekstensi D3 ke S1 dan kuliah umum strategi digital branding."
     },
     {
       "title": "Workshop Desain Digital",
-      "date": "10 Juli 2025",
+      "date": "2025-07-10",
       "description": "Pelatihan intensif untuk mahasiswa tentang desain digital dan animasi."
     }
   ],
   "collaborations": [
     {
       "partner": "Politeknik Harapan Bersama (Poltek HarBer)",
-      "date": "26 Mei 2025",
+      "date": "2025-05-26",
       "description": "Kerja sama ekstensi D3 ke S1 dan kuliah umum strategi digital branding."
     },
     {
       "partner": "PT. Guava Production",
-      "date": "02 Februari 2022",
+      "date": "2022-02-02",
       "description": "Kolaborasi produksi multimedia (musik video dan film)."
     }
   ],
@@ -336,18 +337,13 @@
       "testimonial": "Saya belajar banyak tentang teknologi kemasan modern di sini. Sekarang saya bekerja sebagai Packaging Designer di perusahaan multinasional."
     }
   ],
-  "current_context": {
-    "date": "06 Juli 2025",
-    "time": "20:00 WIB",
-    "registration_status": "Pendaftaran Gelombang 3 sedang berlangsung hingga 31 Juli 2025."
-  },
   "kip_schedule": {
     "events": [
-      {"name": "Pendaftaran Akun Siswa KIP-Kuliah", "start": "04 Feb 2025", "end": "31 Okt 2025"},
-      {"name": "Seleksi Nasional Berdasarkan Prestasi (SNBP)", "start": "04 Feb 2025", "end": "18 Feb 2025"},
-      {"name": "UTBK-SNBT", "start": "11 Mar 2025", "end": "27 Mar 2025"},
-      {"name": "Seleksi Mandiri PTN", "start": "04 Jun 2025", "end": "30 Sep 2025"},
-      {"name": "Seleksi Mandiri PTS", "start": "04 Jun 2025", "end": "31 Okt 2025"}
+      {"name": "Pendaftaran Akun Siswa KIP-Kuliah", "start": "2025-02-04", "end": "2025-10-31"},
+      {"name": "Seleksi Nasional Berdasarkan Prestasi (SNBP)", "start": "2025-02-04", "end": "2025-02-18"},
+      {"name": "UTBK-SNBT", "start": "2025-03-11", "end": "2025-03-27"},
+      {"name": "Seleksi Mandiri PTN", "start": "2025-06-04", "end": "2025-09-30"},
+      {"name": "Seleksi Mandiri PTS", "start": "2025-06-04", "end": "2025-10-31"}
     ],
     "note": "Jadwal dapat berubah sewaktu-waktu"
   },
