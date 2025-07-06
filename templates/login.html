@@ -1,23 +1,23 @@
+<!-- templates/login.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-  <header>Login Admin</header>
-
+<body class="login-page">
   <div class="login-container">
-    <h2>Masukkan Password</h2>
-    <form method="post">
-      <input type="password" name="password" placeholder="Password admin" required />
+    <h2>Login Admin</h2>
+    {% if error %}
+      <p class="login-error">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+      <input type="password" name="password" placeholder="Masukkan password admin" required>
       <button type="submit">Masuk</button>
     </form>
-    {% if error %}
-      <div class="login-error">{{ error }}</div>
-    {% endif %}
+    <p><a href="/">⬅️ Kembali ke beranda</a></p>
   </div>
 </body>
 </html>
