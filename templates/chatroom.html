@@ -2,39 +2,40 @@
 <html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat TIMU - Trisakti Multimedia</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  <link rel="icon" href="{{ url_for('static', filename='assets/img/logo-tmm.png') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruang Chat - TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
 </head>
-<body class="chatroom-body">
-  <div class="chat-container glassmorphism">
-    <!-- Header -->
-    <header class="chat-header">
-      <img src="{{ url_for('static', filename='assets/img/logo-tmm.png') }}" alt="Logo TMM" class="logo-chat">
-      <h2>TIMU - Asisten AI</h2>
-      <a href="{{ url_for('landing') }}" class="back-to-home">⬅️ Kembali</a>
-    </header>
+<body class="chat-body">
+  <header class="chat-header">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" class="chat-logo" alt="Logo TIMU">
+    <div class="theme-toggle">
+      <button id="toggle-theme">🌓</button>
+    </div>
+  </header>
 
-    <!-- Chat Display Area -->
-    <div id="chat-box" class="chat-box">
-      <div class="chat-bubble timu">
-        👋 Halo! Saya TIMU. Tanyakan apa saja tentang TMM.
+  <main class="chat-main">
+    <div class="chat-container" id="chat-container">
+      <div class="chat-message ai">
+        <div class="avatar-glow">
+          <img src="{{ url_for('static', filename='img/avatar.png') }}" alt="TIMU Avatar" class="avatar">
+        </div>
+        <div class="bubble">Halo! Saya TIMU, Asisten AI dari TMM. Ada yang bisa saya bantu?</div>
       </div>
     </div>
 
-    <!-- Chat Input -->
-    <form id="chat-form" class="chat-form">
-      <textarea id="user-input" placeholder="Ketik pertanyaan Anda di sini..." required></textarea>
-      <button type="submit" id="send-btn" title="Kirim">
-        <img src="{{ url_for('static', filename='assets/img/send-icon-red.png') }}" alt="Kirim" />
-      </button>
-    </form>
+    <div class="chat-input">
+      <textarea id="user-input" placeholder="Ketik pesan..." rows="1"></textarea>
+      <button id="send-btn" class="send-btn">📨</button>
+    </div>
+  </main>
+
+  <div class="chat-footer">
+    <a href="{{ url_for('landing') }}" class="back-home">🏠 Kembali ke Beranda</a>
   </div>
 
-  <!-- Avatar -->
-  <img src="{{ url_for('static', filename='assets/img/timu-avatar-glow.png') }}" alt="TIMU" class="timu-avatar-glow" />
-
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
