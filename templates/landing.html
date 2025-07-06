@@ -1,41 +1,20 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trisakti Multimedia - TIMU AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  <link rel="icon" href="{{ url_for('static', filename='assets/img/timu-logo.png') }}" type="image/png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TIMU - Asisten AI TMM</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="landing-page">
-
-  <!-- Video Background -->
-  <video autoplay muted loop class="bg-video">
-    <source src="{{ url_for('static', filename='assets/video/bg-hologram.mp4') }}" type="video/mp4" />
-  </video>
-
-  <!-- Overlay Gelap -->
-  <div class="overlay"></div>
-
-  <!-- Header Logo -->
-  <header class="header">
-    <img src="{{ url_for('static', filename='assets/img/timu-logo.png') }}" alt="TIMU Logo" class="logo" />
-    <h1 class="brand-title">Trisakti School of Multimedia</h1>
-  </header>
-
-  <!-- Konten Tengah -->
-  <main class="content">
-    <h2 class="slogan">Asisten AI Interaktif Resmi TMM</h2>
-    <div class="button-group">
-      <a href="{{ url_for('chatroom') }}" class="btn primary">💬 Mulai Bicara dengan TIMU</a>
-      <a href="{{ url_for('login') }}" class="btn secondary">🔒 Login Admin</a>
+<body class="landing-body">
+  <div class="landing-container">
+    <img src="{{ url_for('static', filename='img/timu-logo.png') }}" alt="Logo TIMU" class="logo">
+    <h1>Selamat datang di <span class="highlight">TIMU</span></h1>
+    <p>Asisten AI Trisakti School of Multimedia</p>
+    <div class="buttons">
+      <a href="{{ url_for('chatroom') }}" class="btn primary">💬 Masuk ke Chat</a>
+      <a href="{{ url_for('login') }}" class="btn secondary">🔐 Masuk Admin</a>
     </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; {{ datetime.utcnow().year }} Trisakti School of Multimedia. All rights reserved.</p>
-  </footer>
-
+  </div>
 </body>
 </html>
