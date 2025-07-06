@@ -1,63 +1,71 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const chatBox = document.getElementById("chat-box");
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
-  const chatBox = document.getElementById("chat-box");
-  const statusDiv = document.getElementById("chat-status");
+  const chatStatus = document.getElementById("chat-status");
 
-  function appendMessage(sender, message, isHTML = false) {
-    const div = document.createElement("div");
-    div.className = sender === "user" ? "chat-message user" : "chat-message ai";
-    div.innerHTML = isHTML ? message : escapeHTML(message);
-    chatBox.appendChild(div);
+  // Fungsi menampilkan pesan ke UI
+  function appendMessage(text, sender = "user") {
+    const msg = document.createElement("div");
+    msg.className = `chat-message ${sender}`;
+    msg.innerHTML = text;
+    chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function setStatus(message, loading = false) {
-    statusDiv.innerHTML = loading
-      ? `<span class="loader"></span> ${message}`
-      : message;
+  // Fungsi menampilkan loader
+  function showTyping() {
+    const typing = document.createElement("div");
+    typing.className = "chat-message ai";
+    typing.id = "typing-indicator";
+    typing.innerHTML = `<span class="loader"></span> Sedang mengetik...`;
+    chatBox.appendChild(typing);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function escapeHTML(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
+  function removeTyping() {
+    const typing = document.getElementById("typing-indicator");
+    if (typing) typing.remove();
   }
 
+  // Event submit chat
   chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const message = chatInput.value.trim();
     if (!message) return;
 
-    appendMessage("user", message);
+    appendMessage(message, "user");
     chatInput.value = "";
-    setStatus("Menunggu jawaban dari TIMU...", true);
+    chatStatus.innerText = "Menunggu jawaban TIMU...";
+    showTyping();
 
     try {
-      const response = await fetch("/api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
+      removeTyping();
 
-      if (data.reply) {
-        appendMessage("ai", data.reply, true);
-      } else if (data.error) {
-        appendMessage("ai", `⚠️ ${data.error}`);
-      } else {
-        appendMessage("ai", "⚠️ Tidak ada jawaban dari AI.");
-      }
+      if (res.ok && data.reply) {
+        appendMessage(data.reply, "ai");
 
-      if (data.corrected && data.corrected !== message) {
-        setStatus(`Koreksi ejaan: <em>${data.corrected}</em>`, false);
+        if (data.corrected && data.corrected !== message) {
+          chatStatus.innerText = `✏️ Diperbaiki menjadi: "${data.corrected}"`;
+        } else {
+          chatStatus.innerText = "Silakan lanjut bertanya.";
+        }
       } else {
-        setStatus("Selesai", false);
+        appendMessage("Maaf, terjadi kesalahan. Coba lagi nanti.", "ai");
+        chatStatus.innerText = "Gagal memuat jawaban.";
       }
-    } catch (error) {
-      appendMessage("ai", "⚠️ Gagal terhubung ke server.");
-      setStatus("Terjadi kesalahan.", false);
+    } catch (err) {
+      removeTyping();
+      appendMessage("🚫 Gagal menghubungi server. Pastikan koneksi Anda aktif.", "ai");
+      chatStatus.innerText = "Tidak dapat terhubung.";
+      console.error(err);
     }
   });
 });
