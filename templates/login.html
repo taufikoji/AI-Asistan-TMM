@@ -2,23 +2,27 @@
 <html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login Admin</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login Admin - TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
 </head>
-<body class="login-page">
-  <div class="login-container glass">
-    <h2>Login Admin</h2>
-    {% if error %}
-      <p class="error-msg">{{ error }}</p>
-    {% endif %}
-    <form method="post">
-      <input type="password" name="password" placeholder="Masukkan password" required />
-      <button type="submit">Masuk</button>
-    </form>
-    <a href="/" class="back-btn">⬅ Kembali ke Landing</a>
-  </div>
+<body class="login-body">
+  <div class="login-container">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" class="login-logo" alt="Logo TIMU">
 
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <h2 class="login-title">Login Admin</h2>
+
+    {% if error %}
+    <div class="login-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" class="login-form">
+      <input type="password" name="password" placeholder="Masukkan password admin" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <a href="{{ url_for('landing') }}" class="back-home">← Kembali ke Landing</a>
+  </div>
 </body>
 </html>
