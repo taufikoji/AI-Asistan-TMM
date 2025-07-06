@@ -1,77 +1,57 @@
+// static/js/main.js
 document.addEventListener("DOMContentLoaded", () => {
-  const chatForm = document.getElementById("chat-form");
-  const chatInput = document.getElementById("chat-input");
-  const chatBox = document.getElementById("chat-box");
-  const loadingBubble = document.createElement("div");
-  loadingBubble.className = "message ai typing";
-  loadingBubble.innerHTML = "<p>✍️ TIMU sedang mengetik...</p>";
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("user-input");
+  const messages = document.getElementById("messages");
+  const typingIndicator = document.getElementById("typing");
 
-  function addMessage(content, type = "user") {
+  function appendMessage(role, text) {
     const message = document.createElement("div");
-    message.className = `message ${type}`;
-    message.innerHTML = `<div class="bubble">${content}</div>`;
-    chatBox.appendChild(message);
-    scrollToBottom();
+    message.className = `message ${role}`;
+    message.innerHTML = text;
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
   }
 
-  function scrollToBottom() {
-    chatBox.scrollTop = chatBox.scrollHeight;
+  function showTyping() {
+    typingIndicator.style.display = "block";
+    messages.scrollTop = messages.scrollHeight;
   }
 
-  function showTyping(show) {
-    if (show) {
-      chatBox.appendChild(loadingBubble);
-    } else if (chatBox.contains(loadingBubble)) {
-      chatBox.removeChild(loadingBubble);
-    }
-    scrollToBottom();
+  function hideTyping() {
+    typingIndicator.style.display = "none";
   }
 
-  async function sendMessage(message) {
-    addMessage(message, "user");
-    showTyping(true);
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    appendMessage("user", `<span>${userText}</span>`);
+    input.value = "";
+    showTyping();
 
     try {
-      const res = await fetch("/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message: userText }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
+      hideTyping();
 
-      if (data.reply) {
-        showTyping(false);
-        setTimeout(() => {
-          addMessage(data.reply, "ai");
-        }, 300);
+      if (data.error) {
+        appendMessage("ai", `<span class="error">${data.error}</span>`);
       } else {
-        showTyping(false);
-        addMessage("<p>⚠️ Jawaban tidak tersedia. Coba lagi nanti.</p>", "ai");
+        if (data.corrected) {
+          appendMessage("correction", `🔎 Maksud Anda: <em>${data.corrected}</em>`);
+        }
+        appendMessage("ai", `<span>${data.reply}</span>`);
       }
-    } catch (err) {
-      console.error(err);
-      showTyping(false);
-      addMessage("<p>❌ Gagal terhubung ke server. Coba periksa koneksi Anda.</p>", "ai");
-    }
-  }
-
-  chatForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const message = chatInput.value.trim();
-    if (message !== "") {
-      sendMessage(message);
-      chatInput.value = "";
+    } catch (error) {
+      hideTyping();
+      appendMessage("ai", `<span class="error">Terjadi kesalahan koneksi.</span>`);
     }
   });
-
-  chatInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      chatForm.dispatchEvent(new Event("submit"));
-    }
-  });
-
-  // Auto-focus saat halaman dibuka
-  chatInput.focus();
 });
