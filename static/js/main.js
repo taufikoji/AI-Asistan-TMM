@@ -1,74 +1,63 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
+  const chatForm = document.getElementById("chat-form");
+  const chatInput = document.getElementById("chat-input");
   const chatBox = document.getElementById("chat-box");
-  const userInput = document.getElementById("user-input");
-  const sendBtn = document.getElementById("send-btn");
+  const statusDiv = document.getElementById("chat-status");
 
-  // Load history from localStorage
-  const savedChats = JSON.parse(localStorage.getItem("chat_history")) || [];
-  savedChats.forEach(chat => appendMessage(chat.sender, chat.text, chat.time));
-
-  function appendMessage(sender, text, time = null) {
-    const bubble = document.createElement("div");
-    bubble.classList.add("bubble", sender === "user" ? "user-bubble" : "ai-bubble");
-
-    const content = document.createElement("div");
-    content.className = "bubble-content";
-    content.innerHTML = text;
-
-    const timestamp = document.createElement("div");
-    timestamp.className = "timestamp";
-    timestamp.textContent = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    bubble.appendChild(content);
-    bubble.appendChild(timestamp);
-    chatBox.appendChild(bubble);
+  function appendMessage(sender, message, isHTML = false) {
+    const div = document.createElement("div");
+    div.className = sender === "user" ? "chat-message user" : "chat-message ai";
+    div.innerHTML = isHTML ? message : escapeHTML(message);
+    chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function saveToHistory(sender, text) {
-    const history = JSON.parse(localStorage.getItem("chat_history")) || [];
-    history.push({ sender, text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
-    localStorage.setItem("chat_history", JSON.stringify(history));
+  function setStatus(message, loading = false) {
+    statusDiv.innerHTML = loading
+      ? `<span class="loader"></span> ${message}`
+      : message;
   }
 
-  function sendMessage() {
-    const message = userInput.value.trim();
+  function escapeHTML(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = chatInput.value.trim();
     if (!message) return;
 
     appendMessage("user", message);
-    saveToHistory("user", message);
-    userInput.value = "";
+    chatInput.value = "";
+    setStatus("Menunggu jawaban dari TIMU...", true);
 
-    const loadingBubble = document.createElement("div");
-    loadingBubble.classList.add("bubble", "ai-bubble");
-    loadingBubble.innerHTML = `<div class="bubble-content">Mengetik...</div>`;
-    chatBox.appendChild(loadingBubble);
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        chatBox.removeChild(loadingBubble);
-        if (data.reply) {
-          appendMessage("ai", data.reply);
-          saveToHistory("ai", data.reply);
-        } else {
-          appendMessage("ai", "Maaf, terjadi kesalahan dalam menjawab.");
-          saveToHistory("ai", "Maaf, terjadi kesalahan dalam menjawab.");
-        }
-      })
-      .catch((err) => {
-        chatBox.removeChild(loadingBubble);
-        appendMessage("ai", "⚠️ Gagal terhubung ke server.");
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
       });
-  }
 
-  sendBtn.addEventListener("click", sendMessage);
-  userInput.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") sendMessage();
+      const data = await response.json();
+
+      if (data.reply) {
+        appendMessage("ai", data.reply, true);
+      } else if (data.error) {
+        appendMessage("ai", `⚠️ ${data.error}`);
+      } else {
+        appendMessage("ai", "⚠️ Tidak ada jawaban dari AI.");
+      }
+
+      if (data.corrected && data.corrected !== message) {
+        setStatus(`Koreksi ejaan: <em>${data.corrected}</em>`, false);
+      } else {
+        setStatus("Selesai", false);
+      }
+    } catch (error) {
+      appendMessage("ai", "⚠️ Gagal terhubung ke server.");
+      setStatus("Terjadi kesalahan.", false);
+    }
   });
 });
