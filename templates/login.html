@@ -1,28 +1,22 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login Admin - TIMU</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
 </head>
-<body class="login-body">
+<body data-page="login">
   <div class="login-container">
-    <img src="{{ url_for('static', filename='img/logo.png') }}" class="login-logo" alt="Logo TIMU">
-
-    <h2 class="login-title">Login Admin</h2>
-
-    {% if error %}
-    <div class="login-error">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST" class="login-form">
-      <input type="password" name="password" placeholder="Masukkan password admin" required>
+    <h2>Login Admin</h2>
+    <form method="POST">
+      <input type="password" name="password" placeholder="Masukkan password" required>
       <button type="submit">Login</button>
+      {% if error %}
+        <p class="error-msg">{{ error }}</p>
+      {% endif %}
     </form>
-
-    <a href="{{ url_for('landing') }}" class="back-home">← Kembali ke Landing</a>
+    <a href="{{ url_for('landing') }}" class="btn-outline small">⬅️ Kembali ke Landing</a>
   </div>
 </body>
 </html>
