@@ -1,67 +1,26 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chat bersama TIMU</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat dengan TIMU</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
-<body>
-  <button class="theme-toggle">🌓</button>
-
+<body data-page="chatroom">
   <div class="chat-container">
-    <div class="chat-messages" id="chat-box"></div>
-    <div class="chat-input-container">
-      <textarea id="user-input" class="chat-input" rows="1" placeholder="Tulis pesan..."></textarea>
-      <button class="chat-send-btn" id="send-btn">✈️</button>
-    </div>
+    <header class="chat-header">
+      <img src="{{ url_for('static', filename='assets/img/logo-tmm.png') }}" class="logo-small" alt="TMM">
+      <h2>TIMU - Asisten AI</h2>
+      <a href="{{ url_for('landing') }}" class="btn-outline small">⬅️ Kembali</a>
+    </header>
+
+    <div id="chat-box" class="chat-box"></div>
+
+    <form id="chat-form">
+      <textarea id="user-input" placeholder="Ketik pertanyaan kamu..." rows="1" required></textarea>
+      <button type="submit" class="send-btn">📨</button>
+    </form>
   </div>
-
-  <div class="avatar-glow"></div>
-
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-  <script>
-    const chatBox = document.getElementById("chat-box");
-    const userInput = document.getElementById("user-input");
-    const sendBtn = document.getElementById("send-btn");
-
-    const appendMessage = (sender, text) => {
-      const msg = document.createElement("div");
-      msg.className = `message ${sender}`;
-      msg.innerHTML = text;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    };
-
-    sendBtn.addEventListener("click", async () => {
-      const text = userInput.value.trim();
-      if (!text) return;
-      appendMessage("user", text);
-      userInput.value = "";
-
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text })
-        });
-        const data = await res.json();
-        if (data.reply) {
-          appendMessage("ai", data.reply);
-        } else {
-          appendMessage("ai", "Maaf, jawaban tidak tersedia.");
-        }
-      } catch (err) {
-        appendMessage("ai", "Terjadi kesalahan koneksi.");
-      }
-    });
-
-    userInput.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendBtn.click();
-      }
-    });
-  </script>
 </body>
 </html>
