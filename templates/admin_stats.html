@@ -1,27 +1,41 @@
 <!DOCTYPE html>
 <html lang="id" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Statistik Chat</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Admin - TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='assets/img/logo-tmm.png') }}">
 </head>
-<body class="admin-page">
-  <div class="stats-container glass">
-    <h2>📊 Statistik Percakapan</h2>
-    <p>Total percakapan: <strong>{{ stats.total_chats }}</strong></p>
-    <h3>5 Percakapan Terakhir</h3>
-    <ul>
-      {% for entry in stats.latest %}
-        <li>
-          <strong>Kamu:</strong> {{ entry.user }}<br />
-          <strong>TIMU:</strong> {{ entry.ai }}
-        </li>
-      {% endfor %}
-    </ul>
-    <a href="/logout" class="red-glow-btn">🚪 Logout</a>
-  </div>
+<body class="admin-body">
+  <div class="admin-container glassmorphism">
+    <header class="admin-header">
+      <img src="{{ url_for('static', filename='assets/img/logo-tmm.png') }}" alt="Logo TMM" class="logo-admin">
+      <h2>Dashboard Admin TIMU</h2>
+      <a href="{{ url_for('logout') }}" class="logout-btn">🔒 Logout</a>
+    </header>
 
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <section class="admin-content">
+      <h3>Total Riwayat Chat: {{ stats.total_chats }}</h3>
+      <div class="chat-history-preview">
+        <h4>5 Chat Terakhir:</h4>
+        {% if stats.latest %}
+          <ul>
+            {% for chat in stats.latest %}
+              <li>
+                <strong>🧑 Pengguna:</strong> {{ chat.user }}<br>
+                <strong>🤖 TIMU:</strong> {{ chat.ai }}<br>
+                <small>{{ chat.timestamp }}</small>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>Belum ada percakapan tercatat.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <a href="{{ url_for('landing') }}" class="back-to-home">⬅️ Kembali ke Beranda</a>
+  </div>
 </body>
 </html>
