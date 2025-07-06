@@ -2,18 +2,19 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TIMU - Asisten AI TMM</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Selamat Datang | TIMU</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body class="landing-body">
+<body>
+  <header>Selamat Datang di TIMU</header>
+
   <div class="landing-container">
-    <img src="{{ url_for('static', filename='img/timu-logo.png') }}" alt="Logo TIMU" class="logo">
-    <h1>Selamat datang di <span class="highlight">TIMU</span></h1>
-    <p>Asisten AI Trisakti School of Multimedia</p>
-    <div class="buttons">
-      <a href="{{ url_for('chatroom') }}" class="btn primary">💬 Masuk ke Chat</a>
-      <a href="{{ url_for('login') }}" class="btn secondary">🔐 Masuk Admin</a>
+    <h1>Trisakti School of Multimedia</h1>
+    <p>Pilih menu untuk melanjutkan:</p>
+    <div class="landing-buttons">
+      <a href="/chat">💬 Masuk ke Chat</a>
+      <a href="/login">🔐 Masuk Admin</a>
     </div>
   </div>
 </body>
