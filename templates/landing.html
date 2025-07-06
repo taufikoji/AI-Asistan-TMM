@@ -1,29 +1,26 @@
-<!-- templates/landing.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TIMU - Trisakti Multimedia</title>
+  <title>Beranda - TIMU Asisten AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="landing-page">
-  <header>
-    <div class="container">
-      <h1 class="logo">🎓 TIMU</h1>
-      <p class="tagline">Asisten AI Trisakti School of Multimedia</p>
-    </div>
+<body>
+  <header class="header">
+    <h1>🎓 TIMU</h1>
+    <p>Asisten AI Trisakti School of Multimedia</p>
   </header>
 
-  <main class="landing-content">
-    <div class="buttons">
-      <a href="/chat" class="btn primary">💬 Masuk ke Chat</a>
-      <a href="/login" class="btn secondary">🔒 Admin Panel</a>
+  <main class="container">
+    <div class="landing-buttons">
+      <a href="{{ url_for('chatroom') }}" class="btn primary">💬 Masuk ke Chat</a>
+      <a href="{{ url_for('login') }}" class="btn outline">🔐 Admin Panel</a>
     </div>
   </main>
 
-  <footer>
-    <p>&copy; 2025 Trisakti Multimedia. All rights reserved.</p>
+  <footer class="footer">
+    © 2025 Trisakti Multimedia. All rights reserved.
   </footer>
 </body>
 </html>
