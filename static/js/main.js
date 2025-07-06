@@ -4,14 +4,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBox = document.getElementById("chat-box");
     const typoBox = document.getElementById("typo-correction");
 
-    if (!form || !input || !chatBox) {
-        console.error("Elemen HTML tidak ditemukan!");
+    // Cek apakah semua elemen ada
+    if (!form || !input || !chatBox || !typoBox) {
+        console.error("Error: Salah satu elemen HTML (chat-form, user-input, chat-box, typo-correction) tidak ditemukan!");
         return;
     }
 
     input.focus();
 
-    // Inisialisasi chat dari backend (jika ada)
+    // Inisialisasi chat dari backend
     function initializeChat(conversation) {
         if (conversation && Array.isArray(conversation)) {
             conversation.forEach(msg => {
@@ -20,11 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Ambil data awal dari server (opsional)
-    fetch('/api/chat?init=true', { method: 'GET' })
-        .then(res => res.json())
-        .then(data => initializeChat(data.conversation))
-        .catch(err => console.error("Gagal menginisialisasi chat:", err));
+    // Ambil data awal dari server
+    fetch('/api/chat?init=true', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => initializeChat(data.conversation))
+    .catch(err => console.error("Gagal menginisialisasi chat:", err));
 
     function appendMessage(text, sender = "bot", isHTML = false) {
         const div = document.createElement("div");
@@ -73,6 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ message }),
             });
 
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
             const data = await res.json();
             removeLoading();
 
@@ -90,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (err) {
             removeLoading();
-            appendMessage("❌ Terjadi kesalahan saat menghubungi server.", "bot");
+            appendMessage(`❌ Terjadi kesalahan: ${err.message}`, "bot");
             console.error("Error:", err);
         }
     }
@@ -103,12 +111,12 @@ document.addEventListener("DOMContentLoaded", () => {
         let index = 0;
         const speed = lang === "id" ? 30 : 50; // Sesuaikan kecepatan berdasarkan bahasa
         const interval = setInterval(() => {
-            div.innerHTML = `${text.slice(0, index)}<span class='cursor'>▌</span>`;
+            div.innerHTML = `${escapeHTML(text.slice(0, index))}<span class='cursor'>▌</span>`;
             chatBox.scrollTop = chatBox.scrollHeight;
             index++;
             if (index > text.length) {
                 clearInterval(interval);
-                div.innerHTML = text;
+                div.innerHTML = escapeHTML(text); // Gunakan escapeHTML untuk keamanan
             }
         }, speed);
     }
