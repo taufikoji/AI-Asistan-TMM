@@ -1,229 +1,259 @@
-/* === Reset & Umum === */
+/* ======================= */
+/*      ROOT VARIABLE      */
+/* ======================= */
+:root {
+  --color-bg-dark: #0e0e0e;
+  --color-bg-light: #f4f4f4;
+  --color-primary: #7b1f2d;
+  --color-glow: #ff3c57;
+  --text-light: #fefefe;
+  --text-dark: #1a1a1a;
+  --glass: rgba(255, 255, 255, 0.05);
+}
+
+/* ======================= */
+/*      GLOBAL RESET       */
+/* ======================= */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
-body {
-  min-height: 100vh;
-  background: linear-gradient(145deg, #0a0a0a, #1e1e1e);
-  color: #fff;
-  overflow-x: hidden;
+body[data-theme="dark"] {
+  background: var(--color-bg-dark);
+  color: var(--text-light);
+}
+body[data-theme="light"] {
+  background: var(--color-bg-light);
+  color: var(--text-dark);
 }
 
-a {
-  color: #ff4c4c;
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
-
-/* === Container Umum === */
-.container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-/* === Tombol Umum === */
-.btn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background: #ff1f4b;
-  color: #fff;
-  border: none;
-  border-radius: 30px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 0 12px rgba(255, 31, 75, 0.6);
-}
-.btn:hover {
-  background: #ff4568;
-  transform: scale(1.05);
-}
-
-/* === Landing Page === */
-.landing {
+/* ======================= */
+/*        LANDING PAGE     */
+/* ======================= */
+.landing-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
   text-align: center;
-  padding: 5rem 2rem;
-  background: url('../assets/img/bg-glass.webp') center/cover no-repeat;
-  backdrop-filter: blur(10px);
+  background: url("../assets/img/bg-holo-dark.jpg") center/cover no-repeat;
+  position: relative;
 }
-
-.landing h1 {
+.landing-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+.landing-content {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+}
+.landing-title {
   font-size: 3rem;
   margin-bottom: 1rem;
-  color: #ffffff;
-  text-shadow: 0 0 10px #ff4c4c;
+  text-shadow: 0 0 10px var(--color-glow);
+}
+.landing-btn-group {
+  margin-top: 2rem;
+}
+.landing-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  margin: 0.5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border-radius: 30px;
+  box-shadow: 0 0 10px var(--color-glow);
+  transition: all 0.3s ease;
+}
+.landing-btn:hover {
+  transform: scale(1.05);
 }
 
-.landing p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: #ddd;
-}
-
-.landing-buttons {
-  display: flex;
-  gap: 2rem;
-}
-
-/* === Chatroom === */
+/* ======================= */
+/*        CHATROOM         */
+/* ======================= */
 .chat-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: linear-gradient(145deg, #121212, #1e1e1e);
-  backdrop-filter: blur(12px);
-}
-
-.chat-header {
+  background: var(--color-bg-dark);
+  color: white;
   padding: 1rem;
-  background: #111;
-  color: #fff;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.2rem;
-  border-bottom: 1px solid #444;
 }
-
 .chat-messages {
   flex: 1;
-  padding: 1rem;
   overflow-y: auto;
-  background-color: #151515;
+  padding-bottom: 1rem;
 }
-
-.chat-message {
-  margin: 1rem 0;
-  line-height: 1.6;
-}
-
-.chat-message.user {
-  text-align: right;
-  color: #ff5c5c;
-}
-
-.chat-message.ai {
-  text-align: left;
-  color: #ccc;
-}
-
-.chat-input {
-  display: flex;
+.message {
+  margin: 0.5rem 0;
   padding: 1rem;
-  background: #0d0d0d;
-  border-top: 1px solid #333;
+  border-radius: 15px;
+  max-width: 70%;
+  word-wrap: break-word;
 }
-
-.chat-input textarea {
+.message.user {
+  background-color: #444;
+  align-self: flex-end;
+}
+.message.ai {
+  background: linear-gradient(135deg, #222, #333);
+  border-left: 3px solid var(--color-primary);
+  align-self: flex-start;
+}
+.chat-input-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.chat-input {
   flex: 1;
-  padding: 0.75rem;
-  border-radius: 8px;
-  background: #222;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 30px;
+  background-color: #111;
   color: #fff;
-  border: none;
-  resize: none;
-  height: 50px;
 }
-
-.chat-input button {
-  margin-left: 1rem;
-  background: #ff1f4b;
+.chat-send-btn {
+  background: var(--color-glow);
   border: none;
-  color: white;
-  padding: 0 1.2rem;
-  font-size: 1.2rem;
+  padding: 0.75rem 1rem;
   border-radius: 50%;
+  color: white;
   cursor: pointer;
-  box-shadow: 0 0 12px #ff1f4b;
+  font-size: 1.2rem;
+  box-shadow: 0 0 10px var(--color-glow);
+  transition: transform 0.2s ease;
 }
-.chat-input button:hover {
-  background: #ff4568;
+.chat-send-btn:hover {
+  transform: scale(1.1);
 }
 
-/* === Login Admin === */
-.login-box {
+/* ======================= */
+/*        AVATAR GLOW      */
+/* ======================= */
+.avatar-glow {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 64px;
+  height: 64px;
+  background-image: url("../assets/img/timu-avatar.png");
+  background-size: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--color-glow), 0 0 30px var(--color-glow);
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--color-glow);
+  }
+  50% {
+    box-shadow: 0 0 30px var(--color-glow);
+  }
+}
+
+/* ======================= */
+/*        LOGIN PAGE       */
+/* ======================= */
+.login-container {
   max-width: 400px;
   margin: 10vh auto;
-  background: rgba(0, 0, 0, 0.3);
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+  background: var(--glass);
+  border-radius: 10px;
   backdrop-filter: blur(10px);
+  color: white;
   text-align: center;
 }
-
-.login-box h2 {
-  margin-bottom: 1rem;
-  color: #ff4c4c;
-}
-
-.login-box input[type="password"] {
+.login-container input[type="password"] {
   width: 100%;
   padding: 0.75rem;
-  margin-bottom: 1rem;
-  border: none;
-  border-radius: 6px;
-  background: #222;
-  color: white;
-}
-
-.login-box .btn {
-  width: 100%;
-}
-
-.login-box .back-link {
   margin-top: 1rem;
+  border-radius: 5px;
+  border: none;
+}
+.login-container button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  margin-top: 1rem;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--color-primary);
+}
+.login-container a {
   display: block;
-  color: #aaa;
-  font-size: 0.9rem;
+  margin-top: 1rem;
+  color: #ccc;
+  text-decoration: none;
+}
+.login-container a:hover {
+  text-decoration: underline;
 }
 
-/* === Admin Dashboard === */
-.admin-dashboard {
+/* ======================= */
+/*     ADMIN DASHBOARD     */
+/* ======================= */
+.admin-stats {
   max-width: 800px;
   margin: 5vh auto;
   padding: 2rem;
-  background: rgba(20, 20, 20, 0.7);
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+  background: var(--glass);
   color: white;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
 }
-
-.admin-dashboard h2 {
-  color: #ff4c4c;
+.admin-stats h2 {
+  margin-bottom: 1rem;
+}
+.chat-record {
+  background-color: #222;
+  padding: 1rem;
+  border-radius: 8px;
   margin-bottom: 1rem;
 }
 
-.admin-dashboard table {
-  width: 100%;
-  margin-top: 1rem;
-  border-collapse: collapse;
+/* ======================= */
+/*     DARK/LIGHT SWITCH   */
+/* ======================= */
+.theme-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: var(--color-glow);
+  border: none;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-glow);
+  cursor: pointer;
 }
 
-.admin-dashboard table th,
-.admin-dashboard table td {
-  padding: 0.75rem;
-  border: 1px solid #333;
-  text-align: left;
-}
-
-.admin-dashboard .logout-btn {
-  margin-top: 1.5rem;
-  display: inline-block;
-  color: #fff;
-  background: #ff1f4b;
+/* ======================= */
+/*     BROCHURE BUTTON     */
+/* ======================= */
+.download-btn {
+  background: var(--color-glow);
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 25px;
+  color: white;
   font-weight: bold;
-  box-shadow: 0 0 10px #ff4c4c;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 1rem;
+  box-shadow: 0 0 10px var(--color-glow);
 }
