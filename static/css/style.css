@@ -1,193 +1,115 @@
-/* ===================== RESET DASAR ===================== */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* Warna Tema */
+:root {
+    --primary-color: #007bff; /* Biru utama */
+    --secondary-color: #17a2b8; /* Biru muda */
+    --light-bg: #f8f9fa;
+    --dark-bg: #343a40;
 }
 
-body, html {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
+/* Body dan Layout Umum */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-bg);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* ===================== LANDING PAGE ===================== */
-.landing-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.landing-container {
-  text-align: center;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  max-width: 400px;
-  width: 90%;
-}
-
-.logo {
-  width: 80px;
-  margin-bottom: 20px;
-}
-
-.highlight {
-  color: #800000;
-  font-weight: bold;
-}
-
-.buttons {
-  margin-top: 2rem;
-}
-
-.btn {
-  display: inline-block;
-  margin: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: background 0.3s;
-  cursor: pointer;
-}
-
-.btn.primary {
-  background-color: #800000;
-  color: white;
-}
-
-.btn.primary:hover {
-  background-color: #a11b1b;
-}
-
-.btn.secondary {
-  background-color: #e0e0e0;
-  color: #333;
-}
-
-.btn.secondary:hover {
-  background-color: #c0c0c0;
-}
-
-.btn.small {
-  font-size: 0.8rem;
-  padding: 0.4rem 0.7rem;
-  background: white;
-  color: #800000;
-  border: 1px solid white;
-  border-radius: 6px;
-  text-decoration: none;
-}
-
-/* ===================== CHATROOM PAGE ===================== */
-.chatroom-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #f4f4f4;
-  height: 100vh;
-  padding: 1rem;
-}
-
+/* Chat Container */
 .chat-container {
-  width: 100%;
-  max-width: 600px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    flex: 1;
 }
-
-.chat-header {
-  background: #800000;
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+#chat-box {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 10px;
 }
-
-.chat-box {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-  max-height: 70vh;
-  display: flex;
-  flex-direction: column;
-}
-
 .message {
-  padding: 0.8rem 1rem;
-  margin: 0.5rem 0;
-  border-radius: 8px;
-  max-width: 80%;
-  line-height: 1.4;
-  position: relative;
-  word-wrap: break-word;
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+.user-message {
+    background-color: var(--secondary-color);
+    color: white;
+    text-align: right;
+    margin-left: auto;
+}
+.ai-message {
+    background-color: #e9ecef;
+    color: #333;
+    margin-right: auto;
+}
+#typo-correction {
+    font-size: 0.9rem;
+    padding: 5px;
 }
 
-.message.bot {
-  background: #f0f0f0;
-  align-self: flex-start;
+/* Landing Page */
+header {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    padding: 40px 0;
+    margin-bottom: 20px;
+}
+header h1 {
+    font-weight: 700;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+.lead {
+    font-size: 1.2rem;
+}
+.list-group-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+footer {
+    background-color: var(--dark-bg);
+    color: white;
+    padding: 10px 0;
+    margin-top: auto;
 }
 
-.message.user {
-  background: #800000;
-  color: white;
-  align-self: flex-end;
-  text-align: right;
+/* Animasi dan Efek */
+.btn:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s;
 }
-
-.chat-form {
-  display: flex;
-  padding: 1rem;
-  border-top: 1px solid #eee;
-  gap: 0.5rem;
-}
-
-.chat-form input {
-  flex: 1;
-  padding: 0.7rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-.chat-form button {
-  background: #800000;
-  color: white;
-  border: none;
-  padding: 0.7rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.chat-form button:hover {
-  background: #a11b1b;
-}
-
-.typo-correction {
-  font-size: 0.8rem;
-  color: #888;
-  padding: 0 1rem;
-  margin-top: -10px;
-  margin-bottom: 5px;
-}
-
 .cursor {
-  display: inline-block;
-  width: 8px;
-  background: #555;
-  animation: blink 0.7s steps(1) infinite;
+    animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+    50% { opacity: 0; }
+}
+#chat-box {
+    transition: all 0.3s ease;
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
+/* Responsif */
+@media (max-width: 768px) {
+    .chat-container {
+        margin: 10px;
+    }
+    .message {
+        max-width: 90%;
+    }
+    .row > div {
+        flex: 100%;
+        max-width: 100%;
+    }
+    header {
+        padding: 20px 0;
+    }
+    footer {
+        position: relative;
+    }
+    .display-4 {
+        font-size: 2rem;
+    }
 }
