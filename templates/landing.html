@@ -1,33 +1,28 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TIMU - Trisakti School of Multimedia</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
-<body>
-  <button class="theme-toggle">🌓</button>
+<body data-page="landing">
+  <div class="landing-container">
+    <header>
+      <img src="{{ url_for('static', filename='assets/img/logo-tmm.png') }}" alt="Logo TMM" class="logo">
+      <h1>Selamat Datang di TIMU</h1>
+      <p>Asisten AI Trisakti School of Multimedia</p>
+    </header>
 
-  <div class="landing-hero">
-    <div class="overlay-glass"></div>
-    <div class="landing-content">
-      <img src="{{ url_for('static', filename='assets/img/timu-logo.png') }}" alt="Logo TIMU" class="timu-logo" />
-
-      <h1 class="landing-title">Selamat datang di <span>TIMU</span></h1>
-      <p class="landing-subtitle">Asisten AI untuk Trisakti School of Multimedia</p>
-
-      <div class="landing-buttons">
-        <a href="/chat" class="btn-glow">💬 Bicara dengan TIMU</a>
-        <a href="/login" class="btn-outline">🔐 Login Admin</a>
-      </div>
-
-      <video class="landing-video-bg" autoplay muted loop>
-        <source src="{{ url_for('static', filename='assets/video/background.mp4') }}" type="video/mp4">
-      </video>
+    <div class="button-group">
+      <a href="{{ url_for('chatroom') }}" class="btn-glow">💬 Bicaralah dengan TIMU</a>
+      <a href="{{ url_for('login') }}" class="btn-outline">🔐 Login Admin</a>
     </div>
-  </div>
 
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <video autoplay muted loop class="bg-video">
+      <source src="{{ url_for('static', filename='assets/video/landing.mp4') }}" type="video/mp4">
+    </video>
+  </div>
 </body>
 </html>
