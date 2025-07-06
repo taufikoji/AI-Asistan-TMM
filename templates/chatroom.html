@@ -3,36 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat dengan TIMU</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <title>Chat TIMU - Trisakti Multimedia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header class="chat-header">
-    <h1>Asisten AI TMM</h1>
-    <p>Selamat datang! Tanyakan apa saja tentang Trisakti School of Multimedia</p>
-  </header>
+  <div class="chat-container">
+    <header class="chat-header">
+      <h1>TIMU - Asisten AI TMM</h1>
+      <p>Silakan ajukan pertanyaan Anda</p>
+    </header>
 
-  <main class="chat-container">
-    
-    <!-- Tombol saran jurusan -->
-    <div class="chat-suggestion">
-      <button onclick="suggestJurusan()">🎓 Butuh Saran Jurusan?</button>
+    <div id="chat-box" class="chat-box">
+      <!-- Pesan akan dimuat di sini -->
     </div>
 
-    <!-- Area tampilan pesan -->
-    <div id="chat-messages" class="chat-messages"></div>
+    <div id="typing-indicator" class="typing-indicator" style="display:none;">
+      <span></span><span></span><span></span>
+    </div>
 
-    <!-- Form input pesan -->
-    <form id="chat-form" class="chat-form" onsubmit="sendMessage(event)">
-      <input type="text" id="user-input" placeholder="Ketik pertanyaan di sini..." autocomplete="off" required />
+    <form id="chat-form" class="chat-form">
+      <input type="text" id="user-input" placeholder="Tulis pertanyaan Anda..." autocomplete="off" required />
       <button type="submit" id="send-btn">Kirim</button>
     </form>
-  </main>
+  </div>
 
-  <footer class="chat-footer">
-    <p>&copy; 2025 Trisakti School of Multimedia. TIMU AI Chatbot.</p>
-  </footer>
-
-  <script src="main.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
