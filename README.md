@@ -1,43 +1,27 @@
-# 🤖 AI Asisten Interaktif STMK Trisakti
+# 🎓 TIMU - Trisakti Interactive Multimedia Assistant
 
-Selamat datang di repositori resmi **AI Asisten Interaktif STMK Trisakti**.  
-Proyek ini adalah chatbot berbasis AI yang membantu mahasiswa, calon mahasiswa, dan pengunjung situs dalam mendapatkan informasi seputar kampus STMK Trisakti secara interaktif, responsif, dan ramah.
-
----
-
-## 🚀 Fitur Utama
-
-- 💬 Chatbot cerdas berbasis AI (OpenAI / Gemini / DeepSeek)
-- 🌐 Antarmuka web interaktif dan responsif
-- 🧠 Pengetahuan berbasis data JSON kampus
-- 🎨 Tema visual menyesuaikan branding STMK Trisakti (merah maroon)
-- 👤 Admin panel (opsional) untuk memperbarui data
-- 🖼️ Avatar dan animasi gelembung chat
+TIMU adalah asisten AI berbasis web untuk membantu calon mahasiswa, mahasiswa aktif, dan staf akademik dalam mendapatkan informasi seputar Trisakti School of Multimedia (TMM). Aplikasi ini menggabungkan kekuatan Google Gemini AI, teknologi Flask, dan antarmuka modern.
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
+## 🚀 Fitur Unggulan
 
-- Python (Flask)
-- HTML + CSS + JavaScript
-- Google Generative AI (Gemini) atau OpenAI API
-- Railway.app (untuk deployment)
-- JSON (sebagai sumber data kampus)
+- 🤖 **Chatbot AI** dengan Gemini 1.5 Flash
+- 📝 **Koreksi Typo Otomatis** (SymSpell)
+- 🧠 **Rekomendasi Jurusan** berdasarkan minat & bakat
+- 📄 **Unduh Brosur TMM**
+- 📊 **Dashboard Admin** (riwayat chat & statistik)
+- 🌐 **UI modern & responsif** (HTML/CSS/JS)
 
 ---
 
-## 📁 Struktur Direktori
+## 🧰 Teknologi yang Digunakan
 
-├── app.py                 # Backend utama Flask
-├── data_kampus.json       # Data informasi kampus
-├── templates/
-│   └── index.html         # Tampilan utama chatbot
-├── static/
-│   ├── style.css          # Styling tampilan chatbot
-│   └── script.js          # Logika animasi/chat frontend
-├── requirements.txt       # Daftar dependensi
-└── README.md              # Dokumentasi ini
+- [Python](https://www.python.org/) + [Flask](https://flask.palletsprojects.com/)
+- [Google Generative AI](https://ai.google.dev/)
+- [SymSpell](https://github.com/wolfgarbe/SymSpell)
+- JavaScript + CSS Modern (Custom UI Theme: **Maroon**)
+- Template rendering: `Jinja2` (via Flask)
 
-
-
+---
 
