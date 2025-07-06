@@ -59,14 +59,13 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    # Hindari duplikat link dengan menyimpan URL yang sudah diproses
     seen_urls = set()
     def replace_link(match):
         url = match.group(0)
         if url not in seen_urls:
             seen_urls.add(url)
             return f"<a href='{url}' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>"
-        return ""  # Kembalikan string kosong untuk duplikat
+        return ""
     return re.sub(r"(https?://[^\s<>'\"()]+)", replace_link, text)
 
 def save_chat(user_msg, ai_msg):
@@ -122,10 +121,6 @@ def find_program_by_alias(query):
                 return program
     return None
 
-def is_greeting(message):
-    greetings = ["halo", "hai", "hallo", "selamat", "hi", "hello"]
-    return any(g in message.lower() for g in greetings) and len(message.split()) <= 2
-
 # ===================== ROUTES =====================
 @app.route("/")
 def landing():
@@ -154,7 +149,8 @@ def admin_stats():
             history = json.load(f)
     except:
         history = []
-    return render_template("admin_stats.html", stats={
+        logger.warning("Gagal memuat chat_history.json, menggunakan data kosong.")
+    return render_template("stats.html", stats={
         "total_chats": len(history),
         "latest": history[-5:] if len(history) >= 5 else history
     })
@@ -175,8 +171,11 @@ def download_brosur():
         logger.error(f"Error download brosur: {e}")
         return jsonify({"error": "Gagal unduh brosur."}), 500
 
-@app.route("/api/chat", methods=["POST"])
+@app.route("/api/chat", methods=["GET", "POST"])
 def chat():
+    if request.method == "GET" and request.args.get("init"):
+        return jsonify({"conversation": session.get('conversation', [])})
+
     data = request.get_json()
     message = data.get("message", "").strip()
     if not message:
@@ -187,7 +186,7 @@ def chat():
 
     if 'conversation' not in session:
         session['conversation'] = []
-    session['conversation'].append({"user": corrected})
+    session['conversation'].append({"role": "user", "content": corrected})
     session['conversation'] = session['conversation'][-50:]
 
     kategori = get_category(corrected)
@@ -199,14 +198,15 @@ def chat():
         brosur_url = f"{base_url}/download-brosur"
         reply = (
             "📄 Brosur resmi TMM siap diunduh!<br><br>"
-            f"<a href='{brosur_url}' class='download-btn' target='_blank'>⬇️ Klik di sini untuk mengunduh brosur</a><br><br>"
+            f"<a href='{brosur_url}' class='btn btn-primary download-btn' target='_blank'>⬇️ Klik di sini untuk mengunduh brosur</a><br><br>"
             "Jika tidak bisa dibuka, salin link dan buka manual."
         )
         save_chat(corrected, reply)
         return jsonify({
             "reply": reply,
             "language": lang,
-            "corrected": corrected if corrected != message else None
+            "corrected": corrected if corrected != message else None,
+            "conversation": session['conversation']
         })
 
     matched_program = find_program_by_alias(corrected)
@@ -222,17 +222,18 @@ def chat():
         return jsonify({
             "reply": reply,
             "language": lang,
-            "corrected": corrected if corrected != message else None
+            "corrected": corrected if corrected != message else None,
+            "conversation": session['conversation']
         })
 
     system_prompt = (
         "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
         "Tugasmu adalah menjawab berbagai pertanyaan tentang kampus, program studi, beasiswa, fasilitas, pendaftaran, dan lainnya secara akurat dan sopan. "
-        "Kamu mampu memahami dan merespons dalam berbagai bahasa, termasuk bahasa daerah seperti Jawa, Sunda, Minang, dll — sesuai dengan bahasa yang digunakan oleh pengguna. "
         "Hindari sapaan berulang seperti 'Halo' kecuali di awal percakapan atau jika pengguna memulai dengan sapaan. "
-        "Kamu bisa diajak bercanda atau bersikap humoris secara ringan, namun tetap profesional dan tidak berlebihan. "
-        "Jika diajak diskusi bebas, utamakan topik seputar pendidikan, kampus, minat bakat, dan masa depan studi pengguna. "
-        "Jawaban kamu harus terasa alami, ramah, dan mudah dimengerti oleh siapa saja.\n\n"
+        "Kamu mampu memahami dan merespons dalam berbagai bahasa, termasuk bahasa daerah seperti Jawa, Sunda, Minang, dll — sesuai bahasa pengguna. "
+        "Kamu bisa diajak bercanda atau bersikap humoris secara ringan, namun tetap profesional. "
+        "Jika diskusi bebas, utamakan topik pendidikan, kampus, minat bakat, dan masa depan studi. "
+        "Jawaban harus alami, ramah, dan mudah dimengerti.\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Status pendaftaran saat ini:\n{registration_status_summary}\n\n"
         f"Riwayat singkat obrolan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
@@ -244,7 +245,7 @@ def chat():
         f"Bahasa terdeteksi: {lang.upper()}\n"
         "Jawaban harus natural, sopan, dan sesuai gaya bahasa pengguna. "
         "Jika pertanyaan adalah sapaan sederhana (misalnya 'Halo' atau 'Hai'), beri saran singkat untuk bertanya lebih spesifik tanpa sapaan berulang. "
-        "Jika pertanyaan lanjutan, langsung ke inti jawaban tanpa sapaan."
+        "Jika pertanyaan lanjutan, langsung ke inti jawaban."
     )
 
     logger.info(f"Mengirim prompt ke Gemini: {prompt}")
@@ -265,11 +266,13 @@ def chat():
                 f"atau hubungi WhatsApp {TRISAKTI.get('institution', {}).get('contact', {}).get('whatsapp', '+6287742997808')}."
             )
 
+        session['conversation'].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({
             "reply": reply,
             "language": lang,
-            "corrected": corrected if corrected != message else None
+            "corrected": corrected if corrected != message else None,
+            "conversation": session['conversation']
         })
 
     except google_exceptions.GoogleAPIError as e:
