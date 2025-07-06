@@ -3,22 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat dengan TIMU</title>
+  <title>Chat TIMU - Trisakti Multimedia</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='assets/img/logo-tmm.png') }}">
 </head>
-<body class="chatroom">
-  <header class="chat-header">
-    <img src="{{ url_for('static', filename='images/timu_logo.png') }}" alt="TIMU" class="logo-small" />
-    <h2>TIMU Asisten AI</h2>
-    <a href="/" class="back-btn">⬅ Kembali</a>
-  </header>
+<body class="chatroom-body">
+  <div class="chat-container glassmorphism">
+    <!-- Header -->
+    <header class="chat-header">
+      <img src="{{ url_for('static', filename='assets/img/logo-tmm.png') }}" alt="Logo TMM" class="logo-chat">
+      <h2>TIMU - Asisten AI</h2>
+      <a href="{{ url_for('landing') }}" class="back-to-home">⬅️ Kembali</a>
+    </header>
 
-  <main id="chatBox" class="chat-box"></main>
+    <!-- Chat Display Area -->
+    <div id="chat-box" class="chat-box">
+      <div class="chat-bubble timu">
+        👋 Halo! Saya TIMU. Tanyakan apa saja tentang TMM.
+      </div>
+    </div>
 
-  <form id="chatForm" class="chat-input-form">
-    <textarea id="chatInput" placeholder="Tulis pertanyaanmu..." rows="1" required></textarea>
-    <button type="submit" class="send-btn">📤</button>
-  </form>
+    <!-- Chat Input -->
+    <form id="chat-form" class="chat-form">
+      <textarea id="user-input" placeholder="Ketik pertanyaan Anda di sini..." required></textarea>
+      <button type="submit" id="send-btn" title="Kirim">
+        <img src="{{ url_for('static', filename='assets/img/send-icon-red.png') }}" alt="Kirim" />
+      </button>
+    </form>
+  </div>
+
+  <!-- Avatar -->
+  <img src="{{ url_for('static', filename='assets/img/timu-avatar-glow.png') }}" alt="TIMU" class="timu-avatar-glow" />
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
