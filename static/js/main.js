@@ -1,57 +1,100 @@
-// static/js/main.js
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("chat-form");
   const input = document.getElementById("user-input");
-  const messages = document.getElementById("messages");
-  const typingIndicator = document.getElementById("typing");
+  const chatBox = document.getElementById("chat-box");
+  const typoBox = document.getElementById("typo-correction");
 
-  function appendMessage(role, text) {
-    const message = document.createElement("div");
-    message.className = `message ${role}`;
-    message.innerHTML = text;
-    messages.appendChild(message);
-    messages.scrollTop = messages.scrollHeight;
+  input.focus();
+
+  function appendMessage(text, sender = "bot", isHTML = false) {
+    const div = document.createElement("div");
+    div.className = `message ${sender}`;
+    div.innerHTML = isHTML ? text : escapeHTML(text);
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function showTyping() {
-    typingIndicator.style.display = "block";
-    messages.scrollTop = messages.scrollHeight;
+  function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g, tag => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag]));
   }
 
-  function hideTyping() {
-    typingIndicator.style.display = "none";
+  function showLoading() {
+    const div = document.createElement("div");
+    div.className = "message bot";
+    div.id = "loading-msg";
+    div.textContent = "⏳ Sedang memproses...";
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const userText = input.value.trim();
-    if (!userText) return;
+  function removeLoading() {
+    const loadingMsg = document.getElementById("loading-msg");
+    if (loadingMsg) loadingMsg.remove();
+  }
 
-    appendMessage("user", `<span>${userText}</span>`);
+  async function sendMessage(message) {
+    appendMessage(message, "user");
     input.value = "";
-    showTyping();
+    typoBox.style.display = "none";
+
+    showLoading();
 
     try {
-      const response = await fetch("/api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText }),
+        body: JSON.stringify({ message }),
       });
 
-      const data = await response.json();
-      hideTyping();
+      const data = await res.json();
+      removeLoading();
 
-      if (data.error) {
-        appendMessage("ai", `<span class="error">${data.error}</span>`);
-      } else {
-        if (data.corrected) {
-          appendMessage("correction", `🔎 Maksud Anda: <em>${data.corrected}</em>`);
-        }
-        appendMessage("ai", `<span>${data.reply}</span>`);
+      if (data.corrected) {
+        typoBox.innerText = `Koreksi ejaan: ${data.corrected}`;
+        typoBox.style.display = "block";
       }
-    } catch (error) {
-      hideTyping();
-      appendMessage("ai", `<span class="error">Terjadi kesalahan koneksi.</span>`);
+
+      if (data.reply) {
+        typeReply(data.reply);
+      } else {
+        appendMessage("Maaf, tidak ada balasan dari sistem.", "bot");
+      }
+    } catch (err) {
+      removeLoading();
+      appendMessage("❌ Terjadi kesalahan saat menghubungi server.", "bot");
+    }
+  }
+
+  function typeReply(text) {
+    const div = document.createElement("div");
+    div.className = "message bot";
+    chatBox.appendChild(div);
+
+    let index = 0;
+    const interval = setInterval(() => {
+      div.innerHTML = text.slice(0, index) + "<span class='cursor'>▌</span>";
+      chatBox.scrollTop = chatBox.scrollHeight;
+      index++;
+      if (index > text.length) {
+        clearInterval(interval);
+        div.innerHTML = text;
+      }
+    }, 10); // efek ketik cepat
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+    sendMessage(message);
+  });
+
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // Enter = submit, kecuali shift+enter
+      form.requestSubmit();
     }
   });
 });
