@@ -45,6 +45,19 @@
       "accreditation": "B",
       "evening_class": true,
       "curriculum": "Mata kuliah meliputi desain kemasan, teknologi produksi, dan manajemen branding. Mahasiswa belajar merancang kemasan inovatif dengan teknologi terkini."
+      "aliases": [
+      "TG",
+      "Desain Kemasan",
+      "Teknologi Kemasan",
+      "D4 Kemasan",
+      "Kemasan",
+      "Desain dan Kemasan",
+      "Kemasan Modern",
+      "Packaging Design",
+      "Packaging",
+      "D4 Packaging",
+      "Kemasan Visual"
+        ]
     },
     {
       "name": "Sarjana Desain Animasi dan Games (S1)",
@@ -55,6 +68,18 @@
       "accreditation": "B",
       "evening_class": false,
       "curriculum": "Mata kuliah mencakup animasi 2D/3D, storytelling, pengembangan game interaktif, dan teknologi animasi digital."
+      "aliases": [
+      "Animasi",
+      "Desain Game",
+      "Game Developer",
+      "Desain Animasi",
+      "S1 Animasi",
+      "S1 Games",
+      "Game Design",
+      "Animation",
+      "Animasi dan Game",
+      "Desain Permainan"
+        ]
     },
     {
       "name": "Sarjana Desain Kreatif Visual Periklanan (S1)",
@@ -65,6 +90,18 @@
       "accreditation": "B",
       "evening_class": false,
       "curriculum": "Mata kuliah meliputi komunikasi visual, strategi branding, dan desain iklan kreatif."
+      "aliases": [
+      "DKV",
+      "Desain Komunikasi Visual",
+      "Iklan",
+      "S1 Iklan",
+      "Desain Iklan",
+      "Visual Advertising",
+      "Periklanan",
+      "Creative Visual",
+      "Graphic Advertising",
+      "Branding Visual"
+]
     },
     {
       "name": "Sarjana Desain Multimedia Broadcasting (S1)",
@@ -75,6 +112,19 @@
       "accreditation": "B",
       "evening_class": false,
       "curriculum": "Mata kuliah mencakup produksi multimedia, teknologi siaran, dan pengeditan audio-visual."
+      "aliases": [
+      "BC",
+      "Broadcasting",
+      "Multimedia",
+      "Desain Multimedia",
+      "Penyiaran Digital",
+      "S1 Broadcasting",
+      "Multimedia Broadcasting",
+      "Multimedia Penyiaran",
+      "Broadcast Media",
+      "Content Creator",
+      "Siaran Multimedia"
+        ]
     }
   ],
   "accreditation": {
