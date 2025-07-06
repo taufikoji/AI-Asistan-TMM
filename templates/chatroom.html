@@ -1,26 +1,45 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat dengan TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat TIMU - Trisakti Multimedia</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="/static/assets/img/logo.png" />
 </head>
-<body data-page="chatroom">
+<body>
   <div class="chat-container">
     <header class="chat-header">
-      <img src="{{ url_for('static', filename='assets/img/logo-tmm.png') }}" class="logo-small" alt="TMM">
-      <h2>TIMU - Asisten AI</h2>
-      <a href="{{ url_for('landing') }}" class="btn-outline small">⬅️ Kembali</a>
+      <div class="logo-title">
+        <img src="/static/assets/img/logo.png" alt="TMM Logo" class="logo" />
+        <h1>TIMU Asisten AI</h1>
+      </div>
+      <button id="toggle-theme" class="theme-toggle">🌓</button>
     </header>
 
-    <div id="chat-box" class="chat-box"></div>
+    <div id="chat-box" class="chat-box">
+      <div class="bot-message">
+        <div class="avatar-glow">
+          <img src="/static/assets/img/timu_avatar.png" alt="TIMU Avatar" class="avatar" />
+        </div>
+        <div class="message">
+          Selamat datang di ruang percakapan TIMU! Silakan ajukan pertanyaan seputar Trisakti School of Multimedia.
+        </div>
+      </div>
+    </div>
 
-    <form id="chat-form">
-      <textarea id="user-input" placeholder="Ketik pertanyaan kamu..." rows="1" required></textarea>
-      <button type="submit" class="send-btn">📨</button>
+    <form id="chat-form" class="chat-form">
+      <textarea id="user-input" placeholder="Ketik pertanyaan Anda..." required></textarea>
+      <button type="submit" class="send-button">✈️</button>
     </form>
   </div>
+
+  <!-- WhatsApp Admin & Brosur -->
+  <div class="floating-buttons">
+    <a href="https://wa.me/6281234567890" class="wa-button" target="_blank">💬 Hubungi Admin</a>
+    <a href="/download-brosur" class="download-btn" target="_blank">📄 Unduh Brosur</a>
+  </div>
+
+  <script src="/static/js/chat.js"></script>
 </body>
 </html>
