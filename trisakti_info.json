@@ -44,7 +44,7 @@
       "career_prospects": ["Packaging Designer", "Branding Consultant", "Packaging Production Supervisor"],
       "accreditation": "B",
       "evening_class": true,
-      "curriculum": "Mata kuliah meliputi desain kemasan, teknologi produksi, dan manajemen branding. Mahasiswa belajar merancang kemasan inovatif dengan teknologi terkini."
+      "curriculum": "Mata kuliah meliputi desain kemasan, teknologi produksi, dan manajemen branding. Mahasiswa belajar merancang kemasan inovatif dengan teknologi terkini.",
       "aliases": [
       "TG",
       "Desain Kemasan",
@@ -67,7 +67,7 @@
       "career_prospects": ["Animator", "Game Developer", "Storyboard Artist"],
       "accreditation": "B",
       "evening_class": false,
-      "curriculum": "Mata kuliah mencakup animasi 2D/3D, storytelling, pengembangan game interaktif, dan teknologi animasi digital."
+      "curriculum": "Mata kuliah mencakup animasi 2D/3D, storytelling, pengembangan game interaktif, dan teknologi animasi digital.",
       "aliases": [
       "Animasi",
       "Desain Game",
@@ -89,7 +89,7 @@
       "career_prospects": ["Creative Director", "Visual Branding Specialist", "Art Director"],
       "accreditation": "B",
       "evening_class": false,
-      "curriculum": "Mata kuliah meliputi komunikasi visual, strategi branding, dan desain iklan kreatif."
+      "curriculum": "Mata kuliah meliputi komunikasi visual, strategi branding, dan desain iklan kreatif.",
       "aliases": [
       "DKV",
       "Desain Komunikasi Visual",
@@ -111,7 +111,7 @@
       "career_prospects": ["Multimedia Producer", "Content Creator", "Broadcast Technician"],
       "accreditation": "B",
       "evening_class": false,
-      "curriculum": "Mata kuliah mencakup produksi multimedia, teknologi siaran, dan pengeditan audio-visual."
+      "curriculum": "Mata kuliah mencakup produksi multimedia, teknologi siaran, dan pengeditan audio-visual.",
       "aliases": [
       "BC",
       "Broadcasting",
