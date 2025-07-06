@@ -1,100 +1,74 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("chat-form");
-  const input = document.getElementById("user-input");
+document.addEventListener("DOMContentLoaded", function () {
   const chatBox = document.getElementById("chat-box");
-  const typoBox = document.getElementById("typo-correction");
+  const userInput = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
 
-  input.focus();
+  // Load history from localStorage
+  const savedChats = JSON.parse(localStorage.getItem("chat_history")) || [];
+  savedChats.forEach(chat => appendMessage(chat.sender, chat.text, chat.time));
 
-  function appendMessage(text, sender = "bot", isHTML = false) {
-    const div = document.createElement("div");
-    div.className = `message ${sender}`;
-    div.innerHTML = isHTML ? text : escapeHTML(text);
-    chatBox.appendChild(div);
+  function appendMessage(sender, text, time = null) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble", sender === "user" ? "user-bubble" : "ai-bubble");
+
+    const content = document.createElement("div");
+    content.className = "bubble-content";
+    content.innerHTML = text;
+
+    const timestamp = document.createElement("div");
+    timestamp.className = "timestamp";
+    timestamp.textContent = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    bubble.appendChild(content);
+    bubble.appendChild(timestamp);
+    chatBox.appendChild(bubble);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function escapeHTML(str) {
-    return str.replace(/[&<>'"]/g, tag => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-    }[tag]));
+  function saveToHistory(sender, text) {
+    const history = JSON.parse(localStorage.getItem("chat_history")) || [];
+    history.push({ sender, text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+    localStorage.setItem("chat_history", JSON.stringify(history));
   }
 
-  function showLoading() {
-    const div = document.createElement("div");
-    div.className = "message bot";
-    div.id = "loading-msg";
-    div.textContent = "⏳ Sedang memproses...";
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
-
-  function removeLoading() {
-    const loadingMsg = document.getElementById("loading-msg");
-    if (loadingMsg) loadingMsg.remove();
-  }
-
-  async function sendMessage(message) {
-    appendMessage(message, "user");
-    input.value = "";
-    typoBox.style.display = "none";
-
-    showLoading();
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
-
-      const data = await res.json();
-      removeLoading();
-
-      if (data.corrected) {
-        typoBox.innerText = `Koreksi ejaan: ${data.corrected}`;
-        typoBox.style.display = "block";
-      }
-
-      if (data.reply) {
-        typeReply(data.reply);
-      } else {
-        appendMessage("Maaf, tidak ada balasan dari sistem.", "bot");
-      }
-    } catch (err) {
-      removeLoading();
-      appendMessage("❌ Terjadi kesalahan saat menghubungi server.", "bot");
-    }
-  }
-
-  function typeReply(text) {
-    const div = document.createElement("div");
-    div.className = "message bot";
-    chatBox.appendChild(div);
-
-    let index = 0;
-    const interval = setInterval(() => {
-      div.innerHTML = text.slice(0, index) + "<span class='cursor'>▌</span>";
-      chatBox.scrollTop = chatBox.scrollHeight;
-      index++;
-      if (index > text.length) {
-        clearInterval(interval);
-        div.innerHTML = text;
-      }
-    }, 10); // efek ketik cepat
-  }
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const message = input.value.trim();
+  function sendMessage() {
+    const message = userInput.value.trim();
     if (!message) return;
-    sendMessage(message);
-  });
 
-  input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault(); // Enter = submit, kecuali shift+enter
-      form.requestSubmit();
-    }
+    appendMessage("user", message);
+    saveToHistory("user", message);
+    userInput.value = "";
+
+    const loadingBubble = document.createElement("div");
+    loadingBubble.classList.add("bubble", "ai-bubble");
+    loadingBubble.innerHTML = `<div class="bubble-content">Mengetik...</div>`;
+    chatBox.appendChild(loadingBubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        chatBox.removeChild(loadingBubble);
+        if (data.reply) {
+          appendMessage("ai", data.reply);
+          saveToHistory("ai", data.reply);
+        } else {
+          appendMessage("ai", "Maaf, terjadi kesalahan dalam menjawab.");
+          saveToHistory("ai", "Maaf, terjadi kesalahan dalam menjawab.");
+        }
+      })
+      .catch((err) => {
+        chatBox.removeChild(loadingBubble);
+        appendMessage("ai", "⚠️ Gagal terhubung ke server.");
+      });
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  userInput.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") sendMessage();
   });
 });
