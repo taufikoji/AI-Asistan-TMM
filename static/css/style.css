@@ -1,267 +1,178 @@
-/* ======= Global Reset ======= */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root {
+  --maroon: #800000;
+  --maroon-dark: #5e0000;
+  --maroon-light: #a52a2a;
+  --gray-light: #f5f5f5;
+  --gray-dark: #333;
+  --white: #fff;
+  --font-main: 'Segoe UI', sans-serif;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #fdfcfc;
-  color: #333;
-  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+  background-color: var(--gray-light);
+  color: var(--gray-dark);
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
-/* ======= Warna Utama ======= */
-:root {
-  --maroon: #800000;
-  --maroon-dark: #4d0000;
-  --accent: #b30000;
-  --light-gray: #f5f5f5;
-  --text-dark: #222;
-  --text-light: #fff;
+a {
+  color: var(--maroon-dark);
+  text-decoration: none;
 }
 
-/* ======= Layout Utility ======= */
+a:hover {
+  text-decoration: underline;
+}
+
 .container {
   width: 90%;
-  max-width: 1100px;
+  max-width: 960px;
   margin: 0 auto;
-}
-
-/* ======= Landing Page ======= */
-.landing-header {
-  text-align: center;
-  padding: 60px 20px;
-  background: linear-gradient(to right, var(--maroon), var(--accent));
-  color: white;
-}
-
-.landing-header h1 {
-  font-size: 3em;
-  margin-bottom: 10px;
-}
-
-.landing-header p {
-  font-size: 1.2em;
-  margin-bottom: 30px;
-}
-
-.landing-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.landing-buttons a {
-  background-color: white;
-  color: var(--maroon);
-  padding: 12px 24px;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background 0.3s ease;
-}
-
-.landing-buttons a:hover {
-  background-color: #f0dcdc;
-}
-
-/* ======= Chatroom ======= */
-.chat-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-.chat-box {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
   padding: 20px;
-  max-height: 500px;
-  overflow-y: auto;
-  margin-bottom: 20px;
 }
 
-.chat-message {
-  margin-bottom: 12px;
+.header {
+  background-color: var(--maroon);
+  color: var(--white);
+  padding: 20px 0;
+  text-align: center;
 }
 
-.chat-message.user {
-  text-align: right;
-  color: var(--maroon);
-}
-
-.chat-message.ai {
-  text-align: left;
-  background-color: #f9f9f9;
+.footer {
+  margin-top: auto;
+  background-color: var(--maroon);
+  color: var(--white);
+  text-align: center;
   padding: 10px;
+  font-size: 0.9rem;
+}
+
+.main-options {
+  text-align: center;
+  margin-top: 60px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 20px;
+  margin: 10px;
   border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  text-align: center;
 }
 
-.chat-input {
-  display: flex;
-  gap: 10px;
+.btn.large {
+  font-size: 1.2rem;
+  padding: 14px 24px;
 }
 
-.chat-input input {
-  flex: 1;
-  padding: 12px;
-  font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.chat-input button {
+.btn.maroon {
   background-color: var(--maroon);
   color: white;
   border: none;
-  padding: 12px 20px;
-  font-weight: bold;
+}
+
+.btn.maroon:hover {
+  background-color: var(--maroon-dark);
+}
+
+.btn.outline {
+  border: 2px solid var(--maroon);
+  background-color: transparent;
+  color: var(--maroon-dark);
+}
+
+.btn.outline:hover {
+  background-color: var(--maroon);
+  color: white;
+}
+
+.chat-container {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.chat-message {
+  background-color: #eeeeee;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+  max-width: 85%;
+  line-height: 1.4;
+}
+
+.chat-message.ai {
+  background-color: var(--maroon-light);
+  color: white;
+  align-self: flex-start;
+}
+
+.chat-message.user {
+  background-color: #d9d9d9;
+  align-self: flex-end;
+  text-align: right;
+}
+
+#chat-box {
+  max-height: 60vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#message-form {
+  display: flex;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+#user-input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid var(--maroon);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+#send-btn {
+  background-color: var(--maroon);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 1rem;
   border-radius: 6px;
   cursor: pointer;
 }
 
-.chat-input button:hover {
+#send-btn:hover {
   background-color: var(--maroon-dark);
 }
 
 .typing-indicator {
   font-style: italic;
-  font-size: 0.9em;
-  color: gray;
-  margin-top: -10px;
+  color: #888;
+  margin-top: 5px;
 }
 
-/* ======= Login Page ======= */
-.login-container {
-  max-width: 400px;
-  margin: 80px auto;
-  background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.login-container h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: var(--maroon);
-}
-
-.login-container form {
-  display: flex;
-  flex-direction: column;
-}
-
-.login-container input[type="password"] {
-  padding: 12px;
-  font-size: 1em;
-  margin-bottom: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.login-container button {
-  background-color: var(--maroon);
-  color: white;
-  padding: 12px;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.login-container button:hover {
-  background-color: var(--maroon-dark);
-}
-
-.error-message {
-  color: red;
-  text-align: center;
-  margin-top: 10px;
-}
-
-/* ======= Stats Page ======= */
-.stats-container {
-  max-width: 800px;
-  margin: 60px auto;
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.stats-container h2 {
-  color: var(--maroon);
-  margin-bottom: 20px;
-}
-
-.stats-container ul {
-  list-style: none;
-}
-
-.stats-container li {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.stats-container li:last-child {
-  border-bottom: none;
-}
-
-/* ======= 404 Page ======= */
-.not-found-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--light-gray);
-  height: 100vh;
-}
-
-.not-found-container {
-  text-align: center;
-}
-
-.not-found-container h1 {
-  font-size: 6em;
-  color: var(--maroon);
-}
-
-.not-found-container p {
-  font-size: 1.2em;
-  margin-bottom: 20px;
-}
-
-.back-home-btn {
-  display: inline-block;
-  background-color: var(--maroon);
-  color: white;
-  padding: 12px 20px;
-  text-decoration: none;
-  border-radius: 5px;
-}
-
-.back-home-btn:hover {
-  background-color: var(--maroon-dark);
-}
-
-/* ======= Animasi Ketik ======= */
+/* Animation */
 @keyframes blink {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 1; }
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
 }
 
-.typing-dots span {
-  animation: blink 1.4s infinite;
-}
-
-.typing-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-  animation-delay: 0.4s;
+.typing-indicator::after {
+  content: '⠿';
+  animation: blink 1.2s infinite;
 }
