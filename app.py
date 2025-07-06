@@ -30,14 +30,16 @@ try:
     now = datetime.now()
     TRISAKTI["current_context"]["date"] = now.strftime("%d %B %Y")
     TRISAKTI["current_context"]["time"] = now.strftime("%H:%M WIB")
+    logger.info("JSON kampus dimuat dengan sukses.")
 except Exception as e:
     logger.critical(f"Gagal load JSON kampus: {e}")
-    TRISAKTI = {}
+    TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
 
 # ===================== SYMSPELL =====================
 symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
-    logger.warning("Gagal memuat kamus SymSpell.")
+    logger.warning("Gagal memuat kamus SymSpell. Fitur koreksi ketik dinonaktifkan.")
+    def correct_typo(text): return text
 
 # ===================== FUNGSI BANTUAN =====================
 def detect_language(text):
@@ -57,7 +59,15 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    return re.sub(r"(https?://[^\s<>'\"()]+)", r"<a href='\1' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>", text)
+    # Hindari duplikat link dengan menyimpan URL yang sudah diproses
+    seen_urls = set()
+    def replace_link(match):
+        url = match.group(0)
+        if url not in seen_urls:
+            seen_urls.add(url)
+            return f"<a href='{url}' target='_blank' rel='noopener noreferrer'>🔗 Klik di sini</a>"
+        return ""  # Kembalikan string kosong untuk duplikat
+    return re.sub(r"(https?://[^\s<>'\"()]+)", replace_link, text)
 
 def save_chat(user_msg, ai_msg):
     try:
@@ -88,7 +98,8 @@ def get_current_registration_status():
                 try:
                     start = parse_date(start_str, dayfirst=True).date()
                     end = parse_date(end_str, dayfirst=True).date()
-                except Exception:
+                except Exception as e:
+                    logger.warning(f"Error parsing date {period}: {e}")
                     continue
                 wave_name = wave.get("wave", "Gelombang")
                 if today < start:
@@ -110,6 +121,10 @@ def find_program_by_alias(query):
             if query in alias.lower() or alias.lower() in query:
                 return program
     return None
+
+def is_greeting(message):
+    greetings = ["halo", "hai", "hallo", "selamat", "hi", "hello"]
+    return any(g in message.lower() for g in greetings) and len(message.split()) <= 2
 
 # ===================== ROUTES =====================
 @app.route("/")
@@ -194,7 +209,6 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # Cek apakah mengandung alias jurusan
     matched_program = find_program_by_alias(corrected)
     if matched_program:
         reply = (
@@ -211,37 +225,45 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # Jika tidak cocok ke alias, teruskan ke AI
     system_prompt = (
-    "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
-    "Tugasmu adalah menjawab berbagai pertanyaan tentang kampus, program studi, beasiswa, fasilitas, pendaftaran, dan lainnya secara akurat dan sopan. "
-    "Kamu mampu memahami dan merespons dalam berbagai bahasa, termasuk bahasa daerah seperti Jawa, Sunda, Minang, dll — sesuai dengan bahasa yang digunakan oleh pengguna. "
-    "Kamu juga bisa diajak bercanda atau bersikap humoris secara ringan, namun tetap profesional dan tidak berlebihan. "
-    "Jika diajak diskusi bebas, utamakan topik seputar pendidikan, kampus, minat bakat, dan masa depan studi pengguna. "
-    "Jawaban kamu harus terasa alami, ramah, dan mudah dimengerti oleh siapa saja.\n\n"
-    f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
-    f"Status pendaftaran saat ini:\n{registration_status_summary}\n\n"
-    f"Riwayat singkat obrolan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
+        "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
+        "Tugasmu adalah menjawab berbagai pertanyaan tentang kampus, program studi, beasiswa, fasilitas, pendaftaran, dan lainnya secara akurat dan sopan. "
+        "Kamu mampu memahami dan merespons dalam berbagai bahasa, termasuk bahasa daerah seperti Jawa, Sunda, Minang, dll — sesuai dengan bahasa yang digunakan oleh pengguna. "
+        "Hindari sapaan berulang seperti 'Halo' kecuali di awal percakapan atau jika pengguna memulai dengan sapaan. "
+        "Kamu bisa diajak bercanda atau bersikap humoris secara ringan, namun tetap profesional dan tidak berlebihan. "
+        "Jika diajak diskusi bebas, utamakan topik seputar pendidikan, kampus, minat bakat, dan masa depan studi pengguna. "
+        "Jawaban kamu harus terasa alami, ramah, dan mudah dimengerti oleh siapa saja.\n\n"
+        f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
+        f"Status pendaftaran saat ini:\n{registration_status_summary}\n\n"
+        f"Riwayat singkat obrolan:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
     )
 
     prompt = (
-        f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
+        f"Tanggal: {context.get('date', datetime.now().strftime('%d %B %Y'))}, Jam: {context.get('time', datetime.now().strftime('%H:%M WIB'))}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
         f"Bahasa terdeteksi: {lang.upper()}\n"
-        "Jawaban harus natural, sopan, dan sesuai gaya bahasa pengguna."
+        "Jawaban harus natural, sopan, dan sesuai gaya bahasa pengguna. "
+        "Jika pertanyaan adalah sapaan sederhana (misalnya 'Halo' atau 'Hai'), beri saran singkat untuk bertanya lebih spesifik tanpa sapaan berulang. "
+        "Jika pertanyaan lanjutan, langsung ke inti jawaban tanpa sapaan."
     )
 
+    logger.info(f"Mengirim prompt ke Gemini: {prompt}")
     try:
         model = genai.GenerativeModel("gemini-1.5-flash", generation_config={
             "temperature": 0.3, "top_p": 0.9, "max_output_tokens": 1024
         })
         result = model.generate_content(system_prompt + "\n\n" + prompt)
+        logger.info(f"Respons dari Gemini: {result.text}")
         raw = result.text.strip()
         reply = clean_response(raw).replace("TSM", "TMM")
         reply = format_links(reply)
 
-        if not reply:
-            reply = f"Maaf, saya belum punya informasi itu. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']}."
+        if not reply or "tidak ada informasi" in reply.lower():
+            reply = (
+                f"Maaf, saya belum punya informasi untuk pertanyaan itu. "
+                f"Silakan ajukan pertanyaan lebih spesifik, misalnya tentang program studi, pendaftaran, atau beasiswa, "
+                f"atau hubungi WhatsApp {TRISAKTI.get('institution', {}).get('contact', {}).get('whatsapp', '+6287742997808')}."
+            )
 
         save_chat(corrected, reply)
         return jsonify({
@@ -252,11 +274,12 @@ def chat():
 
     except google_exceptions.GoogleAPIError as e:
         logger.error(f"[Gemini API Error] {e}")
-        return jsonify({"error": "Koneksi AI gagal"}), 500
+        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti."}), 500
     except Exception as e:
         logger.error(f"[Internal Error] {e}")
-        return jsonify({"error": "Kesalahan sistem"}), 500
+        return jsonify({"error": "Kesalahan sistem, coba lagi nanti."}), 500
 
 # ===================== JALANKAN =====================
 if __name__ == "__main__":
+    logger.info(f"Waktu server: {datetime.now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
