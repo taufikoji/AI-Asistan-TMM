@@ -155,6 +155,14 @@ def download_brosur():
         logger.error(f"Error download brosur: {e}")
         return jsonify({"error": "Gagal unduh brosur."}), 500
 
+# ========== CHAT ROUTE YANG DIPERBAIKI ==========
+
+SAPAN_KASUAL = ["hai", "halo", "test", "malam", "pagi", "siang", "selamat", "oke", "thanks", "terima kasih"]
+
+def is_kasual(text):
+    words = text.lower().split()
+    return any(w in words for w in SAPAN_KASUAL)
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -167,13 +175,24 @@ def chat():
 
     if 'conversation' not in session:
         session['conversation'] = []
-    session['conversation'].append({"user": corrected})
-    session['conversation'] = session['conversation'][-55:]
+    session['conversation'] = session['conversation'][-30:]
 
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
-    registration_status_summary = get_current_registration_status()
 
+    # Jika hanya sapaan biasa
+    if is_kasual(corrected):
+        reply = "Halo! Ada yang bisa saya bantu hari ini? 😊"
+        session['conversation'].append({"role": "user", "content": corrected})
+        session['conversation'].append({"role": "ai", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({
+            "reply": reply,
+            "language": lang,
+            "corrected": corrected if corrected != message else None
+        })
+
+    # Jika permintaan brosur
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
@@ -182,6 +201,8 @@ def chat():
             f"<a href='{brosur_url}' class='download-btn' target='_blank'>⬇️ Klik di sini untuk mengunduh brosur</a><br><br>"
             "Jika tidak bisa dibuka, salin link dan buka manual."
         )
+        session['conversation'].append({"role": "user", "content": corrected})
+        session['conversation'].append({"role": "ai", "content": reply})
         save_chat(corrected, reply)
         return jsonify({
             "reply": reply,
@@ -189,19 +210,26 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
+    registration_status_summary = ""
+    if kategori == "pendaftaran":
+        registration_status_summary = get_current_registration_status()
+
+    history = "\n".join([f"{item['role']}: {item['content']}" for item in session['conversation']])
+
     system_prompt = (
-        "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia. Jawab sopan, tidak kaku, dan langsung ke inti. "
-        "Kurangi sapaan seperti 'hai', bantu pengguna lanjut bertanya.\n\n"
+        "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia (TMM). "
+        "Jawablah pertanyaan dengan ramah, singkat, dan jelas. "
+        "Jangan membahas topik pendaftaran jika pertanyaannya tidak berkaitan. "
+        "Jika pertanyaan tidak jelas, arahkan pengguna bertanya ulang.\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
-        f"Status terkini:\n{registration_status_summary}\n\n"
-        f"Riwayat singkat:\n{json.dumps(session['conversation'], ensure_ascii=False)}"
+        f"Riwayat singkat:\n{history}\n\n"
+        f"Status pendaftaran (jika relevan):\n{registration_status_summary}"
     )
 
     prompt = (
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
-        f"Bahasa: {lang.upper()}\n"
-        "Jawaban harus relevan, sopan, dan komunikatif."
+        f"Bahasa: {lang.upper()}"
     )
 
     try:
@@ -216,7 +244,10 @@ def chat():
         if not reply:
             reply = f"Maaf, saya belum punya informasi itu. Silakan hubungi WhatsApp {TRISAKTI['institution']['contact']['whatsapp']}."
 
+        session['conversation'].append({"role": "user", "content": corrected})
+        session['conversation'].append({"role": "ai", "content": reply})
         save_chat(corrected, reply)
+
         return jsonify({
             "reply": reply,
             "language": lang,
