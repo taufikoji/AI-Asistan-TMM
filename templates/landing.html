@@ -1,29 +1,33 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Selamat Datang di TIMU</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TIMU - Trisakti School of Multimedia</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="landing-body">
-  <div class="overlay"></div>
+<body>
+  <button class="theme-toggle">🌓</button>
 
-  <header class="landing-header">
-    <img src="{{ url_for('static', filename='assets/img/logo_tmm.png') }}" alt="Logo TMM" class="logo">
-    <h1>Selamat Datang di <span class="highlight">TIMU</span></h1>
-    <p>Asisten AI Interaktif Trisakti School of Multimedia</p>
-  </header>
+  <div class="landing-hero">
+    <div class="overlay-glass"></div>
+    <div class="landing-content">
+      <img src="{{ url_for('static', filename='assets/img/timu-logo.png') }}" alt="Logo TIMU" class="timu-logo" />
 
-  <main class="landing-main">
-    <div class="landing-buttons">
-      <a href="{{ url_for('chatroom') }}" class="btn">💬 Mulai Chat dengan TIMU</a>
-      <a href="{{ url_for('login') }}" class="btn">🔐 Login Admin</a>
+      <h1 class="landing-title">Selamat datang di <span>TIMU</span></h1>
+      <p class="landing-subtitle">Asisten AI untuk Trisakti School of Multimedia</p>
+
+      <div class="landing-buttons">
+        <a href="/chat" class="btn-glow">💬 Bicara dengan TIMU</a>
+        <a href="/login" class="btn-outline">🔐 Login Admin</a>
+      </div>
+
+      <video class="landing-video-bg" autoplay muted loop>
+        <source src="{{ url_for('static', filename='assets/video/background.mp4') }}" type="video/mp4">
+      </video>
     </div>
-  </main>
+  </div>
 
-  <footer class="landing-footer">
-    <p>&copy; 2025 Trisakti School of Multimedia - Powered by AI TIMU</p>
-  </footer>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
