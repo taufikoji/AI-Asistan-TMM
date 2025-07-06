@@ -1,23 +1,38 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat bersama TIMU</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/static/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat dengan TIMU</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header>Chat Bersama TIMU</header>
+  <header class="chat-header">
+    <h1>Asisten AI TMM</h1>
+    <p>Selamat datang! Tanyakan apa saja tentang Trisakti School of Multimedia</p>
+  </header>
 
-  <div class="chat-box" id="chat-box"></div>
+  <main class="chat-container">
+    
+    <!-- Tombol saran jurusan -->
+    <div class="chat-suggestion">
+      <button onclick="suggestJurusan()">🎓 Butuh Saran Jurusan?</button>
+    </div>
 
-  <div class="chat-status" id="chat-status">Menunggu pesan...</div>
+    <!-- Area tampilan pesan -->
+    <div id="chat-messages" class="chat-messages"></div>
 
-  <form class="chat-form" id="chat-form">
-    <input type="text" id="user-input" placeholder="Ketik pesan di sini..." autocomplete="off" />
-    <button type="submit">Kirim</button>
-  </form>
+    <!-- Form input pesan -->
+    <form id="chat-form" class="chat-form" onsubmit="sendMessage(event)">
+      <input type="text" id="user-input" placeholder="Ketik pertanyaan di sini..." autocomplete="off" required />
+      <button type="submit" id="send-btn">Kirim</button>
+    </form>
+  </main>
 
-  <script src="/static/js/main.js"></script>
+  <footer class="chat-footer">
+    <p>&copy; 2025 Trisakti School of Multimedia. TIMU AI Chatbot.</p>
+  </footer>
+
+  <script src="main.js"></script>
 </body>
 </html>
