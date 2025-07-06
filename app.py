@@ -21,14 +21,16 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "secret")
 CORS(app)
 
+# ===================== GEMINI SETUP =====================
 genai.configure(api_key=GEMINI_API_KEY)
 
 # ===================== LOAD DATA JSON =====================
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
-    TRISAKTI["current_context"]["date"] = datetime.now().strftime("%d %B %Y")
-    TRISAKTI["current_context"]["time"] = datetime.now().strftime("%H:%M WIB")
+    now = datetime.now()
+    TRISAKTI["current_context"]["date"] = now.strftime("%d %B %Y")
+    TRISAKTI["current_context"]["time"] = now.strftime("%H:%M WIB")
 except Exception as e:
     logger.critical(f"Gagal load JSON kampus: {e}")
     TRISAKTI = {}
@@ -80,21 +82,24 @@ def get_current_registration_status():
         summary = []
         for jalur in TRISAKTI.get("registration", {}).get("paths", []):
             for wave in jalur.get("waves", []):
-                wave_name = wave.get("wave")
                 period = wave.get("period", "")
+                if " - " not in period:
+                    continue
                 start_str, end_str = [s.strip() for s in period.split(" - ")]
-                start = parse_date(start_str, dayfirst=True).date()
-                end = parse_date(end_str, dayfirst=True).date()
-
+                try:
+                    start = parse_date(start_str, dayfirst=True).date()
+                    end = parse_date(end_str, dayfirst=True).date()
+                except Exception:
+                    continue
+                wave_name = wave.get("wave", "Gelombang")
                 if today < start:
                     status = f"{wave_name} ({jalur['name']}) akan dibuka mulai {start.strftime('%d %B %Y')}."
                 elif start <= today <= end:
                     status = f"{wave_name} ({jalur['name']}) sedang berlangsung hingga {end.strftime('%d %B %Y')}."
                 else:
                     status = f"{wave_name} ({jalur['name']}) sudah ditutup pada {end.strftime('%d %B %Y')}."
-
                 summary.append(status)
-        return "\n".join(summary)
+        return "\n".join(summary) if summary else "Belum ada informasi pendaftaran."
     except Exception as e:
         logger.warning(f"Gagal menghitung status gelombang: {e}")
         return "Status pendaftaran tidak dapat ditentukan saat ini."
@@ -161,38 +166,12 @@ def chat():
     if 'conversation' not in session:
         session['conversation'] = []
     session['conversation'].append({"user": corrected})
-    session['conversation'] = session['conversation'][-55:]
+    session['conversation'] = session['conversation'][-50:]
 
     kategori = get_category(corrected)
     context = TRISAKTI.get("current_context", {})
     registration_status_summary = get_current_registration_status()
 
-    # ============ Handling saran jurusan ============
-    if kategori == "prodi" and any(k in corrected.lower() for k in ["cocok", "minat", "bakat", "jurusan apa"]):
-        prompt = (
-            f"Berdasarkan deskripsi berikut, berikan rekomendasi program studi dari kampus TMM yang paling cocok:\n\n"
-            f"\"{corrected}\"\n\n"
-            f"Gunakan data program studi berikut:\n{json.dumps(TRISAKTI['academic_programs'], ensure_ascii=False)}\n\n"
-            f"Jawaban harus singkat, komunikatif, dan informatif."
-        )
-        try:
-            model = genai.GenerativeModel("gemini-1.5-flash", generation_config={
-                "temperature": 0.5, "top_p": 0.95, "max_output_tokens": 1024
-            })
-            result = model.generate_content(prompt)
-            reply = clean_response(result.text.strip())
-            reply = format_links(reply)
-            save_chat(corrected, reply)
-            return jsonify({
-                "reply": reply,
-                "language": lang,
-                "corrected": corrected if corrected != message else None
-            })
-        except Exception as e:
-            logger.error(f"[Rekomendasi jurusan error] {e}")
-            return jsonify({"error": "Gagal memberikan rekomendasi."}), 500
-
-    # ============ Handling permintaan brosur ============
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
@@ -208,7 +187,6 @@ def chat():
             "corrected": corrected if corrected != message else None
         })
 
-    # ============ Default Chatbot ============
     system_prompt = (
         "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia. Jawab sopan, tidak kaku, dan langsung ke inti. "
         "Kurangi sapaan seperti 'hai', bantu pengguna lanjut bertanya.\n\n"
