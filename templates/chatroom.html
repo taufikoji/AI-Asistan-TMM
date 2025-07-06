@@ -3,39 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TIMU - Chat Asisten AI TMM</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>Chatroom - TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body>
-  <header class="header">
-    <h1>TIMU - Asisten AI Trisakti Multimedia</h1>
-  </header>
+<body class="chatroom-body">
+  <div class="chat-container">
+    <div class="chat-header">
+      <h2>💬 Chat dengan <span class="highlight">TIMU</span></h2>
+      <a href="/" class="btn small">🔙 Kembali</a>
+    </div>
 
-  <main class="container">
-    <div class="chat-container">
-      <div id="chat-box">
-        <div class="chat-message ai">Halo! Saya TIMU 👋 Siap membantu seputar kampus Trisakti School of Multimedia.</div>
-      </div>
-
-      <div class="typing-indicator" id="typing-indicator" style="display: none;">
-        TIMU sedang mengetik...
-      </div>
-
-      <form id="message-form">
-        <input type="text" id="user-input" placeholder="Ketik pesan Anda di sini..." required />
-        <button type="submit" id="send-btn">Kirim</button>
-      </form>
-
-      <div style="margin-top: 10px;">
-        <button id="suggestion-btn" class="btn outline">🎓 Butuh Saran Jurusan?</button>
+    <div class="chat-box" id="chat-box">
+      <div class="message bot">
+        Halo! Ada yang bisa saya bantu hari ini?
       </div>
     </div>
 
-    <div class="footer">
-      © 2025 TMM • <a href="{{ url_for('landing') }}">Kembali ke Beranda</a>
-    </div>
-  </main>
+    <div class="typo-correction" id="typo-correction" style="display: none;"></div>
 
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <form id="chat-form" class="chat-form">
+      <input type="text" id="user-input" placeholder="Ketik pertanyaan di sini..." autocomplete="off" required />
+      <button type="submit">Kirim</button>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>
 </html>
