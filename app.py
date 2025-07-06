@@ -154,7 +154,7 @@ def admin_stats():
             history = json.load(f)
     except:
         history = []
-    return render_template("stats.html", stats={
+    return render_template("admin_stats.html", stats={
         "total_chats": len(history),
         "latest": history[-5:] if len(history) >= 5 else history
     })
