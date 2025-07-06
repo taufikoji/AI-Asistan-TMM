@@ -8,13 +8,21 @@
 </head>
 <body>
   <div class="chat-container">
+
+    <!-- Header dengan logo dan tombol kembali -->
     <div class="chat-header">
+      <div class="chat-header-top">
+        <img src="/static/logo_tmm.png" alt="Logo TMM" class="logo-tmm" />
+        <a href="/" class="back-button">← Kembali ke Beranda</a>
+      </div>
       <h2>🎓 TIMU - Asisten Trisakti Multimedia</h2>
       <p>Silakan bertanya tentang jurusan, beasiswa, pendaftaran, dan lainnya.</p>
     </div>
 
+    <!-- Kotak percakapan -->
     <div id="chat-box" class="chat-box"></div>
 
+    <!-- Input pengguna -->
     <div class="chat-input">
       <input type="text" id="user-input" placeholder="Ketik pesan di sini..." autocomplete="off" />
       <button id="send-btn">Kirim</button>
