@@ -8,23 +8,25 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container mt-4">
-        <div class="text-center mb-4">
-            <img src="{{ url_for('static', filename='images/logo_tmm.png') }}" alt="TMM Logo" class="img-fluid" style="max-width: 150px;">
-            <h2 class="mt-2">Chat dengan TIMU</h2>
-            <p class="text-muted">Asisten AI Resmi Trisakti School of Multimedia</p>
-        </div>
-        <div class="card chat-container">
-            <div class="card-body" id="chat-box" style="max-height: 500px; overflow-y: auto;">
-                <!-- Pesan akan ditambahkan oleh JavaScript -->
+    <div class="background-3d">
+        <div class="container mt-5">
+            <div class="text-center mb-4">
+                <img src="{{ url_for('static', filename='images/logo_tmm.png') }}" alt="TMM Logo" class="img-fluid" style="max-width: 150px;">
+                <h2 class="mt-2 text-white">Chat dengan TIMU</h2>
+                <p class="text-white-50">Asisten AI Resmi Trisakti School of Multimedia</p>
             </div>
-            <div id="typo-correction" class="alert alert-info mt-2" style="display: none;"></div>
-            <form id="chat-form" class="mt-3">
-                <div class="input-group">
-                    <input type="text" id="user-input" class="form-control" placeholder="Ketik pesan Anda..." required>
-                    <button type="submit" class="btn btn-primary">Kirim</button>
+            <div class="card glass-effect chat-container">
+                <div class="card-body" id="chat-box" style="max-height: 500px; overflow-y: auto;">
+                    <!-- Pesan akan ditambahkan oleh JavaScript -->
                 </div>
-            </form>
+                <div id="typo-correction" class="alert alert-info mt-2" style="display: none;"></div>
+                <form id="chat-form" class="mt-3">
+                    <div class="input-group">
+                        <input type="text" id="user-input" class="form-control" placeholder="Ketik pesan Anda..." required>
+                        <button type="submit" class="btn btn-primary">Kirim</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
