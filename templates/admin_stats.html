@@ -1,28 +1,35 @@
+<!-- templates/stats.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Statistik Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Statistik Chat - Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-  <header>Dashboard Admin</header>
-
+<body class="stats-page">
   <div class="stats-container">
-    <h2>Statistik Chat Pengguna</h2>
-    <p>Total chat: <strong>{{ stats.total_chats }}</strong></p>
+    <h1>📊 Statistik Chat</h1>
+    <p>Total percakapan: <strong>{{ stats.total_chats }}</strong></p>
 
-    <h3>5 Chat Terakhir</h3>
-    {% for item in stats.latest %}
-      <div class="stat-item">
-        <strong>{{ item.timestamp }}:</strong><br>
-        <em>User:</em> {{ item.user }}<br>
-        <em>AI:</em> {{ item.ai }}
-      </div>
-    {% endfor %}
+    <h2>📌 Riwayat Terbaru</h2>
+    {% if stats.latest %}
+      <ul class="chat-history">
+        {% for chat in stats.latest %}
+          <li>
+            <div class="chat-entry">
+              <strong>🧑 Pengguna:</strong> {{ chat.user }}<br>
+              <strong>🤖 TIMU:</strong> {{ chat.ai }}<br>
+              <small>🕓 {{ chat.timestamp }}</small>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Belum ada data.</p>
+    {% endif %}
 
-    <a href="/logout" class="logout-link">Keluar</a>
+    <a href="/logout" class="logout-btn">Keluar</a>
   </div>
 </body>
 </html>
