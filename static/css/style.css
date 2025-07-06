@@ -179,3 +179,14 @@ body, html {
   margin-top: -10px;
   margin-bottom: 5px;
 }
+.cursor {
+  display: inline-block;
+  width: 8px;
+  background: #555;
+  animation: blink 0.7s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
