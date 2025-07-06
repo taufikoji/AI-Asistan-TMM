@@ -1,30 +1,35 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Admin - TIMU</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="/static/assets/img/logo.png" />
 </head>
-<body data-page="admin_stats">
-  <div class="admin-container">
-    <header>
-      <h2>Dashboard Admin</h2>
-      <div class="admin-buttons">
-        <a href="{{ url_for('logout') }}" class="btn-outline small">🚪 Logout</a>
-        <a href="{{ url_for('landing') }}" class="btn-outline small">🏠 Landing</a>
-      </div>
-    </header>
+<body>
+  <header class="admin-header glass">
+    <img src="/static/assets/img/logo.png" alt="Logo TMM" class="logo-small" />
+    <h1>Dashboard Admin TIMU</h1>
+    <a href="/logout" class="btn-logout">Logout</a>
+  </header>
 
-    <div class="stats-section">
-      <p><strong>Total Riwayat Chat:</strong> {{ stats.total_chats }}</p>
-      <h3>Riwayat Terakhir:</h3>
-      <ul>
-        {% for chat in stats.latest %}
-          <li><strong>User:</strong> {{ chat.user }}<br><strong>TIMU:</strong> {{ chat.ai }}</li>
+  <main class="admin-content">
+    <section class="admin-stats">
+      <h2>Statistik Chat</h2>
+      <p>Total percakapan: <strong>{{ stats.total_chats }}</strong></p>
+
+      <h3>5 Riwayat Terakhir</h3>
+      <ul class="chat-history">
+        {% for item in stats.latest %}
+          <li class="chat-log-item glass">
+            <p><strong>🧑 User:</strong> {{ item.user }}</p>
+            <p><strong>🤖 TIMU:</strong> {{ item.ai }}</p>
+            <small>{{ item.timestamp }}</small>
+          </li>
         {% endfor %}
       </ul>
-    </div>
-  </div>
+    </section>
+  </main>
 </body>
 </html>
