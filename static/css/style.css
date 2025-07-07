@@ -30,6 +30,7 @@ body {
     background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
     perspective: 1000px;
     overflow: hidden;
+    z-index: 0; /* Di bawah konten */
 }
 .background-3d::before,
 .background-3d::after {
@@ -83,6 +84,7 @@ body {
     max-height: 500px;
     overflow-y: auto;
     padding: calc(var(--spacing-unit) / 2);
+    position: relative; /* Pastikan posisi relatif */
 }
 .placeholder-text {
     color: #ccc;
