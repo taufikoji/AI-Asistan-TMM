@@ -4,14 +4,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatBox = document.getElementById("chat-box");
   const typing = document.getElementById("typing-indicator");
 
-  // Muat riwayat chat
+  // Muat riwayat obrolan sebelumnya
   fetch("/api/chat?init=true")
     .then(res => res.json())
     .then(data => {
       if (data.conversation) {
         data.conversation.forEach(msg => {
           if (msg.role === "bot") {
-            renderBotMessage(msg.content);
+            renderBotMessage(msg.content, false);
           } else {
             renderMessage(msg.role, msg.content);
           }
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       typing.style.display = "none";
 
       if (data.reply) {
-        renderBotMessage(data.reply);
+        renderBotMessage(data.reply, true);
       } else if (data.error) {
         renderMessage("bot", "⚠️ " + data.error);
       }
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Tampilkan pesan biasa
+  // Render pesan user/bot biasa
   function renderMessage(role, text) {
     const div = document.createElement("div");
     div.classList.add("message", role);
@@ -59,45 +59,39 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // Efek mengetik + HTML aman
-  function renderBotMessage(htmlText) {
-    const div = document.createElement("div");
-    div.classList.add("message", "bot");
-    chatBox.appendChild(div);
+  // Render bot message dengan efek ketik & HTML bisa diklik
+  function renderBotMessage(htmlText, withTyping = true) {
+    const container = document.createElement("div");
+    container.classList.add("message", "bot");
+    chatBox.appendChild(container);
 
-    const parts = htmlText.match(/(<[^>]+>|[^<]+)/g); // pisahkan tag dan teks
-    let i = 0;
+    if (!withTyping) {
+      container.innerHTML = htmlText;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return;
+    }
 
-    function typePart() {
-      if (i >= parts.length) return;
+    let temp = "";
+    let index = 0;
 
-      const part = parts[i++];
-
-      if (part.startsWith("<")) {
-        // Jika tag HTML → parse dan tambahkan node-nya
+    function typeChar() {
+      if (index < htmlText.length) {
+        temp += htmlText[index++];
+        container.textContent = temp;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        setTimeout(typeChar, 10);
+      } else {
+        // Ketikan selesai, ubah ke bentuk HTML DOM
         const parser = new DOMParser();
-        const frag = parser.parseFromString(part, "text/html").body;
+        const frag = parser.parseFromString(temp, "text/html").body;
+        container.innerHTML = ""; // Kosongkan sementara
         while (frag.firstChild) {
-          div.appendChild(frag.firstChild);
+          container.appendChild(frag.firstChild);
         }
         chatBox.scrollTop = chatBox.scrollHeight;
-        setTimeout(typePart, 10);
-      } else {
-        // Jika teks → ketik huruf per huruf
-        let j = 0;
-        function typeChar() {
-          if (j < part.length) {
-            div.innerHTML += part[j++];
-            chatBox.scrollTop = chatBox.scrollHeight;
-            setTimeout(typeChar, 10); // kecepatan huruf
-          } else {
-            setTimeout(typePart, 10);
-          }
-        }
-        typeChar();
       }
     }
 
-    typePart();
+    typeChar();
   }
 });
