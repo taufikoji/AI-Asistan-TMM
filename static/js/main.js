@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatBox = document.getElementById("chat-box");
   const typing = document.getElementById("typing-indicator");
 
-  // Load chat history
+  // Load previous chat
   fetch("/api/chat?init=true")
     .then(res => res.json())
     .then(data => {
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-  // Submit user message
+  // Handle user input
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const message = input.value.trim();
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Render user or plain bot message (tanpa efek)
+  // Render normal message
   function renderMessage(role, text) {
     const div = document.createElement("div");
     div.classList.add("message", role);
@@ -59,20 +59,20 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // Render bot message with typewriter effect (aman untuk HTML)
+  // Render bot message with typing effect (safe for HTML)
   function renderBotMessage(htmlText) {
     const div = document.createElement("div");
     div.classList.add("message", "bot");
     chatBox.appendChild(div);
 
-    const parts = htmlText.match(/(<[^>]+>|[^<]+)/g); // pisahkan tag HTML dan teks
+    const parts = htmlText.match(/(<[^>]+>|[^<]+)/g);
     let i = 0;
 
     function type() {
       if (i < parts.length) {
         div.innerHTML += parts[i++];
         chatBox.scrollTop = chatBox.scrollHeight;
-        setTimeout(type, 20); // kecepatan efek ketik
+        setTimeout(type, 20); // speed: lower = faster
       }
     }
 
