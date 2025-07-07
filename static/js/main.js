@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatBox = document.getElementById("chat-box");
   const typing = document.getElementById("typing-indicator");
 
-  // Load chat history
+  // Muat riwayat chat
   fetch("/api/chat?init=true")
     .then(res => res.json())
     .then(data => {
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Render pesan biasa (user atau bot tanpa efek)
+  // Tampilkan pesan biasa
   function renderMessage(role, text) {
     const div = document.createElement("div");
     div.classList.add("message", role);
@@ -59,29 +59,45 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // Render pesan bot dengan efek mengetik dan HTML aman
+  // Efek mengetik + HTML aman
   function renderBotMessage(htmlText) {
     const div = document.createElement("div");
     div.classList.add("message", "bot");
     chatBox.appendChild(div);
 
-    const parts = htmlText.match(/(<[^>]+>|[^<]+)/g); // pisahkan tag HTML dan teks
+    const parts = htmlText.match(/(<[^>]+>|[^<]+)/g); // pisahkan tag dan teks
     let i = 0;
 
-    function type() {
-      if (i < parts.length) {
-        const parser = new DOMParser();
-        const frag = parser.parseFromString(parts[i++], "text/html").body;
+    function typePart() {
+      if (i >= parts.length) return;
 
+      const part = parts[i++];
+
+      if (part.startsWith("<")) {
+        // Jika tag HTML → parse dan tambahkan node-nya
+        const parser = new DOMParser();
+        const frag = parser.parseFromString(part, "text/html").body;
         while (frag.firstChild) {
           div.appendChild(frag.firstChild);
         }
-
         chatBox.scrollTop = chatBox.scrollHeight;
-        setTimeout(type, 20); // kecepatan efek ketik
+        setTimeout(typePart, 10);
+      } else {
+        // Jika teks → ketik huruf per huruf
+        let j = 0;
+        function typeChar() {
+          if (j < part.length) {
+            div.innerHTML += part[j++];
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(typeChar, 10); // kecepatan huruf
+          } else {
+            setTimeout(typePart, 10);
+          }
+        }
+        typeChar();
       }
     }
 
-    type();
+    typePart();
   }
 });
