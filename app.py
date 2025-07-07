@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    logger.critical("GEMINI_API_KEY tidak ditemukan di .env!")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 
 app = Flask(__name__)
@@ -31,6 +33,12 @@ try:
     TRISAKTI["current_context"]["date"] = now.strftime("%d %B %Y")
     TRISAKTI["current_context"]["time"] = now.strftime("%H:%M WIB")
     logger.info("JSON kampus dimuat dengan sukses: %s", TRISAKTI.get("institution", {}).get("name", "Tidak ada nama"))
+except FileNotFoundError:
+    logger.critical("File trisakti_info.json tidak ditemukan!")
+    TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
+except json.JSONDecodeError as e:
+    logger.critical("Error decoding JSON: %s", str(e))
+    TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
 except Exception as e:
     logger.critical("Gagal load JSON kampus: %s", str(e))
     TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
@@ -180,12 +188,12 @@ def chat():
     data = request.get_json()
     if not data or "message" not in data:
         logger.warning("Permintaan POST tanpa data message: %s", str(data))
-        return jsonify({"error": "Pesan tidak ditemukan dalam data."}), 400
+        return jsonify({"error": "Pesan tidak ditemukan dalam data.", "conversation": session.get('conversation', [])}), 400
 
     message = data["message"].strip()
     if not message:
         logger.warning("Permintaan POST dengan pesan kosong.")
-        return jsonify({"error": "Pesan kosong."}), 400
+        return jsonify({"error": "Pesan kosong.", "conversation": session.get('conversation', [])}), 400
 
     lang = detect_language(message)
     corrected = correct_typo(message)
@@ -201,7 +209,7 @@ def chat():
 
     if not TRISAKTI:
         logger.error("TRISAKTI kosong, kemungkinan JSON tidak dimuat.")
-        return jsonify({"error": "Data kampus tidak tersedia."}), 500
+        return jsonify({"error": "Data kampus tidak tersedia.", "conversation": session.get('conversation', [])}), 500
 
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
@@ -217,7 +225,7 @@ def chat():
             "reply": reply,
             "language": lang,
             "corrected": corrected if corrected != message else None,
-            "conversation": session['conversation']
+            "conversation": session.get('conversation', [])
         })
 
     matched_program = find_program_by_alias(corrected)
@@ -235,7 +243,7 @@ def chat():
             "reply": reply,
             "language": lang,
             "corrected": corrected if corrected != message else None,
-            "conversation": session['conversation']
+            "conversation": session.get('conversation', [])
         })
 
     system_prompt = (
@@ -286,15 +294,15 @@ def chat():
             "reply": reply,
             "language": lang,
             "corrected": corrected if corrected != message else None,
-            "conversation": session['conversation']
+            "conversation": session.get('conversation', [])
         })
 
     except google_exceptions.GoogleAPIError as e:
         logger.error("Gemini API Error: %s", str(e))
-        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti."}), 500
+        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti.", "conversation": session.get('conversation', [])}), 500
     except Exception as e:
         logger.error("Internal Error: %s", str(e))
-        return jsonify({"error": "Kesalahan sistem, coba lagi nanti."}), 500
+        return jsonify({"error": "Kesalahan sistem, coba lagi nanti.", "conversation": session.get('conversation', [])}), 500
 
 # ===================== JALANKAN =====================
 if __name__ == "__main__":
