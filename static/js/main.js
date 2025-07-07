@@ -4,12 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatBox = document.getElementById("chat-box");
   const typing = document.getElementById("typing-indicator");
 
-  // Load chat history on start
   fetch("/api/chat?init=true")
     .then(res => res.json())
     .then(data => {
       if (data.conversation) {
-        data.conversation.forEach(msg => renderMessage(msg.role, msg.content));
+        data.conversation.forEach(msg => {
+          if (msg.role === "bot") {
+            renderBotMessage(msg.content);
+          } else {
+            renderMessage(msg.role, msg.content);
+          }
+        });
       }
     });
 
@@ -33,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
       typing.style.display = "none";
 
       if (data.reply) {
-        renderMessage("bot", data.reply);
+        renderBotMessage(data.reply);
       } else if (data.error) {
         renderMessage("bot", "⚠️ " + data.error);
       }
@@ -49,5 +54,21 @@ document.addEventListener("DOMContentLoaded", () => {
     div.innerHTML = text;
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function renderBotMessage(text) {
+    const div = document.createElement("div");
+    div.classList.add("message", "bot");
+    chatBox.appendChild(div);
+
+    let i = 0;
+    const type = () => {
+      if (i < text.length) {
+        div.innerHTML += text[i++];
+        chatBox.scrollTop = chatBox.scrollHeight;
+        setTimeout(type, 10); // kecepatan ketik (ms per huruf)
+      }
+    };
+    type();
   }
 });
