@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBox = document.getElementById("chat-box");
     const typoBox = document.getElementById("typo-correction");
 
-    // Cek apakah semua elemen ada
     if (!form || !input || !chatBox || !typoBox) {
         console.error("Error: Salah satu elemen HTML (chat-form, user-input, chat-box, typo-correction) tidak ditemukan!");
         console.log("Elemen yang ada:", { form, input, chatBox, typoBox });
@@ -18,6 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
             conversation.forEach(msg => {
                 appendMessage(msg.content, msg.role === "user" ? "user" : "bot", true);
             });
+        } else {
+            console.warn("Inisialisasi chat: conversation tidak valid atau kosong", conversation);
         }
     }
 
@@ -33,11 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.error("Gagal menginisialisasi chat:", err));
 
     function appendMessage(text, sender = "bot", isHTML = false) {
+        console.log(`Menambahkan pesan: ${text} dari ${sender}`); // Debugging
         const div = document.createElement("div");
         div.className = `message ${sender === "user" ? "user-message" : "ai-message"}`;
         div.innerHTML = isHTML ? text : escapeHTML(text);
         chatBox.appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
+        return div; // Kembalikan div untuk verifikasi
     }
 
     function escapeHTML(str) {
@@ -67,7 +70,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function sendMessage(message) {
         console.log("Mengirim pesan:", message); // Debugging
-        appendMessage(message, "user");
+        const userMessageDiv = appendMessage(message, "user");
+        if (!userMessageDiv) {
+            console.error("Gagal menambahkan pesan pengguna ke chat box");
+            return;
+        }
         input.value = "";
         typoBox.style.display = "none";
 
@@ -99,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (data.error) {
                 appendMessage(`Error: ${data.error}`, "bot");
             } else {
-                appendMessage("Maaf, tidak ada balasan dari sistem.", "bot");
+                appendMessage("Maaf, tidak ada balasan dari sistem. Cek log untuk detail.", "bot");
             }
         } catch (err) {
             removeLoading();
@@ -109,9 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function typeReply(text, lang = "id") {
-        const div = document.createElement("div");
-        div.className = "message ai-message";
-        chatBox.appendChild(div);
+        const div = appendMessage("", "bot"); // Placeholder dulu
+        if (!div) {
+            console.error("Gagal membuat div untuk typeReply");
+            appendMessage("Gagal menampilkan respons, coba lagi.", "bot"); // Fallback
+            return;
+        }
 
         let index = 0;
         const speed = lang === "id" ? 30 : 50;
@@ -132,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const message = input.value.trim();
         if (!message) {
-            console.log("Pesan kosong, pengiriman dibatalkan."); // Debugging
+            console.log("Pesan kosong, pengiriman dibatalkan.");
             return;
         }
         sendMessage(message);
