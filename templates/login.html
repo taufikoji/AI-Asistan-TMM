@@ -1,33 +1,22 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Admin - TIMU</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Admin – TIMU</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-  <header class="header">
-    <h1>🔐 Login Admin</h1>
-    <p>Masukkan password untuk mengakses dashboard</p>
-  </header>
-
-  <main class="container">
-    <form method="POST" class="form-box">
-      {% if error %}
-        <div class="alert">{{ error }}</div>
-      {% endif %}
-      <input type="password" name="password" placeholder="Password Admin" required>
-      <button type="submit" class="btn primary full">Masuk</button>
+<body class="login-page">
+  <div class="login-container">
+    <h2>🔒 Masuk Admin</h2>
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+      <input type="password" name="password" placeholder="Masukkan password admin..." required />
+      <button type="submit">Masuk</button>
     </form>
-
-    <div class="center">
-      <a href="{{ url_for('landing') }}" class="link">← Kembali ke Beranda</a>
-    </div>
-  </main>
-
-  <footer class="footer">
-    © 2025 TMM • TIMU AI
-  </footer>
+    <a href="{{ url_for('landing') }}" class="back-link">⬅️ Kembali ke beranda</a>
+  </div>
 </body>
 </html>
