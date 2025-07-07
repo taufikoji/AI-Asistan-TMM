@@ -1,33 +1,34 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat dengan TIMU - Trisakti Multimedia</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TIMU - Chat Asisten TMM</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-    <div class="background-3d">
-        <div class="container">
-            <div class="header text-center">
-                <img src="{{ url_for('static', filename='images/timu_avatar.png') }}" alt="TMM Logo" class="logo">
-                <h2>Chat dengan TIMU</h2>
-                <p class="subtitle">Asisten AI Resmi Trisakti School of Multimedia</p>
-            </div>
-            <div class="chat-container">
-                <div class="chat-box" id="chat-box">
-                    <div class="placeholder-text">Memulai chat... Pesan akan muncul di sini. <span id="debug-status"></span></div>
-                </div>
-                <div id="typo-correction" class="typo-correction"></div>
-                <form id="chat-form">
-                    <div class="input-group">
-                        <input type="text" id="user-input" placeholder="Ketik pesan Anda..." required>
-                        <button type="submit">Kirim</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+<body class="chatroom-page">
+  <div class="chat-container">
+    <header class="chat-header">
+      <h1>TIMU</h1>
+      <p>Asisten AI Trisakti School of Multimedia</p>
+    </header>
+
+    <div class="chat-box" id="chat-box">
+      <div class="message bot">
+        👋 Hai! Saya TIMU. Silakan tanya apa saja tentang TMM — program studi, beasiswa, pendaftaran, dan lainnya!
+      </div>
     </div>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <div class="typing-indicator" id="typing-indicator" style="display: none;">
+      <span></span><span></span><span></span>
+    </div>
+
+    <form id="chat-form" class="chat-form">
+      <input type="text" id="user-input" placeholder="Tulis pertanyaan Anda..." autocomplete="off" required />
+      <button type="submit">Kirim</button>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
