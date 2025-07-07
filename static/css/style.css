@@ -1,36 +1,27 @@
-/* Warna Tema */
-:root {
-    --primary-color: #800000; /* Maroon dasar */
-    --secondary-color: #C0392B; /* Maroon terang untuk glow */
-    --light-bg: #F5EDEB; /* Latar hangat */
-    --dark-bg: #4A2C2A; /* Maroon gelap untuk footer */
-    --text-color: #333;
-    --spacing-unit: 1rem;
-    --glass-bg: rgba(128, 0, 0, 0.2); /* Efek kaca maroon */
-}
+/* Warna Tema Kustom untuk Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Body dan Layout Umum */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
+@layer base {
+    :root {
+        --maroon-50: #F5EDEB;
+        --maroon-100: #EADDD8;
+        --maroon-200: #D7B8B2;
+        --maroon-300: #C4928C;
+        --maroon-400: #B26D66;
+        --maroon-500: #A04840; /* Maroon dasar */
+        --maroon-600: #800000; /* Maroon lebih gelap */
+        --maroon-700: #600000; /* Maroon terdalam */
+        --glass-bg: rgba(128, 0, 0, 0.2);
+    }
 }
 
 /* Background 3D */
 .background-3d {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(45deg, var(--maroon-600), var(--maroon-500));
     perspective: 1000px;
     overflow: hidden;
-    z-index: 0; /* Di bawah konten */
 }
 .background-3d::before,
 .background-3d::after {
@@ -58,16 +49,8 @@ body {
     50% { transform: translate(20px, 20px); }
 }
 
-/* Container Umum */
-.container {
-    position: relative;
-    z-index: 1;
-    padding: var(--spacing-unit);
-    flex: 1;
-}
-
 /* Chat Container dengan Efek Kaca */
-.chat-container {
+.card {
     border: none;
     background: var(--glass-bg);
     backdrop-filter: blur(10px);
@@ -77,14 +60,13 @@ body {
     overflow: hidden;
     transition: transform 0.3s ease;
 }
-.chat-container:hover {
+.card:hover {
     transform: translateY(-5px);
 }
 #chat-box {
     max-height: 500px;
     overflow-y: auto;
-    padding: calc(var(--spacing-unit) / 2);
-    position: relative; /* Pastikan posisi relatif */
+    padding: 0.5rem;
 }
 .placeholder-text {
     color: #ccc;
@@ -113,78 +95,28 @@ body {
     margin-left: auto;
 }
 .ai-message {
-    background-color: rgba(233, 236, 239, 0.7);
+    background-color: rgba(245, 237, 235, 0.7); /* Sesuai light-bg */
     color: var(--text-color);
     margin-right: auto;
 }
 #typo-correction {
     font-size: 0.875rem;
     padding: 0.5rem;
-    background-color: rgba(233, 236, 239, 0.5);
+    background-color: rgba(245, 237, 235, 0.5);
     border-radius: 0.25rem;
     margin-top: 0.5rem;
 }
 
 /* Header dan Footer */
-header {
-    background: none;
-    padding: calc(var(--spacing-unit) * 2) 0;
-    margin-bottom: var(--spacing-unit);
-}
 header h2, header p {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-    color: white;
 }
 footer {
-    background-color: var(--dark-bg);
+    background-color: var(--maroon-700);
     color: white;
     padding: var(--spacing-unit);
     margin-top: auto;
     width: 100%;
-}
-
-/* Login Page */
-.card {
-    box-shadow: 0 0.25rem 0.5rem rgba(128, 0, 0, 0.1);
-    border: none;
-    border-radius: 1rem;
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-}
-.form-label {
-    font-weight: 500;
-    color: var(--text-color);
-}
-.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-.btn-primary:hover {
-    background-color: #600000;
-    border-color: #600000;
-}
-.alert-danger {
-    margin-bottom: var(--spacing-unit);
-    background-color: rgba(220, 53, 69, 0.2);
-    border-color: #dc3545;
-}
-
-/* Admin Stats Page */
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-.card.bg-primary {
-    border: none;
-    border-radius: 1rem;
-    background: rgba(128, 0, 0, 0.2);
-    backdrop-filter: blur(5px);
-}
-.display-6 {
-    font-size: 1.75rem;
-    font-weight: 600;
-}
-.table-responsive {
-    margin-top: var(--spacing-unit);
 }
 
 /* Animasi dan Efek */
@@ -204,35 +136,14 @@ footer {
 
 /* Responsivitas */
 @media (max-width: 768px) {
-    .chat-container {
+    .card {
         margin: 0.5rem;
     }
     .message {
         max-width: 90%;
         padding: 0.5rem 0.75rem;
     }
-    .row > div {
-        flex: 100%;
-        max-width: 100%;
-    }
-    header {
-        padding: calc(var(--spacing-unit) * 1.5) 0;
-    }
-    footer {
-        position: relative;
-    }
-    .display-4 {
-        font-size: 1.75rem;
-    }
-    .col-md-4, .col-md-6 {
-        flex: 100%;
-        max-width: 100%;
-        margin-bottom: var(--spacing-unit);
-    }
-    .card {
-        margin-bottom: 0.5rem;
-    }
-    .table {
-        font-size: 0.9rem;
+    header h2 {
+        font-size: 1.5rem;
     }
 }
