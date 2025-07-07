@@ -4,26 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat dengan TIMU - Trisakti Multimedia</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="background-3d fixed inset-0">
-        <div class="container mx-auto mt-10 p-4 relative z-10">
-            <div class="text-center mb-6">
-                <img src="{{ url_for('static', filename='images/logo_tmm.png') }}" alt="TMM Logo" class="mx-auto max-w-[150px]">
-                <h2 class="mt-2 text-white text-2xl font-bold">Chat dengan TIMU</h2>
-                <p class="text-white/50 text-sm">Asisten AI Resmi Trisakti School of Multimedia</p>
+    <div class="background-3d">
+        <div class="container">
+            <div class="header">
+                <img src="{{ url_for('static', filename='images/logo_tmm.png') }}" alt="TMM Logo" class="logo">
+                <h2>Chat dengan TIMU</h2>
+                <p class="subtitle">Asisten AI Resmi Trisakti School of Multimedia</p>
             </div>
-            <div class="card glass-effect mx-auto max-w-md">
-                <div class="card-body p-3" id="chat-box" style="max-height: 500px; overflow-y: auto;">
-                    <div class="placeholder-text text-gray-400 text-center p-4">Memulai chat... Pesan akan muncul di sini. <span id="debug-status"></span></div>
+            <div class="chat-container">
+                <div class="chat-box" id="chat-box">
+                    <div class="placeholder-text">Memulai chat... Pesan akan muncul di sini. <span id="debug-status"></span></div>
                 </div>
-                <div id="typo-correction" class="alert mt-2 hidden"></div>
-                <form id="chat-form" class="p-3">
-                    <div class="flex gap-2">
-                        <input type="text" id="user-input" class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon-500" placeholder="Ketik pesan Anda..." required>
-                        <button type="submit" class="btn bg-maroon-600 text-white p-2 rounded-lg hover:bg-maroon-700">Kirim</button>
+                <div id="typo-correction" class="typo-correction"></div>
+                <form id="chat-form">
+                    <div class="input-group">
+                        <input type="text" id="user-input" placeholder="Ketik pesan Anda..." required>
+                        <button type="submit">Kirim</button>
                     </div>
                 </form>
             </div>
