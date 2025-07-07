@@ -3,32 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TIMU - Chat Asisten TMM</title>
+  <title>Chat – TIMU AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="chatroom-page">
   <div class="chat-container">
-    <header class="chat-header">
-      <h1>TIMU</h1>
-      <p>Asisten AI Trisakti School of Multimedia</p>
-    </header>
-
-    <div class="chat-box" id="chat-box">
-      <div class="message bot">
-        👋 Hai! Saya TIMU. Silakan tanya apa saja tentang TMM — program studi, beasiswa, pendaftaran, dan lainnya!
-      </div>
+    <div class="chat-header">
+      🤖 <strong>TIMU – Asisten AI TMM</strong>
     </div>
+    <div class="chat-box" id="chat-box"></div>
 
+    <!-- Typing indicator -->
     <div class="typing-indicator" id="typing-indicator" style="display: none;">
       <span></span><span></span><span></span>
     </div>
 
+    <!-- Chat input -->
     <form id="chat-form" class="chat-form">
-      <input type="text" id="user-input" placeholder="Tulis pertanyaan Anda..." autocomplete="off" required />
+      <input type="text" id="user-input" placeholder="Ketik pesan di sini..." autocomplete="off" required />
       <button type="submit">Kirim</button>
     </form>
   </div>
 
+  <!-- JS -->
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
