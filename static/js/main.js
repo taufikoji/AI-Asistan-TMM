@@ -3,13 +3,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById("user-input");
     const chatBox = document.getElementById("chat-box");
     const typoBox = document.getElementById("typo-correction");
+    const debugStatus = document.getElementById("debug-status");
 
-    if (!form || !input || !chatBox || !typoBox) {
-        console.error("Error: Salah satu elemen HTML (chat-form, user-input, chat-box, typo-correction) tidak ditemukan!");
-        console.log("Elemen yang ada:", { form, input, chatBox, typoBox });
+    if (!form || !input || !chatBox || !typoBox || !debugStatus) {
+        console.error("Error: Salah satu elemen HTML tidak ditemukan!");
+        console.log("Elemen yang ada:", { form, input, chatBox, typoBox, debugStatus });
+        if (debugStatus) debugStatus.textContent = "Error: Elemen hilang!";
         return;
     }
 
+    debugStatus.textContent = "Siap!";
     input.focus();
 
     function initializeChat(conversation) {
@@ -18,7 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 appendMessage(msg.content, msg.role === "user" ? "user" : "bot", true);
             });
         } else {
-            console.warn("Inisialisasi chat: conversation tidak valid atau kosong", conversation);
+            console.warn("Inisialisasi chat: conversation tidak valid", conversation);
+            debugStatus.textContent = "Inisialisasi gagal!";
         }
     }
 
@@ -30,17 +34,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
     })
-    .then(data => initializeChat(data.conversation))
-    .catch(err => console.error("Gagal menginisialisasi chat:", err));
+    .then(data => {
+        initializeChat(data.conversation);
+        debugStatus.textContent = "Inisialisasi selesai.";
+    })
+    .catch(err => {
+        console.error("Gagal menginisialisasi chat:", err);
+        debugStatus.textContent = `Inisialisasi gagal: ${err.message}`;
+    });
 
     function appendMessage(text, sender = "bot", isHTML = false) {
-        console.log(`Menambahkan pesan: ${text} dari ${sender}`); // Debugging
+        console.log(`Menambahkan pesan: ${text} dari ${sender}`);
         const div = document.createElement("div");
         div.className = `message ${sender === "user" ? "user-message" : "ai-message"}`;
         div.innerHTML = isHTML ? text : escapeHTML(text);
         chatBox.appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
-        return div; // Kembalikan div untuk verifikasi
+        chatBox.removeChild(chatBox.querySelector(".placeholder-text")); // Hapus placeholder
+        return div;
     }
 
     function escapeHTML(str) {
@@ -69,10 +80,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function sendMessage(message) {
-        console.log("Mengirim pesan:", message); // Debugging
+        console.log("Mengirim pesan:", message);
+        debugStatus.textContent = "Mengirim pesan...";
         const userMessageDiv = appendMessage(message, "user");
         if (!userMessageDiv) {
-            console.error("Gagal menambahkan pesan pengguna ke chat box");
+            console.error("Gagal menambahkan pesan pengguna");
+            debugStatus.textContent = "Gagal menambahkan pesan!";
             return;
         }
         input.value = "";
@@ -87,13 +100,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ message }),
             });
 
-            console.log("Respons status:", res.status); // Debugging
+            console.log("Respons status:", res.status);
+            debugStatus.textContent = `Status: ${res.status}`;
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
 
             const data = await res.json();
-            console.log("Respons data:", data); // Debugging
+            console.log("Respons data:", data);
+            debugStatus.textContent = "Menerima respons...";
             removeLoading();
 
             if (data.corrected) {
@@ -103,23 +118,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.reply) {
                 typeReply(data.reply, data.language);
+                debugStatus.textContent = "Respon ditampilkan.";
             } else if (data.error) {
                 appendMessage(`Error: ${data.error}`, "bot");
+                debugStatus.textContent = `Error: ${data.error}`;
             } else {
-                appendMessage("Maaf, tidak ada balasan dari sistem. Cek log untuk detail.", "bot");
+                appendMessage("Maaf, tidak ada balasan dari sistem.", "bot");
+                debugStatus.textContent = "Tidak ada balasan.";
             }
         } catch (err) {
             removeLoading();
             appendMessage(`❌ Terjadi kesalahan: ${err.message}`, "bot");
             console.error("Error:", err);
+            debugStatus.textContent = `Error: ${err.message}`;
         }
     }
 
     function typeReply(text, lang = "id") {
-        const div = appendMessage("", "bot"); // Placeholder dulu
+        const div = appendMessage("", "bot");
         if (!div) {
             console.error("Gagal membuat div untuk typeReply");
-            appendMessage("Gagal menampilkan respons, coba lagi.", "bot"); // Fallback
+            appendMessage("Gagal menampilkan respons, coba lagi.", "bot");
+            debugStatus.textContent = "Gagal menampilkan respons!";
             return;
         }
 
@@ -134,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 div.innerHTML = escapeHTML(text);
                 div.style.transform = "scale(1.05)";
                 setTimeout(() => div.style.transform = "scale(1)", 200);
+                debugStatus.textContent = "Respon selesai.";
             }
         }, speed);
     }
@@ -143,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = input.value.trim();
         if (!message) {
             console.log("Pesan kosong, pengiriman dibatalkan.");
+            debugStatus.textContent = "Pesan kosong!";
             return;
         }
         sendMessage(message);
