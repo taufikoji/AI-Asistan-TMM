@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 appendMessage(`Error: ${data.error}`, "bot");
                 debugStatus.textContent = `Error: ${data.error}`;
             } else {
-                appendMessage("Maaf, tidak ada balasan dari sistem.", "bot");
+                appendMessage("Maaf, tidak ada balasan dari sistem. Cek log untuk detail.", "bot");
                 debugStatus.textContent = "Tidak ada balasan.";
             }
         } catch (err) {
