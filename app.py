@@ -30,9 +30,9 @@ try:
     now = datetime.now()
     TRISAKTI["current_context"]["date"] = now.strftime("%d %B %Y")
     TRISAKTI["current_context"]["time"] = now.strftime("%H:%M WIB")
-    logger.info("JSON kampus dimuat dengan sukses.")
+    logger.info("JSON kampus dimuat dengan sukses: %s", TRISAKTI.get("institution", {}).get("name", "Tidak ada nama"))
 except Exception as e:
-    logger.critical(f"Gagal load JSON kampus: {e}")
+    logger.critical("Gagal load JSON kampus: %s", str(e))
     TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
 
 # ===================== SYMSPELL =====================
@@ -75,7 +75,7 @@ def save_chat(user_msg, ai_msg):
         history.append({"timestamp": datetime.now().isoformat(), "user": user_msg, "ai": ai_msg})
         json.dump(history, open(file, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     except Exception as e:
-        logger.warning(f"Gagal menyimpan chat: {e}")
+        logger.warning("Gagal menyimpan chat: %s", str(e))
 
 def get_category(msg):
     msg = msg.lower()
@@ -98,7 +98,7 @@ def get_current_registration_status():
                     start = parse_date(start_str, dayfirst=True).date()
                     end = parse_date(end_str, dayfirst=True).date()
                 except Exception as e:
-                    logger.warning(f"Error parsing date {period}: {e}")
+                    logger.warning("Error parsing date %s: %s", period, str(e))
                     continue
                 wave_name = wave.get("wave", "Gelombang")
                 if today < start:
@@ -110,7 +110,7 @@ def get_current_registration_status():
                 summary.append(status)
         return "\n".join(summary) if summary else "Belum ada informasi pendaftaran."
     except Exception as e:
-        logger.warning(f"Gagal menghitung status gelombang: {e}")
+        logger.warning("Gagal menghitung status gelombang: %s", str(e))
         return "Status pendaftaran tidak dapat ditentukan saat ini."
 
 def find_program_by_alias(query):
@@ -168,17 +168,23 @@ def download_brosur():
             return jsonify({"error": "Brosur tidak tersedia."}), 404
         return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
     except Exception as e:
-        logger.error(f"Error download brosur: {e}")
+        logger.error("Error download brosur: %s", str(e))
         return jsonify({"error": "Gagal unduh brosur."}), 500
 
 @app.route("/api/chat", methods=["GET", "POST"])
 def chat():
     if request.method == "GET" and request.args.get("init"):
+        logger.info("Inisialisasi chat, conversation: %s", session.get('conversation', []))
         return jsonify({"conversation": session.get('conversation', [])})
 
     data = request.get_json()
-    message = data.get("message", "").strip()
+    if not data or "message" not in data:
+        logger.warning("Permintaan POST tanpa data message: %s", str(data))
+        return jsonify({"error": "Pesan tidak ditemukan dalam data."}), 400
+
+    message = data["message"].strip()
     if not message:
+        logger.warning("Permintaan POST dengan pesan kosong.")
         return jsonify({"error": "Pesan kosong."}), 400
 
     lang = detect_language(message)
@@ -193,6 +199,10 @@ def chat():
     context = TRISAKTI.get("current_context", {})
     registration_status_summary = get_current_registration_status()
 
+    if not TRISAKTI:
+        logger.error("TRISAKTI kosong, kemungkinan JSON tidak dimuat.")
+        return jsonify({"error": "Data kampus tidak tersedia."}), 500
+
     if kategori == "brosur":
         base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
@@ -202,6 +212,7 @@ def chat():
             "Jika tidak bisa dibuka, salin link dan buka manual."
         )
         save_chat(corrected, reply)
+        logger.info("Respon brosur dikirim: %s", reply)
         return jsonify({
             "reply": reply,
             "language": lang,
@@ -219,6 +230,7 @@ def chat():
             f"{'🕓 Tersedia kelas malam.' if matched_program['evening_class'] else 'Tidak tersedia kelas malam.'}"
         )
         save_chat(corrected, reply)
+        logger.info("Respon program dikirim: %s", reply)
         return jsonify({
             "reply": reply,
             "language": lang,
@@ -248,13 +260,13 @@ def chat():
         "Jika pertanyaan lanjutan, langsung ke inti jawaban."
     )
 
-    logger.info(f"Mengirim prompt ke Gemini: {prompt}")
+    logger.info("Mengirim prompt ke Gemini: %s", prompt)
     try:
         model = genai.GenerativeModel("gemini-1.5-flash", generation_config={
             "temperature": 0.3, "top_p": 0.9, "max_output_tokens": 1024
         })
         result = model.generate_content(system_prompt + "\n\n" + prompt)
-        logger.info(f"Respons dari Gemini: {result.text}")
+        logger.info("Respons dari Gemini: %s", result.text)
         raw = result.text.strip()
         reply = clean_response(raw).replace("TSM", "TMM")
         reply = format_links(reply)
@@ -265,9 +277,11 @@ def chat():
                 f"Silakan ajukan pertanyaan lebih spesifik, misalnya tentang program studi, pendaftaran, atau beasiswa, "
                 f"atau hubungi WhatsApp {TRISAKTI.get('institution', {}).get('contact', {}).get('whatsapp', '+6287742997808')}."
             )
+            logger.warning("Respon default dikirim karena reply kosong atau tidak ada informasi.")
 
         session['conversation'].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
+        logger.info("Respon dikirim: %s", reply)
         return jsonify({
             "reply": reply,
             "language": lang,
@@ -276,13 +290,13 @@ def chat():
         })
 
     except google_exceptions.GoogleAPIError as e:
-        logger.error(f"[Gemini API Error] {e}")
+        logger.error("Gemini API Error: %s", str(e))
         return jsonify({"error": "Koneksi AI gagal, coba lagi nanti."}), 500
     except Exception as e:
-        logger.error(f"[Internal Error] {e}")
+        logger.error("Internal Error: %s", str(e))
         return jsonify({"error": "Kesalahan sistem, coba lagi nanti."}), 500
 
 # ===================== JALANKAN =====================
 if __name__ == "__main__":
-    logger.info(f"Waktu server: {datetime.now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
+    logger.info("Waktu server: %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
