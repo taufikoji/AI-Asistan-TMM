@@ -262,4 +262,4 @@ def chat():
 # ===================== RUN =====================
 if __name__ == "__main__":
     logger.info("Server dijalankan pada %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB"))
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8000)), debug=True)
