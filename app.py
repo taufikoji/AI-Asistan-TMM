@@ -16,13 +16,15 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
-    logger.critical("GEMINI_API_KEY tidak ditemukan di .env!")
+    logger.critical("❌ GEMINI_API_KEY tidak ditemukan di environment variable!")
+
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "secret")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "timu-secret-key")
 CORS(app)
 
+# Konfigurasi Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 
 # ===================== LOAD JSON DATA =====================
@@ -32,15 +34,15 @@ try:
     now = datetime.now()
     TRISAKTI["current_context"]["date"] = now.strftime("%d %B %Y")
     TRISAKTI["current_context"]["time"] = now.strftime("%H:%M WIB")
-    logger.info("JSON kampus dimuat: %s", TRISAKTI.get("institution", {}).get("name", "Tanpa Nama"))
+    logger.info("✅ JSON kampus dimuat: %s", TRISAKTI.get("institution", {}).get("name", "Tanpa Nama"))
 except Exception as e:
-    logger.critical("Gagal load JSON kampus: %s", str(e))
+    logger.critical("Gagal memuat JSON kampus: %s", str(e))
     TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
 
 # ===================== SYMSPELL =====================
 symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
-    logger.warning("Kamus SymSpell gagal dimuat.")
+    logger.warning("⚠️ Kamus SymSpell gagal dimuat. Koreksi typo dinonaktifkan.")
     def correct_typo(text): return text
 
 # ===================== UTIL =====================
@@ -99,18 +101,18 @@ def get_current_registration_status():
                 try:
                     start = parse_date(start_str, dayfirst=True).date()
                     end = parse_date(end_str, dayfirst=True).date()
-                except Exception as e:
+                except Exception:
                     continue
                 wave_name = wave.get("wave", "Gelombang")
                 if today < start:
-                    status = f"{wave_name} ({jalur['name']}) akan dibuka mulai {start.strftime('%d %B %Y')}."
+                    status = f"{wave_name} ({jalur['name']}) akan dibuka {start.strftime('%d %B %Y')}."
                 elif start <= today <= end:
                     status = f"{wave_name} ({jalur['name']}) sedang berlangsung hingga {end.strftime('%d %B %Y')}."
                 else:
-                    status = f"{wave_name} ({jalur['name']}) sudah ditutup pada {end.strftime('%d %B %Y')}."
+                    status = f"{wave_name} ({jalur['name']}) sudah ditutup {end.strftime('%d %B %Y')}."
                 summary.append(status)
         return "\n".join(summary) if summary else "Belum ada informasi pendaftaran."
-    except Exception as e:
+    except:
         return "Status pendaftaran tidak tersedia."
 
 def find_program_by_alias(query):
@@ -124,12 +126,12 @@ def find_program_by_alias(query):
 # ===================== ROUTES =====================
 @app.route("/")
 def landing():
-    session.clear()  # bersihkan riwayat saat reload
+    session.clear()
     return render_template("landing.html")
 
 @app.route("/chat")
 def chatroom():
-    session.clear()  # reset obrolan saat reload
+    session.clear()
     return render_template("chatroom.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -167,18 +169,15 @@ def download_brosur():
         return jsonify({"error": "Brosur tidak tersedia."}), 404
     return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
 
-@app.route("/api/chat", methods=["GET", "POST"])
+@app.route("/api/chat", methods=["POST"])
 def chat():
-    if request.method == "GET" and request.args.get("init"):
-        return jsonify({"conversation": session.get('conversation', [])})
-
     data = request.get_json()
     if not data or "message" not in data:
-        return jsonify({"error": "Pesan tidak ditemukan.", "conversation": session.get('conversation', [])}), 400
+        return jsonify({"error": "Pesan tidak ditemukan."}), 400
 
     message = data["message"].strip()
     if not message:
-        return jsonify({"error": "Pesan kosong.", "conversation": session.get('conversation', [])}), 400
+        return jsonify({"error": "Pesan kosong."}), 400
 
     lang = detect_language(message)
     corrected = correct_typo(message)
@@ -193,16 +192,15 @@ def chat():
     registration_status_summary = get_current_registration_status()
 
     if kategori == "brosur":
-        base_url = request.host_url.replace("http://", "https://", 1).rstrip("/")
+        base_url = request.host_url.rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
         reply = (
             "📄 Brosur resmi TMM siap diunduh!<br><br>"
-            f"<a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a><br><br>"
-            "Jika tidak bisa dibuka, salin link dan buka secara manual."
+            f"<a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
         )
         session['conversation'].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
-        return jsonify({"reply": reply, "language": lang, "conversation": session['conversation']})
+        return jsonify({"reply": reply})
 
     matched_program = find_program_by_alias(corrected)
     if matched_program:
@@ -215,25 +213,23 @@ def chat():
         )
         session['conversation'].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
-        return jsonify({"reply": reply, "language": lang, "conversation": session['conversation']})
+        return jsonify({"reply": reply})
 
-    # 💬 PROMPT AI (versi optimal)
+    # === PROMPT UNTUK GEMINI ===
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
-        "Tugasmu adalah menjawab berbagai pertanyaan tentang kampus, jurusan, beasiswa, pendaftaran, dan info lainnya dengan ramah, sopan, dan mudah dimengerti. "
-        "Jika pengguna menggunakan bahasa daerah (Jawa, Sunda, Minang, dll), kamu bisa menyesuaikan gaya bahasanya. "
-        "Kamu boleh sedikit bercanda atau menyelipkan motivasi, tetapi tetap profesional. "
-        "Jangan ulangi sapaan seperti 'Halo' kecuali di awal sekali. Fokus langsung pada isi pertanyaan, bukan formalitas.\n\n"
-        f"📌 Data Kampus:\n{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
-        f"📆 Status Pendaftaran Saat Ini:\n{registration_status_summary}\n\n"
-        f"🗂️ Riwayat Obrolan Sebelumnya:\n{json.dumps(short_history, ensure_ascii=False)}"
+        "Tugasmu menjawab pertanyaan tentang kampus, jurusan, beasiswa, dan pendaftaran dengan sopan dan natural. "
+        "Gunakan bahasa yang mudah dimengerti dan sesuaikan gaya bicara jika pengguna memakai bahasa daerah. "
+        f"\n\n📌 Data Kampus:\n{json.dumps(TRISAKTI, ensure_ascii=False)}"
+        f"\n📆 Status Pendaftaran:\n{registration_status_summary}"
+        f"\n🗂️ Riwayat Singkat:\n{json.dumps(short_history, ensure_ascii=False)}"
     )
 
     prompt = (
         f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
         f"Pertanyaan pengguna: \"{corrected}\"\n"
-        f"Bahasa terdeteksi: {lang.upper()}\n"
+        f"Bahasa: {lang.upper()}\n"
         "Jawaban harus natural, langsung ke inti, dan mudah dipahami."
     )
 
@@ -250,16 +246,18 @@ def chat():
 
         session['conversation'].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
-        return jsonify({"reply": reply, "language": lang, "conversation": session['conversation']})
+        return jsonify({"reply": reply})
 
     except google_exceptions.GoogleAPIError as e:
-        logger.error("Gemini error: %s", str(e))
-        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti.", "conversation": session['conversation']}), 500
+        logger.error("Gemini API Error: %s", str(e))
+        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti."}), 500
     except Exception as e:
         logger.error("Internal Error: %s", str(e))
-        return jsonify({"error": "Kesalahan sistem.", "conversation": session['conversation']}), 500
+        return jsonify({"error": "Kesalahan sistem internal."}), 500
 
-# ===================== RUN =====================
+
+# ===================== MAIN (Railway Ready) =====================
 if __name__ == "__main__":
-    logger.info("Server dijalankan pada %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB"))
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8000)), debug=True)
+    port = int(os.getenv("PORT", 8000))
+    logger.info(f"🚀 TIMU berjalan di port {port}")
+    app.run(host="0.0.0.0", port=port)
