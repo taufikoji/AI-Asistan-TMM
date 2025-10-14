@@ -2,7 +2,9 @@ Flask
 requests
 python-dotenv
 flask-cors
-google-generativeai
+#google-generativeai
+google-genai==0.3.0
+google-api-core==2.19.2
 langdetect==1.0.9
 pyspellchecker==0.7.0
 python-dateutil
