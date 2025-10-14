@@ -8,6 +8,7 @@ pyspellchecker==0.7.0
 python-dateutil
 gunicorn
 textblob==0.17.1
+language-tool-python
 #idnspell==1.1.0
 symspellpy==6.7.6
 #beautifulsoup4
