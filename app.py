@@ -24,10 +24,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "timu-secret-key")
 CORS(app)
 
-# ===================== KONFIGURASI GEMINI (SDK BARU) =====================
+# ===================== GEMINI CLIENT =====================
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# ===================== LOAD DATA KAMPUS =====================
+# ===================== LOAD DATA =====================
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -39,7 +39,7 @@ except Exception as e:
     logger.critical("Gagal memuat JSON kampus: %s", str(e))
     TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
 
-# ===================== SYMSPELL UNTUK KOREKSI TYPO =====================
+# ===================== SYMSPELL =====================
 symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("⚠️ Kamus SymSpell gagal dimuat. Koreksi typo dinonaktifkan.")
@@ -134,7 +134,7 @@ def chatroom():
     session.clear()
     return render_template("chatroom.html")
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
         if request.form.get("password") == ADMIN_PASSWORD:
@@ -174,37 +174,34 @@ def download_brosur():
 def chat():
     data = request.get_json()
     if not data or "message" not in data:
-        return jsonify({"error": "Pesan tidak ditemukan."}), 400
+        return jsonify({"error":"Pesan tidak ditemukan."}), 400
 
     message = data["message"].strip()
     if not message:
-        return jsonify({"error": "Pesan kosong."}), 400
+        return jsonify({"error":"Pesan kosong."}), 400
 
     lang = detect_language(message)
     corrected = correct_typo(message)
 
     if "conversation" not in session:
         session["conversation"] = []
-    session["conversation"].append({"role": "user", "content": corrected})
+    session["conversation"].append({"role":"user","content":corrected})
     session["conversation"] = session["conversation"][-50:]
 
     kategori = get_category(corrected)
-    context = TRISAKTI.get("current_context", {})
+    context = TRISAKTI.get("current_context",{})
     registration_summary = get_current_registration_status()
 
-    # === Jika minta brosur ===
+    # === Brosur ===
     if kategori == "brosur":
         base_url = request.host_url.rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
-        reply = (
-            "📄 Brosur resmi TMM siap diunduh!<br><br>"
-            f"<a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
-        )
-        session["conversation"].append({"role": "bot", "content": reply})
+        reply = f"📄 Brosur resmi TMM siap diunduh!<br><br><a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
+        session["conversation"].append({"role":"bot","content":reply})
         save_chat(corrected, reply)
-        return jsonify({"reply": reply})
+        return jsonify({"reply":reply})
 
-    # === Jika cocok dengan alias jurusan ===
+    # === Alias jurusan ===
     matched_program = find_program_by_alias(corrected)
     if matched_program:
         reply = (
@@ -214,51 +211,49 @@ def chat():
             f"🏫 Akreditasi: {matched_program['accreditation']}<br>"
             f"{'🕓 Tersedia kelas malam.' if matched_program['evening_class'] else 'Tidak tersedia kelas malam.'}"
         )
-        session["conversation"].append({"role": "bot", "content": reply})
+        session["conversation"].append({"role":"bot","content":reply})
         save_chat(corrected, reply)
-        return jsonify({"reply": reply})
+        return jsonify({"reply":reply})
 
-    # === PROMPT UNTUK GEMINI 2.5 ===
-    short_history = session.get("conversation", [])[-6:]
-    system_prompt = (
-        "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
-        "Jawablah dengan sopan, natural, dan sesuai konteks bahasa pengguna. "
-        "Gunakan data berikut sebagai sumber utama:\n\n"
-        f"{json.dumps(TRISAKTI, ensure_ascii=False)}"
-        f"\n\nStatus Pendaftaran:\n{registration_summary}\n\n"
-        f"Riwayat Singkat:\n{json.dumps(short_history, ensure_ascii=False)}"
-    )
+    # === Pendaftaran / Gelombang ===
+    if kategori == "pendaftaran":
+        reply = f"📝 Status pendaftaran saat ini:\n{registration_summary}"
+        session["conversation"].append({"role":"bot","content":reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply":reply})
 
-    user_prompt = (
-        f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
-        f"Pertanyaan: {corrected}\nBahasa: {lang.upper()}\n"
-        "Jawablah singkat, informatif, dan mudah dipahami."
+    # === General Chat via Gemini ===
+    prompt = (
+        f"Anda adalah asisten kampus TMM (Trisakti School of Multimedia). "
+        f"Jawab pertanyaan user dengan sopan dan informatif. "
+        f"Sertakan info dari JSON kampus bila relevan. "
+        f"Pesan user: {corrected}\n\n"
+        f"Status pendaftaran saat ini: {registration_summary}\n"
+        f"Bahasa user: {lang}\n"
+        f"Berikan jawaban yang jelas dan singkat, gunakan format HTML jika perlu."
     )
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=system_prompt + "\n\n" + user_prompt
+        response = client.generate_text(
+            model="gemini-1.5",
+            prompt=prompt,
+            max_output_tokens=500
         )
-        reply = clean_response(response.text.strip()).replace("TSM", "TMM")
-        reply = format_links(reply)
+        ai_text = clean_response(response.text)
+    except google_exceptions.GoogleAPICallError as e:
+        logger.error("Gemini API error: %s", str(e))
+        ai_text = "❌ Maaf, layanan AI sedang tidak tersedia. Silakan coba lagi nanti."
 
-        if not reply.strip():
-            reply = f"Maaf, saya belum punya info untuk itu. Hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')}."
+    ai_text = format_links(ai_text)
+    session["conversation"].append({"role":"bot","content":ai_text})
+    save_chat(corrected, ai_text)
+    return jsonify({"reply":ai_text})
 
-        session["conversation"].append({"role": "bot", "content": reply})
-        save_chat(corrected, reply)
-        return jsonify({"reply": reply})
+@app.route("/api/clear-session", methods=["POST"])
+def clear_session():
+    session.pop("conversation", None)
+    return jsonify({"status":"ok"})
 
-    except google_exceptions.GoogleAPIError as e:
-        logger.error("Gemini API Error: %s", str(e))
-        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti."}), 500
-    except Exception as e:
-        logger.error("Internal Error: %s", str(e))
-        return jsonify({"error": "Kesalahan sistem internal."}), 500
-
-# ===================== MAIN APP =====================
+# ===================== RUN =====================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    logger.info(f"🚀 TIMU berjalan di port {port}")
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, port=5000)
