@@ -1,56 +1,40 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TIMU AI – Chatroom</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TIMU AI - Chat</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
+<body class="chatroom-page">
 
-<body class="chatroom-body">
-  <div class="chat-wrapper">
+  <div class="chat-container">
+    <!-- HEADER -->
+    <div class="chat-header">
+      <img src="assets/logo.png" alt="Logo TIMU" style="height:32px;">
+      <span>TIMU AI</span>
+    </div>
 
-    <!-- Header -->
-    <header class="chat-header glassy">
-      <div class="header-left">
-        <img src="{{ url_for('static', filename='img/timu-logo.png') }}" alt="TIMU Logo" class="timu-logo" />
-        <div>
-          <h1>TIMU AI</h1>
-          <p>Asisten Cerdas Trisakti School of Multimedia</p>
-        </div>
+    <!-- CHAT AREA -->
+    <div class="chat-box" id="chat-box">
+      <div class="message bot">
+        👋 Halo, saya <strong>TIMU!</strong><br>
+        Tanyakan apapun seputar jurusan, beasiswa, dan pendaftaran di Trisakti School of Multimedia.
       </div>
-      <button class="exit-btn" onclick="window.location.href='/'">Keluar</button>
-    </header>
+    </div>
 
-    <!-- Chat Area -->
-    <main class="chat-area" id="chat-box">
-      <div class="welcome-message">
-        <h2>👋 Halo, saya TIMU!</h2>
-        <p>Tanyakan apapun seputar jurusan, beasiswa, dan pendaftaran di TMM.</p>
-      </div>
-    </main>
-
-    <!-- Typing Indicator -->
-    <div class="typing-indicator" id="typing-indicator" style="display: none;">
+    <!-- TYPING INDICATOR -->
+    <div id="typing-indicator" class="typing-indicator" style="display:none;">
       <span></span><span></span><span></span>
     </div>
 
-    <!-- Input Area -->
-    <form id="chat-form" class="chat-input">
+    <!-- INPUT AREA -->
+    <form id="chat-form" class="chat-form">
       <input type="text" id="user-input" placeholder="Ketik pesan di sini..." autocomplete="off" required />
-      <button type="submit" class="send-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
-          <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
-        </svg>
-      </button>
+      <button type="submit">Kirim</button>
     </form>
-
   </div>
 
-  <!-- JS -->
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
