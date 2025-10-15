@@ -1,97 +1,109 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("chat-form");
-  const input = document.getElementById("user-input");
-  const chatBox = document.getElementById("chat-box");
-  const typing = document.getElementById("typing-indicator");
+// ===================== Elements =====================
+const chatBox = document.getElementById("chat-box");
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
+const typingIndicator = document.getElementById("typing-indicator");
+const btnClear = document.getElementById("btn-clear");
+const voiceBtn = document.getElementById("voice-btn");
 
-  // Muat riwayat obrolan sebelumnya
-  fetch("/api/chat?init=true")
-    .then(res => res.json())
-    .then(data => {
-      if (data.conversation) {
-        data.conversation.forEach(msg => {
-          if (msg.role === "bot") {
-            renderBotMessage(msg.content, false);
-          } else {
-            renderMessage(msg.role, msg.content);
-          }
-        });
-      }
+// ===================== Voice Chat =====================
+let recognizing = false;
+let recognition;
+
+if ('webkitSpeechRecognition' in window) {
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = 'id-ID';
+  recognition.continuous = false;
+
+  recognition.onstart = () => { 
+    recognizing = true; 
+    voiceBtn.textContent = '🎙️';
+  };
+
+  recognition.onend = () => { 
+    recognizing = false; 
+    voiceBtn.textContent = '🎤'; 
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    chatInput.value = transcript;
+  };
+}
+
+voiceBtn.addEventListener("click", () => {
+  if (!recognition) return alert("Browser tidak mendukung voice input");
+  if (recognizing) recognition.stop();
+  else recognition.start();
+});
+
+// ===================== Send Chat =====================
+chatForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const message = chatInput.value.trim();
+  if (!message) return;
+  appendMessage("user", message);
+  chatInput.value = "";
+  await sendMessage(message);
+});
+
+// ===================== Clear Chat =====================
+btnClear.addEventListener("click", () => {
+  chatBox.innerHTML = "";
+  fetch("/api/clear-session", { method: "POST" }).catch(() => {});
+});
+
+// ===================== Append Message =====================
+function appendMessage(sender, text) {
+  const div = document.createElement("div");
+  div.classList.add("message", sender);
+  div.innerHTML = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// ===================== Typing Indicator =====================
+function showTyping(show=true){
+  typingIndicator.style.display = show ? "flex" : "none";
+}
+
+// ===================== Send to Backend =====================
+async function sendMessage(msg) {
+  showTyping(true);
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({message: msg})
     });
 
-  // Kirim pesan user
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const message = input.value.trim();
-    if (!message) return;
+    const data = await res.json();
+    showTyping(false);
 
-    renderMessage("user", message);
-    input.value = "";
-    typing.style.display = "flex";
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-
-      const data = await res.json();
-      typing.style.display = "none";
-
-      if (data.reply) {
-        renderBotMessage(data.reply, true);
-      } else if (data.error) {
-        renderMessage("bot", "⚠️ " + data.error);
-      }
-    } catch (err) {
-      typing.style.display = "none";
-      renderMessage("bot", "⚠️ Terjadi kesalahan jaringan.");
+    if(data.reply){
+      appendMessage("bot", formatLinks(data.reply));
+      speakMessage(data.reply);
+    } else if(data.error){
+      appendMessage("bot", `❌ ${data.error}`);
     }
+
+  } catch (err) {
+    showTyping(false);
+    appendMessage("bot", "❌ Koneksi gagal. Coba lagi.");
+  }
+}
+
+// ===================== Text-to-Speech =====================
+function speakMessage(text){
+  if(!window.speechSynthesis) return;
+  const utter = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
+  utter.lang = 'id-ID';
+  window.speechSynthesis.speak(utter);
+}
+
+// ===================== Format Links =====================
+function formatLinks(text){
+  return text.replace(/(https?:\/\/[^\s<>'"]+)/g, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">🔗 Klik di sini</a>`;
   });
-
-  // Render pesan user/bot biasa
-  function renderMessage(role, text) {
-    const div = document.createElement("div");
-    div.classList.add("message", role);
-    div.innerHTML = text;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
-
-  // Render bot message dengan efek ketik & HTML bisa diklik
-  function renderBotMessage(htmlText, withTyping = true) {
-    const container = document.createElement("div");
-    container.classList.add("message", "bot");
-    chatBox.appendChild(container);
-
-    if (!withTyping) {
-      container.innerHTML = htmlText;
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return;
-    }
-
-    let temp = "";
-    let index = 0;
-
-    function typeChar() {
-      if (index < htmlText.length) {
-        temp += htmlText[index++];
-        container.textContent = temp;
-        chatBox.scrollTop = chatBox.scrollHeight;
-        setTimeout(typeChar, 10);
-      } else {
-        // Ketikan selesai, ubah ke bentuk HTML DOM
-        const parser = new DOMParser();
-        const frag = parser.parseFromString(temp, "text/html").body;
-        container.innerHTML = ""; // Kosongkan sementara
-        while (frag.firstChild) {
-          container.appendChild(frag.firstChild);
-        }
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }
-    }
-
-    typeChar();
-  }
-});
+}
