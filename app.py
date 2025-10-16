@@ -1,4 +1,4 @@
-Ya. Ini aku berikan app full milikku. Lalu kamu perbarui dan berikan kembali kepada secara full agar fungsi fungsi yang lain tetap berfungsi: import os
+import os
 import json
 import logging
 import re
