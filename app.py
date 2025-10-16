@@ -38,7 +38,6 @@ JSON_PATH = os.path.join(os.path.dirname(__file__), "trisakti_info.json")
 try:
     with open(JSON_PATH, "r", encoding="utf-8") as jf:
         TRISAKTI = json.load(jf)
-    # populate current_context date/time if empty
     now = datetime.now()
     TRISAKTI.setdefault("current_context", {})
     TRISAKTI["current_context"]["date"] = TRISAKTI["current_context"].get("date") or now.strftime("%d %B %Y")
@@ -72,19 +71,41 @@ def detect_language(text):
         return "id"
 
 def clean_response(text):
-    # remove undesirable markdown characters
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    # convert http(s) urls in AI responses to safe HTML links, avoid duplicates
+    """
+    Deteksi URL dalam teks dan ubah jadi <a href> HTML.
+    Hindari duplikat dan jangan ubah link yang sudah dalam format HTML.
+    """
+    if not text:
+        return text
+
     seen = set()
-    def repl(m):
-        url = m.group(0)
-        if url in seen:
+
+    # Abaikan link yang sudah dikonversi ke HTML <a href="...">
+    def repl(match):
+        url = match.group(0)
+        # Lewati jika sudah berupa HTML <a href=...>
+        if re.search(r"<a\s+href=", url, flags=re.I):
+            return url
+
+        # Normalisasi URL untuk mencegah duplikasi
+        normalized = url.strip().rstrip("/").lower()
+        if normalized in seen:
             return ""
-        seen.add(url)
+        seen.add(normalized)
+
+        # Buat tautan aman
         return f"<a href='{url}' target='_blank' rel='noopener noreferrer'>🔗 {url}</a>"
-    return re.sub(r"(https?://[^\s<>'\"()]+)", repl, text)
+
+    # Regex tangkap URL tapi abaikan yang sudah dalam tag <a>
+    pattern = r"(?<!href=['\"])(https?://[^\s<>'\"()]+)"
+    formatted = re.sub(pattern, repl, text)
+
+    # Hapus spasi ganda akibat penghapusan duplikat
+    formatted = re.sub(r"\s{2,}", " ", formatted).strip()
+    return formatted
 
 def save_chat(user_msg, ai_msg):
     try:
@@ -110,7 +131,6 @@ def get_current_registration_status():
         for p in TRISAKTI.get("registration", {}).get("paths", []):
             for w in p.get("waves", []):
                 period = w.get("period", "")
-                # some period entries may already be normalized (with " - "), else skip human-readable ones
                 if " - " not in period:
                     continue
                 start_str, end_str = [s.strip() for s in period.split(" - ")]
@@ -134,20 +154,15 @@ def get_current_registration_status():
 def find_program_by_alias(query):
     q = query.lower()
     for prog in TRISAKTI.get("academic_programs", []):
-        # check top-level aliases
         for a in prog.get("aliases", []):
             if a.lower() in q or q in a.lower():
                 return prog
-        # check specializations aliases (if any)
         specs = prog.get("specializations", [])
         if isinstance(specs, list):
-            # some specs are dicts (for DKV), support both
             for s in specs:
                 if isinstance(s, dict):
-                    # check title + aliases inside specialization
                     title = s.get("title", "").lower()
                     if title and (title in q or q in title):
-                        # return a synthesized program view for that specialization
                         clone = {
                             "name": prog["name"],
                             "description": prog.get("description", ""),
@@ -163,7 +178,6 @@ def find_program_by_alias(query):
 @app.route("/")
 def landing():
     session.clear()
-    # minimal landing template expected at templates/landing.html
     return render_template("landing.html")
 
 @app.route("/chat")
@@ -227,7 +241,6 @@ def api_chat():
     category = get_category(corrected)
     reg_status = get_current_registration_status()
 
-    # category exact handlers
     if category == "brosur":
         brosur_url = url_for("download_brosur", _external=True)
         reply = f"📄 Brosur resmi TMM siap diunduh:<br><a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
@@ -236,7 +249,6 @@ def api_chat():
         return jsonify({"reply": reply})
 
     if category in ("pendaftaran", "registration"):
-        # collect unique links from registration paths
         links = []
         for p in TRISAKTI.get("registration", {}).get("paths", []):
             l = p.get("link")
@@ -248,12 +260,9 @@ def api_chat():
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # program alias
     program = find_program_by_alias(corrected)
     if program:
-        # unify program representation to show specializations nicely
         specs = program.get("specializations") or []
-        # if specs contains dict entries (DKV), normalize for display
         if specs and isinstance(specs[0], dict):
             specs_list = [s.get("title") for s in specs]
         else:
@@ -273,7 +282,6 @@ def api_chat():
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # fallback: send to Gemini
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia (TMM). "
@@ -294,7 +302,6 @@ def api_chat():
         reply_text = clean_response(response.text.strip())
         reply_text = format_links(reply_text)
 
-        # if reply is empty or contains apology/no info token, use fallback contact
         if not reply_text or re.search(r"\b(maaf|tidak tahu|belum)\b", reply_text, flags=re.I):
             kontak = TRISAKTI.get("institution", {}).get("contact", {})
             wa = kontak.get("whatsapp")
