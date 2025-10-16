@@ -208,7 +208,7 @@ def chat():
     matched_program = find_program_by_alias(corrected)
     if matched_program:
         reply = (
-            f"Program **{matched_program['name']}** adalah jurusan yang {matched_program['description'].lower()}<br><br>"
+            f"Program {matched_program['name']} adalah jurusan yang {matched_program['description'].lower()}<br><br>"
             f"📚 Spesialisasi: {', '.join(matched_program['specializations'])}<br>"
             f"🎓 Prospek Karier: {', '.join(matched_program['career_prospects'])}<br>"
             f"🏫 Akreditasi: {matched_program['accreditation']}<br>"
