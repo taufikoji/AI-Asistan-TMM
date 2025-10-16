@@ -27,7 +27,7 @@ CORS(app)
 # ===================== KONFIGURASI GEMINI (SDK BARU) =====================
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# ===================== LOAD DATA KAMPUS =====================
+# ===================== LOAD DATA JSON =====================
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -111,7 +111,11 @@ def get_current_registration_status():
                 else:
                     status = f"{wave_name} ({path['name']}) sudah ditutup {end.strftime('%d %B %Y')}."
                 summary.append(status)
-        return "\n".join(summary) if summary else "Belum ada informasi pendaftaran."
+        link = TRISAKTI.get("registration", {}).get("link", "")
+        summary_text = "\n".join(summary) if summary else "Belum ada informasi pendaftaran."
+        if link:
+            summary_text += f"\n🔗 Link pendaftaran: {link}"
+        return summary_text
     except:
         return "Status pendaftaran tidak tersedia."
 
@@ -121,48 +125,6 @@ def find_program_by_alias(query):
         for alias in prog.get("aliases", []):
             if query in alias.lower() or alias.lower() in query:
                 return prog
-    return None
-
-def get_registration_info(query):
-    query = query.lower()
-    result = []
-    today = datetime.now().date()
-    for path in TRISAKTI.get("registration", {}).get("paths", []):
-        path_name = path.get("name", "")
-        if path_name.lower() in query or any(k in query for k in ["pendaftaran", "jalur", "gelombang", "biaya"]):
-            for wave in path.get("waves", []):
-                wave_name = wave.get("wave", "Gelombang")
-                period = wave.get("period", "")
-                if " - " not in period:
-                    continue
-                start_str, end_str = [s.strip() for s in period.split(" - ")]
-                try:
-                    start = parse_date(start_str, dayfirst=True).date()
-                    end = parse_date(end_str, dayfirst=True).date()
-                except:
-                    continue
-                biaya = TRISAKTI.get("registration", {}).get("cost", "Gratis")
-                if today < start:
-                    status = f"{wave_name} ({path_name}) akan dibuka {start.strftime('%d %B %Y')} dengan biaya {biaya}."
-                elif start <= today <= end:
-                    status = f"{wave_name} ({path_name}) sedang berlangsung hingga {end.strftime('%d %B %Y')}. Biaya: {biaya}."
-                else:
-                    status = f"{wave_name} ({path_name}) sudah ditutup {end.strftime('%d %B %Y')}. Biaya: {biaya}."
-                result.append(status)
-    return "\n".join(result) if result else None
-
-def get_beasiswa_info(query):
-    query = query.lower()
-    for bea in TRISAKTI.get("scholarships", []):
-        if any(k in query for k in ["beasiswa", "kip", "bantuan biaya", "scholarship"]) or bea["name"].lower() in query:
-            return f"{bea['name']}: {bea['description']}\nPersyaratan: {', '.join(bea['requirements'])}\nProses: {bea['process']}"
-    return None
-
-def get_faq_info(query):
-    query = query.lower()
-    for faq in TRISAKTI.get("faq", []):
-        if all(word in query for word in faq["question"].lower().split()[:3]):
-            return faq["answer"]
     return None
 
 # ===================== ROUTES =====================
@@ -260,31 +222,7 @@ def chat():
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # === Jika menanyakan pendaftaran ===
-    reg_info = get_registration_info(corrected)
-    if reg_info:
-        reply = reg_info
-        session["conversation"].append({"role": "bot", "content": reply})
-        save_chat(corrected, reply)
-        return jsonify({"reply": reply})
-
-    # === Jika menanyakan beasiswa ===
-    bea_info = get_beasiswa_info(corrected)
-    if bea_info:
-        reply = bea_info
-        session["conversation"].append({"role": "bot", "content": reply})
-        save_chat(corrected, reply)
-        return jsonify({"reply": reply})
-
-    # === Jika menanyakan FAQ ===
-    faq_info = get_faq_info(corrected)
-    if faq_info:
-        reply = faq_info
-        session["conversation"].append({"role": "bot", "content": reply})
-        save_chat(corrected, reply)
-        return jsonify({"reply": reply})
-
-    # === PROMPT UNTUK GEMINI 2.5 (fallback) ===
+    # === PROMPT UNTUK GEMINI 2.5 ===
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
