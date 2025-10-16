@@ -2,17 +2,16 @@ import os
 import json
 import logging
 import re
-from datetime import datetime
-from dateutil.parser import parse as parse_date
-
-from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
-from flask_cors import CORS
-from dotenv import load_dotenv
-from langdetect import detect
-from symspellpy.symspellpy import SymSpell, Verbosity
-from google import genai
 import requests
 from bs4 import BeautifulSoup
+from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
+from dotenv import load_dotenv
+from flask_cors import CORS
+from datetime import datetime
+from dateutil.parser import parse as parse_date
+from google import genai
+from langdetect import detect
+from symspellpy.symspellpy import SymSpell, Verbosity
 from google.api_core import exceptions as google_exceptions
 
 # ===================== KONFIGURASI DASAR =====================
@@ -33,7 +32,7 @@ CORS(app)
 # ===================== KONFIGURASI GEMINI =====================
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# ===================== LOAD JSON =====================
+# ===================== LOAD DATA JSON =====================
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -131,21 +130,22 @@ def find_program_by_alias(query):
 
 # ===================== WEB SCRAPING =====================
 def scrape_website(query):
-    """Fallback jika JSON tidak punya jawaban, ambil info dari website TMM"""
     try:
-        url = "https://trisaktimultimedia.ac.id"
-        r = requests.get(url, timeout=5)
-        if r.status_code != 200:
+        url = TRISAKTI.get("institution", {}).get("website")
+        if not url:
             return None
-        soup = BeautifulSoup(r.text, "html.parser")
-        # Cari teks relevan yang mengandung query
-        texts = soup.stripped_strings
-        results = [t for t in texts if query.lower() in t.lower()]
-        if results:
-            return " ".join(results[:5])
+        resp = requests.get(url, timeout=5)
+        if resp.status_code != 200:
+            return None
+        soup = BeautifulSoup(resp.text, "html.parser")
+        # Cari teks yang relevan
+        for p in soup.find_all(["p","li"]):
+            text = p.get_text().strip()
+            if query.lower() in text.lower():
+                return text
         return None
     except Exception as e:
-        logger.warning("Scraping gagal: %s", str(e))
+        logger.warning("Web scraping error: %s", str(e))
         return None
 
 # ===================== ROUTES =====================
@@ -217,20 +217,19 @@ def chat():
     context = TRISAKTI.get("current_context", {})
     registration_summary = get_current_registration_status()
 
-    # === Jika minta brosur ===
+    # ================= JSON CHECK =================
     if kategori == "brosur":
         base_url = request.host_url.rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
-        reply = f"📄 Brosur resmi TMM siap diunduh!<br><br><a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
+        reply = f"📄 Brosur resmi TMM siap diunduh!<br><a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # === Jika cocok dengan alias jurusan ===
     matched_program = find_program_by_alias(corrected)
     if matched_program:
         reply = (
-            f"Program {matched_program['name']} adalah jurusan yang {matched_program['description'].lower()}<br><br>"
+            f"Program {matched_program['name']} adalah jurusan yang {matched_program['description'].lower()}<br>"
             f"📚 Spesialisasi: {', '.join(matched_program['specializations'])}<br>"
             f"🎓 Prospek Karier: {', '.join(matched_program['career_prospects'])}<br>"
             f"🏫 Akreditasi: {matched_program['accreditation']}<br>"
@@ -241,22 +240,23 @@ def chat():
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # === PROMPT GEMINI ===
+    # ================= WEB SCRAPING =================
+    scraped = scrape_website(corrected)
+    if scraped:
+        reply = f"Berikut info tambahan dari website resmi TMM:\n{scraped}\n\nJika perlu info lebih lengkap, silakan hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')} atau Instagram {TRISAKTI['institution']['contact']['social_media'].get('instagram')}."
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
+
+    # ================= GEMINI FALLBACK =================
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
         "Jawablah sopan, natural, dan kontekstual. "
-        "Gunakan data berikut sebagai sumber utama:\n\n"
-        f"{json.dumps(TRISAKTI, ensure_ascii=False)}"
-        f"\n\nStatus Pendaftaran:\n{registration_summary}\n\n"
-        f"Riwayat Singkat:\n{json.dumps(short_history, ensure_ascii=False)}"
+        "Gunakan data JSON sebagai referensi utama. "
+        "Jika data tidak ada, berikan jawaban relevan namun tetap sarankan untuk menghubungi petugas via WA/IG."
     )
-
-    user_prompt = (
-        f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
-        f"Pertanyaan: {corrected}\nBahasa: {lang.upper()}\n"
-        "Jawablah singkat, informatif, dan mudah dipahami."
-    )
+    user_prompt = f"Pertanyaan: {corrected}\nBahasa: {lang.upper()}\nRiwayat singkat: {json.dumps(short_history, ensure_ascii=False)}"
 
     try:
         response = client.models.generate_content(
@@ -264,29 +264,19 @@ def chat():
             contents=system_prompt + "\n\n" + user_prompt
         )
         reply = clean_response(response.text.strip()).replace("TSM", "TMM")
+        reply += f"\n\n📱 Untuk info lebih lengkap, hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')} atau Instagram {TRISAKTI['institution']['contact']['social_media'].get('instagram')}."
         reply = format_links(reply)
-
-        # === Jika jawaban Gemini kosong, fallback ke web scraping ===
-        if not reply.strip():
-            scraped = scrape_website(corrected)
-            if scraped:
-                reply = f"Berikut info tambahan dari website resmi TMM:\n{scraped}"
-            else:
-                reply = f"Maaf, saya belum punya info untuk itu. Hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')}."
-
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
+    except Exception as e:
+        logger.error("Gemini fallback error: %s", str(e))
+        reply = f"Maaf, saya belum bisa memberikan jawaban lengkap. Hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')} atau Instagram {TRISAKTI['institution']['contact']['social_media'].get('instagram')}."
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    except google_exceptions.GoogleAPIError as e:
-        logger.error("Gemini API Error: %s", str(e))
-        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti."}), 500
-    except Exception as e:
-        logger.error("Internal Error: %s", str(e))
-        return jsonify({"error": "Kesalahan sistem internal."}), 500
-
 # ===================== MAIN =====================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    logger.info(f"🚀 TIMU berjalan di port {port}")
-    app.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
