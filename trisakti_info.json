@@ -214,7 +214,7 @@
   ],
 
   "keywords": {
-    "brosur": ["brosur", "download brosur", "minta brosur", "brosur kampus"],
+    "brosur": ["brosur","leaflet", "download brosur", "minta brosur", "brosur kampus"],
     "alamat": ["alamat kampus", "lokasi kampus", "dimana kampus"],
     "prodi": ["jurusan", "program studi", "s1", "d4", "animasi", "iklan", "kemasan", "broadcasting"],
     "beasiswa": ["beasiswa", "kip", "bantuan biaya", "scholarship"],
