@@ -46,7 +46,7 @@ try:
 except Exception as e:
     logger.critical("Gagal memuat trisakti_info.json: %s", str(e))
     TRISAKTI = {
-        "institution": {"contact": {"whatsapp": "+6287742997808", "instagram": "https://www.instagram.com/tmm_trisakti?igsh=bHFhdGhiM3FpejN3"}}
+        "institution": {"contact": {"whatsapp": "+6287742997808", "instagram": "https://www.instagram.com/tmm_trisakti"}}
     }
 
 # -------------------- SymSpell (typo correction) --------------------
