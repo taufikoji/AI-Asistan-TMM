@@ -7,37 +7,41 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="chatgpt-style">
+
+  <header class="chat-header">
+    <!-- Ikon di kiri -->
+    <div class="chat-header-icon">
+      <img src="{{ url_for('static', filename='img/timu.png') }}" alt="TIMU Icon">
+    </div>
+
+    <!-- Judul/header di tengah (CSS akan menengahkan) -->
+    <div class="chat-header-title">
+      <strong>TIMU AI</strong>
+      <span>• Asisten Multimedia</span>
+    </div>
+  </header>
+
   <div class="chat-wrapper">
-    <!-- Header -->
-    <header class="chat-header">
-      <div class="chat-header-inner">
-        <div class="chat-header-icon">
-  <img src="{{ url_for('static', filename='img/timu.png') }}" alt="TIMU Icon">
-</div>
-<div class="chat-header-title">TIMU AI <span>• Asisten Multimedia</span></div>
-      </div>
-    </header>
+    <!-- Area chat -->
+    <main id="chat-box" class="chat-box" aria-live="polite"></main>
 
-    <!-- Chat Area -->
-    <main id="chat-box" class="chat-box"></main>
-
-    <!-- Typing Indicator -->
+    <!-- Typing indicator (JS lama dapat mengontrol display) -->
     <div class="typing-indicator" id="typing-indicator" style="display: none;">
       <span></span><span></span><span></span>
     </div>
 
-    <!-- Input Area -->
-    <form id="chat-form" class="chat-input-area">
+    <!-- Input area (form id tetap: chat-form) -->
+    <form id="chat-form" class="chat-input-area" action="#" method="post">
       <div class="input-container">
-        <input 
-          type="text" 
-          id="user-input" 
-          class="chat-input" 
-          placeholder="Ketik pesan di sini..." 
-          autocomplete="off" 
+        <input
+          type="text"
+          id="user-input"
+          class="chat-input"
+          placeholder="Ketik pesan di sini..."
+          autocomplete="off"
           required
         />
-        <button type="submit" class="send-btn">
+        <button type="submit" class="send-btn" aria-label="Kirim">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h13M12 5l7 7-7 7" />
           </svg>
@@ -46,7 +50,6 @@
     </form>
   </div>
 
-  <!-- Script -->
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
