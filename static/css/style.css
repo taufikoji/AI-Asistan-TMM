@@ -98,6 +98,12 @@ body.chatgpt-style {
   font-weight: 600;
   font-size: 1.1rem;
   border-bottom: 3px solid var(--maroon-dark);
+.chat-header-icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 6px;
+}
 }
 
 .chat-header span {
