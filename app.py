@@ -115,12 +115,55 @@ def get_current_registration_status():
     except:
         return "Status pendaftaran tidak tersedia."
 
+# ===================== CARI PROGRAM DENGAN ALIAS =====================
 def find_program_by_alias(query):
     query = query.lower()
+    matched_program = None
+
+    # Cek program sesuai alias
     for prog in TRISAKTI.get("academic_programs", []):
         for alias in prog.get("aliases", []):
-            if query in alias.lower() or alias.lower() in query:
-                return prog
+            if alias.lower() in query or query in alias.lower():
+                matched_program = prog
+                break
+        if matched_program:
+            break
+
+    if matched_program:
+        # Jika user hanya sebut "DKV" atau nama umum, tampilkan ringkasan semua spesialisasi
+        if "dkv" in query.lower() or "desain komunikasi visual" in query.lower():
+            reply = {
+                "name": "Sarjana Desain Komunikasi Visual (S1)",
+                "description": "Program Sarjana Desain Komunikasi Visual (DKV) mencakup beberapa spesialisasi, meliputi Animasi & Game, Iklan & Branding, dan Multimedia Broadcasting.",
+                "specializations": ["Animasi & Game", "Iklan & Branding", "Multimedia Broadcasting"],
+                "career_prospects": ["Animator", "Game Developer", "Creative Director", "Art Director", "Multimedia Producer", "Content Creator", "Broadcast Technician"],
+                "accreditation": "B",
+                "evening_class": False
+            }
+            return reply
+
+        # Jika sebut spesialisasi tertentu, kembalikan yang sesuai
+        for sp in matched_program.get("specializations", []):
+            if sp.lower() in query:
+                return {
+                    "name": f"{matched_program['name']} - {sp}",
+                    "description": matched_program.get("description", ""),
+                    "specializations": [sp],
+                    "career_prospects": matched_program.get("career_prospects", []),
+                    "accreditation": matched_program.get("accreditation", ""),
+                    "evening_class": matched_program.get("evening_class", False)
+                }
+
+        # Default kembalikan program
+        return {
+            "name": matched_program["name"],
+            "description": matched_program.get("description", ""),
+            "specializations": matched_program.get("specializations", []),
+            "career_prospects": matched_program.get("career_prospects", []),
+            "accreditation": matched_program.get("accreditation", ""),
+            "evening_class": matched_program.get("evening_class", False)
+        }
+
     return None
 
 # ===================== ROUTES =====================
@@ -204,7 +247,7 @@ def chat():
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # === Jika cocok dengan alias jurusan ===
+    # === Jika cocok dengan alias jurusan/spesialisasi ===
     matched_program = find_program_by_alias(corrected)
     if matched_program:
         reply = (
