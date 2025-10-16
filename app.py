@@ -270,13 +270,14 @@ def api_chat():
         career = program.get("career_prospects") or []
         accreditation = program.get("accreditation", "BAIK")
         evening_class = program.get("evening_class", False)
+        evening_class
         reply = (
             f"🎓 <b>{program.get('name')}</b><br>"
             f"{program.get('description', '')}<br><br>"
             f"📚 Spesialisasi: {', '.join(specs_list) if specs_list else 'Tidak tersedia'}<br>"
             f"🎯 Prospek Karier: {', '.join(career) if career else 'Tidak tersedia'}<br>"
             f"🏫 Akreditasi: {accreditation}<br>"
-            f"{'🕓 Tersedia kelas malam (Alih Jenjang/AJ).' if evening_class else 'Kelas malam hanya untuk AJ/Alih Jenjang.'}"
+            f"{'🕓 Tersedia kelas malam (Alih Jenjang/AJ).' if evening_class else 'Tidak Tersedia Kelas Malam.'}"
         )
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
