@@ -65,7 +65,7 @@
       "description": "Fokus pada animasi digital dan desain permainan, dengan pelatihan storytelling, animasi 2D/3D, dan pengembangan game.",
       "specializations": ["Animation & Games"],
       "career_prospects": ["Animator", "Game Developer", "Storyboard Artist"],
-      "accreditation": "B",
+      "accreditation": "Baik",
       "evening_class": false,
       "curriculum": "Mata kuliah mencakup animasi 2D/3D, storytelling, pengembangan game interaktif, dan teknologi animasi digital.",
       "aliases": [
@@ -87,8 +87,8 @@
       "description": "Membekali kemampuan merancang kampanye iklan visual efektif, fokus pada branding dan strategi pemasaran.",
       "specializations": ["Graphic Advertising"],
       "career_prospects": ["Creative Director", "Visual Branding Specialist", "Art Director"],
-      "accreditation": "B",
-      "evening_class": false,
+      "accreditation": "Baik",
+      "evening_class": true,
       "curriculum": "Mata kuliah meliputi komunikasi visual, strategi branding, dan desain iklan kreatif.",
       "aliases": [
         "DKV",
@@ -109,7 +109,7 @@
       "description": "Mengembangkan keahlian di media penyiaran digital, produksi konten multimedia, dan teknologi siaran terkini.",
       "specializations": ["Multimedia Broadcasting"],
       "career_prospects": ["Multimedia Producer", "Content Creator", "Broadcast Technician"],
-      "accreditation": "B",
+      "accreditation": "Baik",
       "evening_class": false,
       "curriculum": "Mata kuliah mencakup produksi multimedia, teknologi siaran, dan pengeditan audio-visual.",
       "aliases": [
@@ -130,10 +130,10 @@
   "accreditation": {
     "overall": "BAIK (BAN-PT)",
     "programs": {
-      "Desain dan Teknologi Kemasan": "B",
-      "Desain Animasi dan Games": "B",
-      "Desain Visual Periklanan": "B",
-      "Multimedia Broadcasting": "B"
+      "Desain dan Teknologi Kemasan": "Baik",
+      "Desain Animasi dan Games": "Baik",
+      "Desain Visual Periklanan": "Baik",
+      "Multimedia Broadcasting": "Baik"
     }
   },
   "facilities": [
