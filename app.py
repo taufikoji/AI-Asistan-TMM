@@ -7,8 +7,6 @@ from dateutil.parser import parse as parse_date
 from google import genai
 from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
-from bs4 import BeautifulSoup
-import requests
 from google.api_core import exceptions as google_exceptions
 
 # ===================== KONFIGURASI DASAR =====================
@@ -26,10 +24,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "timu-secret-key")
 CORS(app)
 
-# ===================== KONFIGURASI GEMINI =====================
+# ===================== KONFIGURASI GEMINI (SDK BARU) =====================
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# ===================== LOAD JSON =====================
+# ===================== LOAD DATA KAMPUS =====================
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -41,7 +39,7 @@ except Exception as e:
     logger.critical("Gagal memuat JSON kampus: %s", str(e))
     TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
 
-# ===================== SYMSPELL =====================
+# ===================== SYMSPELL UNTUK KOREKSI TYPO =====================
 symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("⚠️ Kamus SymSpell gagal dimuat. Koreksi typo dinonaktifkan.")
@@ -90,27 +88,21 @@ def get_category(msg):
             return cat
     return "general"
 
-def find_program_by_alias(query):
-    query = query.lower()
-    for prog in TRISAKTI.get("academic_programs", []):
-        for alias in prog.get("aliases", []):
-            if query in alias.lower() or alias.lower() in query:
-                return prog
-    return None
-
-# ===================== STATUS PENDAFTARAN DINAMIS =====================
 def get_current_registration_status():
     try:
         today = datetime.now().date()
         summary = []
-        reg_data = TRISAKTI.get("registration", {})
-        for path in reg_data.get("paths", []):
+        for path in TRISAKTI.get("registration", {}).get("paths", []):
             for wave in path.get("waves", []):
-                if " - " not in wave.get("period",""):
+                period = wave.get("period", "")
+                if " - " not in period:
                     continue
-                start_str, end_str = [s.strip() for s in wave['period'].split(' - ')]
-                start = parse_date(start_str).date()
-                end = parse_date(end_str).date()
+                start_str, end_str = [s.strip() for s in period.split(" - ")]
+                try:
+                    start = parse_date(start_str, dayfirst=True).date()
+                    end = parse_date(end_str, dayfirst=True).date()
+                except:
+                    continue
                 wave_name = wave.get("wave", "Gelombang")
                 if today < start:
                     status = f"{wave_name} ({path['name']}) akan dibuka {start.strftime('%d %B %Y')}."
@@ -123,22 +115,13 @@ def get_current_registration_status():
     except:
         return "Status pendaftaran tidak tersedia."
 
-# ===================== SCRAPING WEBSITE =====================
-def scrap_tmm_website(query):
-    try:
-        url = "https://trisaktimultimedia.ac.id"
-        r = requests.get(url, timeout=5)
-        if r.status_code != 200:
-            return None
-        soup = BeautifulSoup(r.text, "html.parser")
-        # Contoh sederhana: ambil semua teks <p>
-        paragraphs = [p.get_text(strip=True) for p in soup.find_all("p")]
-        content = " ".join(paragraphs)
-        if query.lower() in content.lower():
-            return content[:1000]  # ringkas max 1000 karakter
-        return None
-    except:
-        return None
+def find_program_by_alias(query):
+    query = query.lower()
+    for prog in TRISAKTI.get("academic_programs", []):
+        for alias in prog.get("aliases", []):
+            if query in alias.lower() or alias.lower() in query:
+                return prog
+    return None
 
 # ===================== ROUTES =====================
 @app.route("/")
@@ -151,11 +134,11 @@ def chatroom():
     session.clear()
     return render_template("chatroom.html")
 
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method=="POST":
-        if request.form.get("password")==ADMIN_PASSWORD:
-            session["admin_logged_in"]=True
+    if request.method == "POST":
+        if request.form.get("password") == ADMIN_PASSWORD:
+            session["admin_logged_in"] = True
             return redirect(url_for("admin_stats"))
         return render_template("login.html", error="Password salah.")
     return render_template("login.html")
@@ -165,118 +148,117 @@ def admin_stats():
     if not session.get("admin_logged_in"):
         return redirect(url_for("login"))
     try:
-        with open("chat_history.json","r",encoding="utf-8") as f:
+        with open("chat_history.json", "r", encoding="utf-8") as f:
             history = json.load(f)
     except:
-        history=[]
-    return render_template("stats.html", stats={"total_chats":len(history),"latest":history[-5:] if len(history)>=5 else history})
+        history = []
+    return render_template("stats.html", stats={
+        "total_chats": len(history),
+        "latest": history[-5:] if len(history) >= 5 else history
+    })
 
 @app.route("/logout")
 def logout():
-    session.pop("admin_logged_in",None)
+    session.pop("admin_logged_in", None)
     return redirect(url_for("login"))
 
 @app.route("/download-brosur")
 def download_brosur():
-    file_path = os.path.join("static","brosur_tmm.pdf")
+    file_path = os.path.join("static", "brosur_tmm.pdf")
     if not os.path.exists(file_path):
-        return jsonify({"error":"Brosur tidak tersedia."}),404
-    return send_from_directory("static","brosur_tmm.pdf",as_attachment=True)
+        return jsonify({"error": "Brosur tidak tersedia."}), 404
+    return send_from_directory("static", "brosur_tmm.pdf", as_attachment=True)
 
 # ===================== API CHAT =====================
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json()
     if not data or "message" not in data:
-        return jsonify({"error":"Pesan tidak ditemukan."}),400
+        return jsonify({"error": "Pesan tidak ditemukan."}), 400
 
     message = data["message"].strip()
     if not message:
-        return jsonify({"error":"Pesan kosong."}),400
+        return jsonify({"error": "Pesan kosong."}), 400
 
     lang = detect_language(message)
     corrected = correct_typo(message)
 
     if "conversation" not in session:
-        session["conversation"]=[]
-
-    session["conversation"].append({"role":"user","content":corrected})
-    session["conversation"]=session["conversation"][-50:]
+        session["conversation"] = []
+    session["conversation"].append({"role": "user", "content": corrected})
+    session["conversation"] = session["conversation"][-50:]
 
     kategori = get_category(corrected)
-    context = TRISAKTI.get("current_context",{})
+    context = TRISAKTI.get("current_context", {})
     registration_summary = get_current_registration_status()
 
-    # ===== RESPON JSON DARI KATEGORI =====
-    if kategori=="brosur":
+    # === Jika minta brosur ===
+    if kategori == "brosur":
         base_url = request.host_url.rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
-        reply = f"📄 Brosur resmi TMM siap diunduh!<br><br><a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
-        session["conversation"].append({"role":"bot","content":reply})
-        save_chat(corrected,reply)
-        return jsonify({"reply":reply})
+        reply = (
+            "📄 Brosur resmi TMM siap diunduh!<br><br>"
+            f"<a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
+        )
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
 
-    if kategori=="pendaftaran":
-        reg_link = TRISAKTI.get("registration",{}).get("link","https://trisaktimultimedia.ecampuz.com/eadmisi/")
-        reply = f"📌 Status Pendaftaran Saat Ini:\n{registration_summary}\n\nUntuk mendaftar, silakan kunjungi: {reg_link}\nAtau hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')} untuk info lebih lanjut."
-        session["conversation"].append({"role":"bot","content":reply})
-        save_chat(corrected,reply)
-        return jsonify({"reply":reply})
-
-    # ===== CARI JURUSAN DARI ALIAS =====
+    # === Jika cocok dengan alias jurusan ===
     matched_program = find_program_by_alias(corrected)
     if matched_program:
         reply = (
-            f"Program {matched_program['name']} adalah jurusan yang {matched_program['description'].lower()}<br><br>"
+            f"Program **{matched_program['name']}** adalah jurusan yang {matched_program['description'].lower()}<br><br>"
             f"📚 Spesialisasi: {', '.join(matched_program['specializations'])}<br>"
             f"🎓 Prospek Karier: {', '.join(matched_program['career_prospects'])}<br>"
             f"🏫 Akreditasi: {matched_program['accreditation']}<br>"
             f"{'🕓 Tersedia kelas malam.' if matched_program['evening_class'] else 'Tidak tersedia kelas malam.'}"
         )
-        session["conversation"].append({"role":"bot","content":reply})
-        save_chat(corrected,reply)
-        return jsonify({"reply":reply})
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
 
-    # ===== SCRAP WEBSITE JIKA JSON TIDAK CUKUP =====
-    scrap_reply = scrap_tmm_website(corrected)
-    if scrap_reply:
-        reply = f"{scrap_reply}\n\nUntuk info lebih lanjut, hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')} atau Instagram {TRISAKTI['institution']['contact']['social_media'].get('instagram')}."
-        session["conversation"].append({"role":"bot","content":reply})
-        save_chat(corrected,reply)
-        return jsonify({"reply":reply})
-
-    # ===== GEMINI AI FALLBACK =====
+    # === PROMPT UNTUK GEMINI 2.5 ===
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
-        "Jawablah sopan, natural, sesuai konteks bahasa pengguna. Gunakan data berikut:\n\n"
-        f"{json.dumps(TRISAKTI,ensure_ascii=False)}"
+        "Jawablah dengan sopan, natural, dan sesuai konteks bahasa pengguna. "
+        "Gunakan data berikut sebagai sumber utama:\n\n"
+        f"{json.dumps(TRISAKTI, ensure_ascii=False)}"
         f"\n\nStatus Pendaftaran:\n{registration_summary}\n\n"
-        f"Riwayat Singkat:\n{json.dumps(short_history,ensure_ascii=False)}"
+        f"Riwayat Singkat:\n{json.dumps(short_history, ensure_ascii=False)}"
     )
-    user_prompt = f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\nPertanyaan: {corrected}\nBahasa: {lang.upper()}\nJawablah singkat, informatif, mudah dipahami."
+
+    user_prompt = (
+        f"Tanggal: {context.get('date')}, Jam: {context.get('time')}\n"
+        f"Pertanyaan: {corrected}\nBahasa: {lang.upper()}\n"
+        "Jawablah singkat, informatif, dan mudah dipahami."
+    )
 
     try:
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=system_prompt + "\n\n" + user_prompt
         )
-        reply = clean_response(response.text.strip()).replace("TSM","TMM")
+        reply = clean_response(response.text.strip()).replace("TSM", "TMM")
         reply = format_links(reply)
+
         if not reply.strip():
             reply = f"Maaf, saya belum punya info untuk itu. Hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')}."
-        session["conversation"].append({"role":"bot","content":reply})
-        save_chat(corrected,reply)
-        return jsonify({"reply":reply})
+
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
+
     except google_exceptions.GoogleAPIError as e:
         logger.error("Gemini API Error: %s", str(e))
-        return jsonify({"error":"Koneksi AI gagal, coba lagi nanti."}),500
+        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti."}), 500
     except Exception as e:
         logger.error("Internal Error: %s", str(e))
-        return jsonify({"error":"Kesalahan sistem internal."}),500
+        return jsonify({"error": "Kesalahan sistem internal."}), 500
 
 # ===================== MAIN APP =====================
-if __name__=="__main__":
-    port = int(os.environ.get("PORT",10000))
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
     logger.info(f"🚀 TIMU berjalan di port {port}")
-    app.run(host="0.0.0.0",port=port)
+    app.run(host="0.0.0.0", port=port)
