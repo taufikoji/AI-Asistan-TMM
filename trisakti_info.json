@@ -88,18 +88,8 @@
       "evening_class": true,
       "curriculum": "Mata kuliah meliputi desain kemasan, teknologi produksi, dan manajemen branding.",
       "aliases": ["TG", "Desain Kemasan", "Teknologi Kemasan", "D4 Kemasan", "Packaging"]
-    },
-
-    {
-      "name": "Diploma 4 Teknologi Game (D4)",
-      "short": "D4 TG",
-      "description": "Program diploma yang fokus pada pembuatan game, pemrograman interaktif, dan animasi 3D.",
-      "specializations": ["Game Programming", "3D Animation", "Game Design"],
-      "career_prospects": ["Game Developer", "Level Designer", "3D Animator"],
-      "accreditation": "BAIK",
-      "evening_class": true,
-      "aliases": ["TG", "Teknologi Game", "Game Development"]
     }
+
   ],
 
   "accreditation": {
