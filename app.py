@@ -270,7 +270,7 @@ def api_chat():
         career = program.get("career_prospects") or []
         accreditation = program.get("accreditation", "BAIK")
         evening_class = program.get("evening_class", False)
-        evening_class
+        evening_class_note = program.get("evening_class", False)
         reply = (
             f"🎓 <b>{program.get('name')}</b><br>"
             f"{program.get('description', '')}<br><br>"
