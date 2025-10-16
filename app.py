@@ -1,4 +1,9 @@
-import os, json, logging, re
+import os
+import json
+import logging
+import re
+import requests
+from bs4 import BeautifulSoup
 from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -24,10 +29,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "timu-secret-key")
 CORS(app)
 
-# ===================== KONFIGURASI GEMINI (SDK BARU) =====================
+# ===================== GEMINI AI =====================
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# ===================== LOAD DATA JSON =====================
+# ===================== LOAD JSON =====================
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
@@ -99,8 +104,8 @@ def get_current_registration_status():
                     continue
                 start_str, end_str = [s.strip() for s in period.split(" - ")]
                 try:
-                    start = parse_date(start_str, dayfirst=True).date()
-                    end = parse_date(end_str, dayfirst=True).date()
+                    start = parse_date(start_str).date()
+                    end = parse_date(end_str).date()
                 except:
                     continue
                 wave_name = wave.get("wave", "Gelombang")
@@ -111,11 +116,7 @@ def get_current_registration_status():
                 else:
                     status = f"{wave_name} ({path['name']}) sudah ditutup {end.strftime('%d %B %Y')}."
                 summary.append(status)
-        link = TRISAKTI.get("registration", {}).get("link", "")
-        summary_text = "\n".join(summary) if summary else "Belum ada informasi pendaftaran."
-        if link:
-            summary_text += f"\n🔗 Link pendaftaran: {link}"
-        return summary_text
+        return "\n".join(summary) if summary else "Belum ada informasi pendaftaran."
     except:
         return "Status pendaftaran tidak tersedia."
 
@@ -126,6 +127,23 @@ def find_program_by_alias(query):
             if query in alias.lower() or alias.lower() in query:
                 return prog
     return None
+
+# ===================== SCRAPING WEBSITE =====================
+def scrape_trisakti_website(query):
+    try:
+        url = "https://trisaktimultimedia.ac.id"
+        resp = requests.get(url, timeout=5)
+        if resp.status_code != 200:
+            return None
+        soup = BeautifulSoup(resp.text, "html.parser")
+        # Ambil semua teks dari konten utama
+        main_text = " ".join([p.get_text(separator=" ", strip=True) for p in soup.find_all("p")])
+        if query.lower() in main_text.lower():
+            return main_text[:800] + "..."
+        return None
+    except Exception as e:
+        logger.warning("Scraping gagal: %s", str(e))
+        return None
 
 # ===================== ROUTES =====================
 @app.route("/")
@@ -200,10 +218,7 @@ def chat():
     if kategori == "brosur":
         base_url = request.host_url.rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
-        reply = (
-            "📄 Brosur resmi TMM siap diunduh!<br><br>"
-            f"<a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
-        )
+        reply = f"📄 Brosur resmi TMM siap diunduh!<br><br><a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
@@ -218,6 +233,29 @@ def chat():
             f"🏫 Akreditasi: {matched_program['accreditation']}<br>"
             f"{'🕓 Tersedia kelas malam.' if matched_program['evening_class'] else 'Tidak tersedia kelas malam.'}"
         )
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
+
+    # === Jika pertanyaan terkait pendaftaran ===
+    if kategori == "pendaftaran":
+        reg = TRISAKTI.get("registration", {})
+        reply = (
+            f"📌 Informasi Pendaftaran TMM:\n"
+            f"- Link: <a href='{reg.get('link')}' target='_blank'>{reg.get('link')}</a>\n"
+            f"- Biaya: {reg.get('cost')}\n"
+            f"- Syarat: {', '.join(reg.get('requirements', []))}\n"
+            f"- Proses: {reg.get('process')}\n"
+            f"- Status Saat Ini: {registration_summary}"
+        )
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
+
+    # === SCRAPING SEBAGAI FALLBACK ===
+    scraped_info = scrape_trisakti_website(corrected)
+    if scraped_info:
+        reply = f"Berikut info terbaru dari website resmi TMM:\n{scraped_info}"
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
