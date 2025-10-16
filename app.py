@@ -74,36 +74,20 @@ def clean_response(text):
     return re.sub(r"[*_`]+", "", text)
 
 def format_links(text):
-    """
-    Deteksi URL dalam teks dan ubah jadi <a href> HTML.
-    Hindari duplikat dan jangan ubah link yang sudah dalam format HTML.
-    """
     if not text:
         return text
-
     seen = set()
-
-    # Abaikan link yang sudah dikonversi ke HTML <a href="...">
     def repl(match):
         url = match.group(0)
-        # Lewati jika sudah berupa HTML <a href=...>
         if re.search(r"<a\s+href=", url, flags=re.I):
             return url
-
-        # Normalisasi URL untuk mencegah duplikasi
         normalized = url.strip().rstrip("/").lower()
         if normalized in seen:
             return ""
         seen.add(normalized)
-
-        # Buat tautan aman
         return f"<a href='{url}' target='_blank' rel='noopener noreferrer'>🔗 {url}</a>"
-
-    # Regex tangkap URL tapi abaikan yang sudah dalam tag <a>
     pattern = r"(?<!href=['\"])(https?://[^\s<>'\"()]+)"
     formatted = re.sub(pattern, repl, text)
-
-    # Hapus spasi ganda akibat penghapusan duplikat
     formatted = re.sub(r"\s{2,}", " ", formatted).strip()
     return formatted
 
@@ -241,6 +225,7 @@ def api_chat():
     category = get_category(corrected)
     reg_status = get_current_registration_status()
 
+    # Kategori khusus
     if category == "brosur":
         brosur_url = url_for("download_brosur", _external=True)
         reply = f"📄 Brosur resmi TMM siap diunduh:<br><a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
@@ -260,17 +245,14 @@ def api_chat():
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
+    # Cek program studi
     program = find_program_by_alias(corrected)
     if program:
         specs = program.get("specializations") or []
-        if specs and isinstance(specs[0], dict):
-            specs_list = [s.get("title") for s in specs]
-        else:
-            specs_list = specs
+        specs_list = [s.get("title") for s in specs if isinstance(s, dict)] if specs else specs
         career = program.get("career_prospects") or []
         accreditation = program.get("accreditation", "BAIK")
         evening_class = program.get("evening_class", False)
-        evening_class_note = program.get("evening_class", False)
         reply = (
             f"🎓 <b>{program.get('name')}</b><br>"
             f"{program.get('description', '')}<br><br>"
@@ -283,12 +265,11 @@ def api_chat():
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
+    # Chat AI umum
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten AI Trisakti School of Multimedia (TMM). "
-        "kamu harus ramah dan dapat berinteraksi dengan baik"
-        "kamu harus ekspresif dan dapat di ajak bercanda ringan"
-        "kamu ahli dalam berbagai bahasa apapun namun bahasa utama kamu mengikuti bahasa pengguna"
+        "Kamu harus ramah, ekspresif, dan dapat diajak bercanda ringan. "
         "Jawablah dengan sopan dan ringkas dalam bahasa pengguna. Gunakan data institusi berikut jika relevan:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\nStatus Pendaftaran:\n{reg_status}\n\n"
         f"Riwayat Singkat:\n{json.dumps(short_history, ensure_ascii=False)}"
@@ -306,27 +287,21 @@ def api_chat():
         reply_text = clean_response(response.text.strip())
         reply_text = format_links(reply_text)
 
-       if not reply_text or re.search(r"\b(maaf|tidak tahu|belum)\b", reply_text, flags=re.I):
-        kontak = TRISAKTI.get("institution", {}).get("contact", {})
+        # Fallback jika AI tidak tahu jawaban
+        if not reply_text or re.search(r"\b(maaf|tidak tahu|belum)\b", reply_text, flags=re.I):
+            kontak = TRISAKTI.get("institution", {}).get("contact", {})
             wa = kontak.get("whatsapp")
             ig = kontak.get("instagram")
 
-    # Format link WhatsApp
-        wa_link = f"<a href='https://wa.me/{wa.replace('+', '')}' target='_blank'>{wa}</a>" if wa else "Belum tersedia"
+            wa_link = f"<a href='https://wa.me/{wa.replace('+','')}' target='_blank'>{wa}</a>" if wa else "Belum tersedia"
+            ig_link = f"<a href='{ig}' target='_blank'>{ig}</a>" if ig and ig.lower() != "none" else "Belum tersedia"
 
-    # Format link Instagram
-        ig_link = (
-        f"<a href='{ig}' target='_blank'>{ig}</a>"
-            if ig and ig.lower() != "none"
-        else "Belum tersedia"
-    )
-
-        reply_text = (
-                 "Maaf, saya belum punya info lengkap untuk pertanyaan tersebut.<br>"
-                 "Silakan hubungi petugas kami:<br>"
+            reply_text = (
+                "Maaf, saya belum punya info lengkap untuk pertanyaan tersebut.<br>"
+                "Silakan hubungi petugas kami:<br>"
                 f"📱 WhatsApp: {wa_link}<br>"
                 f"📸 Instagram: {ig_link}"
-    )
+            )
 
         session["conversation"].append({"role": "bot", "content": reply_text})
         save_chat(corrected, reply_text)
