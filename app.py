@@ -276,7 +276,7 @@ def api_chat():
             f"📚 Spesialisasi: {', '.join(specs_list) if specs_list else 'Tidak tersedia'}<br>"
             f"🎯 Prospek Karier: {', '.join(career) if career else 'Tidak tersedia'}<br>"
             f"🏫 Akreditasi: {accreditation}<br>"
-            f"{'🕓 Tersedia kelas malam (Alih Jenjang/AJ).' if evening_class else 'Tidak tersedia kelas malam.'}"
+            f"{'🕓 Tersedia kelas malam (Alih Jenjang/AJ).' if evening_class else 'Kelas malam hanya untuk AJ/Alih Jenjang.'}"
         )
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
