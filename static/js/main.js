@@ -4,6 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatBox = document.getElementById("chat-box");
   const typing = document.getElementById("typing-indicator");
 
+  // ✅ Tambahan aman: sambutan awal muncul langsung tanpa mengubah alur lain
+  renderBotMessage(
+    "Selamat datang di <b>Trisakti School of Multimedia (TIMU AI)</b>!<br> Ada yang bisa saya bantu hari ini?",
+    false
+  );
+
   // Muat riwayat obrolan sebelumnya
   fetch("/api/chat?init=true")
     .then(res => res.json())
