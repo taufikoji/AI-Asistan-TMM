@@ -1,1 +1,50 @@
-<!DOCTYPE html> <html lang="id"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <title>Chat – TIMU AI</title> <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> </head> <body class="chatroom-page"> <div class="chat-container"> <div class="chat-header"> 🤖 <strong>TIMU – Asisten AI TMM</strong> </div> <div class="chat-box" id="chat-box"></div> <!-- Typing indicator --> <div class="typing-indicator" id="typing-indicator" style="display: none;"> <span></span><span></span><span></span> </div> <!-- Chat input --> <form id="chat-form" class="chat-form"> <input type="text" id="user-input" placeholder="Ketik pesan di sini..." autocomplete="off" required /> <button type="submit">Kirim</button> </form> </div> <!-- JS --> <script src="{{ url_for('static', filename='js/main.js') }}"></script> </body> </html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TIMU Chat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="chatgpt-style">
+  <div class="chat-wrapper">
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="chat-header-inner">
+        <div class="chat-header-icon">🤖</div>
+        <div class="chat-header-title">TIMU AI <span>• Asisten Multimedia</span></div>
+      </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main id="chat-box" class="chat-box"></main>
+
+    <!-- Typing Indicator -->
+    <div class="typing-indicator" id="typing-indicator" style="display: none;">
+      <span></span><span></span><span></span>
+    </div>
+
+    <!-- Input Area -->
+    <form id="chat-form" class="chat-input-area">
+      <div class="input-container">
+        <input 
+          type="text" 
+          id="user-input" 
+          class="chat-input" 
+          placeholder="Ketik pesan di sini..." 
+          autocomplete="off" 
+          required
+        />
+        <button type="submit" class="send-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h13M12 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Script -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
