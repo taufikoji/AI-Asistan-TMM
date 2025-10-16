@@ -91,26 +91,38 @@ body.chatgpt-style {
 .chat-header {
   background: var(--maroon);
   color: #fff;
-  padding: 1.2rem 1.5rem;
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   font-weight: 600;
   font-size: 1.1rem;
   border-bottom: 3px solid var(--maroon-dark);
+  gap: 10px;
 }
+
 .chat-header-icon img {
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
   object-fit: contain;
-  border-radius: 6px;
-
+  border-radius: 8px;
+  margin-right: 10px;
 }
 
-.chat-header span {
+.chat-header-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.chat-header-title strong {
+  font-size: 1.1rem;
+}
+
+.chat-header-title span {
   font-weight: 400;
-  opacity: 0.8;
-  margin-left: 6px;
+  opacity: 0.85;
+  font-size: 0.9rem;
 }
 
 /* Chat Wrapper */
@@ -345,6 +357,16 @@ body.error-page {
    📱 RESPONSIVE DESIGN
 =================================== */
 @media (max-width: 768px) {
+  .chat-header {
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+  }
+
+  .chat-header-icon img {
+    width: 36px;
+    height: 36px;
+  }
+
   .chat-box {
     padding: 1rem;
   }
