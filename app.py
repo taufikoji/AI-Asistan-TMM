@@ -37,7 +37,7 @@ try:
     logger.info("✅ JSON kampus dimuat: %s", TRISAKTI.get("institution", {}).get("name", "Tanpa Nama"))
 except Exception as e:
     logger.critical("Gagal memuat JSON kampus: %s", str(e))
-    TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
+    TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808", "instagram": "@trisaktimultimedia"}}}
 
 # ===================== SYMSPELL UNTUK KOREKSI TYPO =====================
 symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
@@ -115,55 +115,12 @@ def get_current_registration_status():
     except:
         return "Status pendaftaran tidak tersedia."
 
-# ===================== CARI PROGRAM DENGAN ALIAS =====================
 def find_program_by_alias(query):
     query = query.lower()
-    matched_program = None
-
-    # Cek program sesuai alias
     for prog in TRISAKTI.get("academic_programs", []):
         for alias in prog.get("aliases", []):
-            if alias.lower() in query or query in alias.lower():
-                matched_program = prog
-                break
-        if matched_program:
-            break
-
-    if matched_program:
-        # Jika user hanya sebut "DKV" atau nama umum, tampilkan ringkasan semua spesialisasi
-        if "dkv" in query.lower() or "desain komunikasi visual" in query.lower():
-            reply = {
-                "name": "Sarjana Desain Komunikasi Visual (S1)",
-                "description": "Program Sarjana Desain Komunikasi Visual (DKV) mencakup beberapa spesialisasi, meliputi Animasi & Game, Iklan & Branding, dan Multimedia Broadcasting.",
-                "specializations": ["Animasi & Game", "Iklan & Branding", "Multimedia Broadcasting"],
-                "career_prospects": ["Animator", "Game Developer", "Creative Director", "Art Director", "Multimedia Producer", "Content Creator", "Broadcast Technician"],
-                "accreditation": "B",
-                "evening_class": False
-            }
-            return reply
-
-        # Jika sebut spesialisasi tertentu, kembalikan yang sesuai
-        for sp in matched_program.get("specializations", []):
-            if sp.lower() in query:
-                return {
-                    "name": f"{matched_program['name']} - {sp}",
-                    "description": matched_program.get("description", ""),
-                    "specializations": [sp],
-                    "career_prospects": matched_program.get("career_prospects", []),
-                    "accreditation": matched_program.get("accreditation", ""),
-                    "evening_class": matched_program.get("evening_class", False)
-                }
-
-        # Default kembalikan program
-        return {
-            "name": matched_program["name"],
-            "description": matched_program.get("description", ""),
-            "specializations": matched_program.get("specializations", []),
-            "career_prospects": matched_program.get("career_prospects", []),
-            "accreditation": matched_program.get("accreditation", ""),
-            "evening_class": matched_program.get("evening_class", False)
-        }
-
+            if query in alias.lower() or alias.lower() in query:
+                return prog
     return None
 
 # ===================== ROUTES =====================
@@ -239,15 +196,27 @@ def chat():
     if kategori == "brosur":
         base_url = request.host_url.rstrip("/")
         brosur_url = f"{base_url}/download-brosur"
-        reply = (
-            "📄 Brosur resmi TMM siap diunduh!<br><br>"
-            f"<a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
-        )
+        reply = f"📄 Brosur resmi TMM siap diunduh!<br><br><a href='{brosur_url}' target='_blank'>⬇️ Unduh Brosur</a>"
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # === Jika cocok dengan alias jurusan/spesialisasi ===
+    # === Jika minta link pendaftaran atau website ===
+    if kategori == "pendaftaran":
+        base_url = TRISAKTI["registration"].get("link") or TRISAKTI["institution"].get("website")
+        reply = f"🌐 Link pendaftaran resmi TMM: <a href='{base_url}' target='_blank'>{base_url}</a>"
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
+
+    if kategori == "kontak":
+        contact = TRISAKTI["institution"]["contact"]
+        reply = f"📱 WA: {contact.get('whatsapp')}<br>📸 IG: {contact.get('instagram')}"
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
+
+    # === Jika cocok dengan alias jurusan ===
     matched_program = find_program_by_alias(corrected)
     if matched_program:
         reply = (
@@ -287,7 +256,11 @@ def chat():
         reply = format_links(reply)
 
         if not reply.strip():
-            reply = f"Maaf, saya belum punya info untuk itu. Hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')}."
+            contact = TRISAKTI["institution"]["contact"]
+            reply = (
+                f"Maaf, saya belum punya info untuk itu. Silakan hubungi petugas TMM:<br>"
+                f"📱 WA: {contact.get('whatsapp')}<br>📸 IG: {contact.get('instagram')}"
+            )
 
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
@@ -295,10 +268,20 @@ def chat():
 
     except google_exceptions.GoogleAPIError as e:
         logger.error("Gemini API Error: %s", str(e))
-        return jsonify({"error": "Koneksi AI gagal, coba lagi nanti."}), 500
+        contact = TRISAKTI["institution"]["contact"]
+        reply = (
+            f"Koneksi AI gagal, coba lagi nanti. Silakan hubungi petugas TMM:<br>"
+            f"📱 WA: {contact.get('whatsapp')}<br>📸 IG: {contact.get('instagram')}"
+        )
+        return jsonify({"reply": reply}), 500
     except Exception as e:
         logger.error("Internal Error: %s", str(e))
-        return jsonify({"error": "Kesalahan sistem internal."}), 500
+        contact = TRISAKTI["institution"]["contact"]
+        reply = (
+            f"Kesalahan sistem internal. Silakan hubungi petugas TMM:<br>"
+            f"📱 WA: {contact.get('whatsapp')}<br>📸 IG: {contact.get('instagram')}"
+        )
+        return jsonify({"reply": reply}), 500
 
 # ===================== MAIN APP =====================
 if __name__ == "__main__":
