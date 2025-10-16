@@ -38,8 +38,8 @@
   "academic_programs": [
     {
       "name": "Sarjana Desain Komunikasi Visual (S1 DKV)",
-      "short": "S1 DKV",
-      "description": "Program Sarjana Desain Komunikasi Visual (DKV) mencakup semua bidang kreatif digital, termasuk animasi, game, multimedia, broadcasting, dan periklanan. Fokus pada kemampuan merancang komunikasi visual efektif, storytelling, animasi 2D/3D, pengembangan game, produksi multimedia, dan strategi branding.",
+      "short":,
+      "description": "mencakup semua bidang kreatif digital, termasuk animasi, game, multimedia, broadcasting, dan periklanan. Fokus pada kemampuan merancang komunikasi visual efektif, storytelling, animasi 2D/3D, pengembangan game, produksi multimedia, dan strategi branding.",
       "specializations": ["Visual Communication", "Animation & Game", "Broadcasting & Multimedia", "Advertising & Branding"],
       "career_prospects": [
         "Animator",
