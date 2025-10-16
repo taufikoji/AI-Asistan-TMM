@@ -2,16 +2,17 @@ import os
 import json
 import logging
 import re
-import requests
-from bs4 import BeautifulSoup
-from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
-from dotenv import load_dotenv
-from flask_cors import CORS
 from datetime import datetime
 from dateutil.parser import parse as parse_date
-from google import genai
+
+from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
+from flask_cors import CORS
+from dotenv import load_dotenv
 from langdetect import detect
 from symspellpy.symspellpy import SymSpell, Verbosity
+from google import genai
+import requests
+from bs4 import BeautifulSoup
 from google.api_core import exceptions as google_exceptions
 
 # ===================== KONFIGURASI DASAR =====================
@@ -29,7 +30,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "timu-secret-key")
 CORS(app)
 
-# ===================== GEMINI AI =====================
+# ===================== KONFIGURASI GEMINI =====================
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 # ===================== LOAD JSON =====================
@@ -44,7 +45,7 @@ except Exception as e:
     logger.critical("Gagal memuat JSON kampus: %s", str(e))
     TRISAKTI = {"institution": {"contact": {"whatsapp": "+6287742997808"}}}
 
-# ===================== SYMSPELL UNTUK KOREKSI TYPO =====================
+# ===================== SYMSPELL =====================
 symspell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 if not symspell.load_dictionary("indonesia_dictionary_3000.txt", 0, 1):
     logger.warning("⚠️ Kamus SymSpell gagal dimuat. Koreksi typo dinonaktifkan.")
@@ -104,8 +105,8 @@ def get_current_registration_status():
                     continue
                 start_str, end_str = [s.strip() for s in period.split(" - ")]
                 try:
-                    start = parse_date(start_str).date()
-                    end = parse_date(end_str).date()
+                    start = parse_date(start_str, dayfirst=True).date()
+                    end = parse_date(end_str, dayfirst=True).date()
                 except:
                     continue
                 wave_name = wave.get("wave", "Gelombang")
@@ -128,18 +129,20 @@ def find_program_by_alias(query):
                 return prog
     return None
 
-# ===================== SCRAPING WEBSITE =====================
-def scrape_trisakti_website(query):
+# ===================== WEB SCRAPING =====================
+def scrape_website(query):
+    """Fallback jika JSON tidak punya jawaban, ambil info dari website TMM"""
     try:
         url = "https://trisaktimultimedia.ac.id"
-        resp = requests.get(url, timeout=5)
-        if resp.status_code != 200:
+        r = requests.get(url, timeout=5)
+        if r.status_code != 200:
             return None
-        soup = BeautifulSoup(resp.text, "html.parser")
-        # Ambil semua teks dari konten utama
-        main_text = " ".join([p.get_text(separator=" ", strip=True) for p in soup.find_all("p")])
-        if query.lower() in main_text.lower():
-            return main_text[:800] + "..."
+        soup = BeautifulSoup(r.text, "html.parser")
+        # Cari teks relevan yang mengandung query
+        texts = soup.stripped_strings
+        results = [t for t in texts if query.lower() in t.lower()]
+        if results:
+            return " ".join(results[:5])
         return None
     except Exception as e:
         logger.warning("Scraping gagal: %s", str(e))
@@ -231,40 +234,18 @@ def chat():
             f"📚 Spesialisasi: {', '.join(matched_program['specializations'])}<br>"
             f"🎓 Prospek Karier: {', '.join(matched_program['career_prospects'])}<br>"
             f"🏫 Akreditasi: {matched_program['accreditation']}<br>"
-            f"{'🕓 Tersedia kelas malam.' if matched_program['evening_class'] else 'Tidak tersedia kelas malam.'}"
+            f"{'🕓 Tersedia kelas malam.' if matched_program['evening_class'] else 'Tidak tersedia kelas malam.'}<br>"
+            f"🔗 Info pendaftaran: <a href='{TRISAKTI['registration']['link']}' target='_blank'>Klik di sini</a>"
         )
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # === Jika pertanyaan terkait pendaftaran ===
-    if kategori == "pendaftaran":
-        reg = TRISAKTI.get("registration", {})
-        reply = (
-            f"📌 Informasi Pendaftaran TMM:\n"
-            f"- Link: <a href='{reg.get('link')}' target='_blank'>{reg.get('link')}</a>\n"
-            f"- Biaya: {reg.get('cost')}\n"
-            f"- Syarat: {', '.join(reg.get('requirements', []))}\n"
-            f"- Proses: {reg.get('process')}\n"
-            f"- Status Saat Ini: {registration_summary}"
-        )
-        session["conversation"].append({"role": "bot", "content": reply})
-        save_chat(corrected, reply)
-        return jsonify({"reply": reply})
-
-    # === SCRAPING SEBAGAI FALLBACK ===
-    scraped_info = scrape_trisakti_website(corrected)
-    if scraped_info:
-        reply = f"Berikut info terbaru dari website resmi TMM:\n{scraped_info}"
-        session["conversation"].append({"role": "bot", "content": reply})
-        save_chat(corrected, reply)
-        return jsonify({"reply": reply})
-
-    # === PROMPT UNTUK GEMINI 2.5 ===
+    # === PROMPT GEMINI ===
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
-        "Jawablah dengan sopan, natural, dan sesuai konteks bahasa pengguna. "
+        "Jawablah sopan, natural, dan kontekstual. "
         "Gunakan data berikut sebagai sumber utama:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}"
         f"\n\nStatus Pendaftaran:\n{registration_summary}\n\n"
@@ -285,8 +266,13 @@ def chat():
         reply = clean_response(response.text.strip()).replace("TSM", "TMM")
         reply = format_links(reply)
 
+        # === Jika jawaban Gemini kosong, fallback ke web scraping ===
         if not reply.strip():
-            reply = f"Maaf, saya belum punya info untuk itu. Hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')}."
+            scraped = scrape_website(corrected)
+            if scraped:
+                reply = f"Berikut info tambahan dari website resmi TMM:\n{scraped}"
+            else:
+                reply = f"Maaf, saya belum punya info untuk itu. Hubungi WA {TRISAKTI['institution']['contact'].get('whatsapp')}."
 
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
@@ -299,7 +285,7 @@ def chat():
         logger.error("Internal Error: %s", str(e))
         return jsonify({"error": "Kesalahan sistem internal."}), 500
 
-# ===================== MAIN APP =====================
+# ===================== MAIN =====================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     logger.info(f"🚀 TIMU berjalan di port {port}")
