@@ -306,16 +306,27 @@ def api_chat():
         reply_text = clean_response(response.text.strip())
         reply_text = format_links(reply_text)
 
-        if not reply_text or re.search(r"\b(maaf|tidak tahu|belum)\b", reply_text, flags=re.I):
-            kontak = TRISAKTI.get("institution", {}).get("contact", {})
+       if not reply_text or re.search(r"\b(maaf|tidak tahu|belum)\b", reply_text, flags=re.I):
+        kontak = TRISAKTI.get("institution", {}).get("contact", {})
             wa = kontak.get("whatsapp")
             ig = kontak.get("instagram")
-            reply_text = (
-                "Maaf, saya belum punya info lengkap untuk pertanyaan tersebut.<br>"
-                f"Silakan hubungi petugas kami:<br>"
-                f"📱 WhatsApp: <a href='https://wa.me/{wa.replace('+','')}' target='_blank'>{wa}</a><br>"
-                f"📸 Instagram: <a href='{ig}' target='_blank'>{ig}</a>"
-            )
+
+    # Format link WhatsApp
+        wa_link = f"<a href='https://wa.me/{wa.replace('+', '')}' target='_blank'>{wa}</a>" if wa else "Belum tersedia"
+
+    # Format link Instagram
+        ig_link = (
+        f"<a href='{ig}' target='_blank'>{ig}</a>"
+            if ig and ig.lower() != "none"
+        else "Belum tersedia"
+    )
+
+    reply_text = (
+        "Maaf, saya belum punya info lengkap untuk pertanyaan tersebut.<br>"
+        "Silakan hubungi petugas kami:<br>"
+        f"📱 WhatsApp: {wa_link}<br>"
+        f"📸 Instagram: {ig_link}"
+    )
 
         session["conversation"].append({"role": "bot", "content": reply_text})
         save_chat(corrected, reply_text)
