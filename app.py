@@ -321,11 +321,11 @@ def api_chat():
         else "Belum tersedia"
     )
 
-    reply_text = (
-        "Maaf, saya belum punya info lengkap untuk pertanyaan tersebut.<br>"
-        "Silakan hubungi petugas kami:<br>"
-        f"📱 WhatsApp: {wa_link}<br>"
-        f"📸 Instagram: {ig_link}"
+        reply_text = (
+                 "Maaf, saya belum punya info lengkap untuk pertanyaan tersebut.<br>"
+                 "Silakan hubungi petugas kami:<br>"
+                f"📱 WhatsApp: {wa_link}<br>"
+                f"📸 Instagram: {ig_link}"
     )
 
         session["conversation"].append({"role": "bot", "content": reply_text})
