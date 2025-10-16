@@ -31,12 +31,6 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 try:
     with open("trisakti_info.json", "r", encoding="utf-8") as f:
         TRISAKTI = json.load(f)
-
-    # Pastikan "short" untuk S1 DKV ada
-    for prog in TRISAKTI.get("academic_programs", []):
-        if "short" not in prog or not prog["short"]:
-            prog["short"] = prog["name"].split("(")[0].strip()
-
     now = datetime.now()
     TRISAKTI["current_context"]["date"] = now.strftime("%d %B %Y")
     TRISAKTI["current_context"]["time"] = now.strftime("%H:%M WIB")
@@ -117,29 +111,57 @@ def get_current_registration_status():
                 else:
                     status = f"{wave_name} ({path['name']}) sudah ditutup {end.strftime('%d %B %Y')}."
                 summary.append(status)
-        return "\n".join(summary) if summary else TRISAKTI.get("current_context", {}).get("registration_status", "Belum ada info pendaftaran.")
+        return "\n".join(summary) if summary else "Belum ada informasi pendaftaran."
     except:
-        return TRISAKTI.get("current_context", {}).get("registration_status", "Status pendaftaran tidak tersedia.")
+        return "Status pendaftaran tidak tersedia."
 
 def find_program_by_alias(query):
     query = query.lower()
     for prog in TRISAKTI.get("academic_programs", []):
-        aliases = [a.lower() for a in prog.get("aliases", [])]
-        if any(query in a or a in query for a in aliases):
-            return prog
+        for alias in prog.get("aliases", []):
+            if query in alias.lower() or alias.lower() in query:
+                return prog
     return None
 
-def find_scholarship(query):
+def get_registration_info(query):
     query = query.lower()
-    for sch in TRISAKTI.get("scholarships", []):
-        if any(k.lower() in query for k in sch.get("name", "").split()):
-            return sch
+    result = []
+    today = datetime.now().date()
+    for path in TRISAKTI.get("registration", {}).get("paths", []):
+        path_name = path.get("name", "")
+        if path_name.lower() in query or any(k in query for k in ["pendaftaran", "jalur", "gelombang", "biaya"]):
+            for wave in path.get("waves", []):
+                wave_name = wave.get("wave", "Gelombang")
+                period = wave.get("period", "")
+                if " - " not in period:
+                    continue
+                start_str, end_str = [s.strip() for s in period.split(" - ")]
+                try:
+                    start = parse_date(start_str, dayfirst=True).date()
+                    end = parse_date(end_str, dayfirst=True).date()
+                except:
+                    continue
+                biaya = TRISAKTI.get("registration", {}).get("cost", "Gratis")
+                if today < start:
+                    status = f"{wave_name} ({path_name}) akan dibuka {start.strftime('%d %B %Y')} dengan biaya {biaya}."
+                elif start <= today <= end:
+                    status = f"{wave_name} ({path_name}) sedang berlangsung hingga {end.strftime('%d %B %Y')}. Biaya: {biaya}."
+                else:
+                    status = f"{wave_name} ({path_name}) sudah ditutup {end.strftime('%d %B %Y')}. Biaya: {biaya}."
+                result.append(status)
+    return "\n".join(result) if result else None
+
+def get_beasiswa_info(query):
+    query = query.lower()
+    for bea in TRISAKTI.get("scholarships", []):
+        if any(k in query for k in ["beasiswa", "kip", "bantuan biaya", "scholarship"]) or bea["name"].lower() in query:
+            return f"{bea['name']}: {bea['description']}\nPersyaratan: {', '.join(bea['requirements'])}\nProses: {bea['process']}"
     return None
 
-def find_faq(query):
+def get_faq_info(query):
     query = query.lower()
     for faq in TRISAKTI.get("faq", []):
-        if faq["question"].lower() in query:
+        if all(word in query for word in faq["question"].lower().split()[:3]):
             return faq["answer"]
     return None
 
@@ -238,35 +260,38 @@ def chat():
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
+    # === Jika menanyakan pendaftaran ===
+    reg_info = get_registration_info(corrected)
+    if reg_info:
+        reply = reg_info
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        return jsonify({"reply": reply})
+
     # === Jika menanyakan beasiswa ===
-    matched_sch = find_scholarship(corrected)
-    if matched_sch:
-        reply = (
-            f"Beasiswa: {matched_sch['name']}\n"
-            f"Deskripsi: {matched_sch['description']}\n"
-            f"Persyaratan: {', '.join(matched_sch['requirements'])}\n"
-            f"Proses: {matched_sch['process']}"
-        )
+    bea_info = get_beasiswa_info(corrected)
+    if bea_info:
+        reply = bea_info
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
     # === Jika menanyakan FAQ ===
-    faq_answer = find_faq(corrected)
-    if faq_answer:
-        reply = faq_answer
+    faq_info = get_faq_info(corrected)
+    if faq_info:
+        reply = faq_info
         session["conversation"].append({"role": "bot", "content": reply})
         save_chat(corrected, reply)
         return jsonify({"reply": reply})
 
-    # === PROMPT UNTUK GEMINI 2.5 ===
+    # === PROMPT UNTUK GEMINI 2.5 (fallback) ===
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten AI dari Trisakti School of Multimedia (TMM). "
         "Jawablah dengan sopan, natural, dan sesuai konteks bahasa pengguna. "
         "Gunakan data berikut sebagai sumber utama:\n\n"
-        f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
-        f"Status Pendaftaran:\n{registration_summary}\n\n"
+        f"{json.dumps(TRISAKTI, ensure_ascii=False)}"
+        f"\n\nStatus Pendaftaran:\n{registration_summary}\n\n"
         f"Riwayat Singkat:\n{json.dumps(short_history, ensure_ascii=False)}"
     )
 
