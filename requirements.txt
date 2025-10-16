@@ -13,6 +13,6 @@ textblob==0.17.1
 language-tool-python
 #idnspell==1.1.0
 symspellpy==6.7.6
-#beautifulsoup4
+beautifulsoup4
 #sentence-transformers
 #faiss-cpu
