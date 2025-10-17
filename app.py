@@ -38,6 +38,12 @@ JSON_PATH = os.path.join(os.path.dirname(__file__), "trisakti_info.json")
 try:
     with open(JSON_PATH, "r", encoding="utf-8") as jf:
         TRISAKTI = json.load(jf)
+    # pastikan Instagram username saja
+    ig = TRISAKTI.get("institution", {}).get("contact", {}).get("instagram", "")
+    if ig.startswith("https://") or "/" in ig:
+        ig = ig.split("/")[-1]  # ambil username terakhir
+        TRISAKTI["institution"]["contact"]["instagram"] = ig
+
     now = datetime.now()
     TRISAKTI.setdefault("current_context", {})
     TRISAKTI["current_context"]["date"] = TRISAKTI["current_context"].get("date") or now.strftime("%d %B %Y")
@@ -46,7 +52,7 @@ try:
 except Exception as e:
     logger.critical("Gagal memuat trisakti_info.json: %s", str(e))
     TRISAKTI = {
-        "institution": {"contact": {"whatsapp": "+6287742997808", "instagram": "https://www.instagram.com/tmm_trisakti"}}
+        "institution": {"contact": {"whatsapp": "+6287742997808", "instagram": "tmm_trisakti"}}
     }
 
 # -------------------- SymSpell (typo correction) --------------------
@@ -294,7 +300,7 @@ def api_chat():
             ig = kontak.get("instagram")
 
             wa_link = f"<a href='https://wa.me/{wa.replace('+','')}' target='_blank'>{wa}</a>" if wa else "Belum tersedia"
-            ig_link = f"<a href='{ig}' target='_blank'>{ig}</a>" if ig and ig.lower() != "none" else "Belum tersedia"
+            ig_link = f"<a href='https://www.instagram.com/{ig}' target='_blank'>@{ig}</a>" if ig else "Belum tersedia"
 
             reply_text = (
                 "Maaf, saya belum punya info lengkap untuk pertanyaan tersebut.<br>"
@@ -315,7 +321,7 @@ def api_chat():
         reply_text = (
             "Koneksi AI gagal. Silakan hubungi petugas kami di:<br>"
             f"📱 WhatsApp: <a href='https://wa.me/{wa.replace('+','')}' target='_blank'>{wa}</a><br>"
-            f"📸 Instagram: <a href='{ig}' target='_blank'>{ig}</a>"
+            f"📸 Instagram: <a href='https://www.instagram.com/{ig}' target='_blank'>@{ig}</a>"
         )
         return jsonify({"reply": reply_text}), 500
     except Exception as e:
