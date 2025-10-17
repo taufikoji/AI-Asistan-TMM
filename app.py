@@ -77,7 +77,8 @@ def detect_language(text):
         return "id"
 
 def clean_response(text):
-    return re.sub(r"[*_`]+", "", text)
+    # Hanya hapus * dan `, jangan hapus underscore
+    return re.sub(r"[*`]+", "", text)
 
 def format_links(text):
     if not text:
@@ -298,10 +299,8 @@ def api_chat():
             kontak = TRISAKTI.get("institution", {}).get("contact", {})
             wa = kontak.get("whatsapp")
             ig = kontak.get("instagram")
-
             wa_link = f"<a href='https://wa.me/{wa.replace('+','')}' target='_blank'>{wa}</a>" if wa else "Belum tersedia"
             ig_link = f"<a href='https://www.instagram.com/{ig}' target='_blank'>@{ig}</a>" if ig else "Belum tersedia"
-
             reply_text = (
                 "Maaf, saya belum punya info lengkap untuk pertanyaan tersebut.<br>"
                 "Silakan hubungi petugas kami:<br>"
