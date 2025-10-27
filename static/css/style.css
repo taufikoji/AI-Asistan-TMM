@@ -1,4 +1,9 @@
 /* ===================================
+   🚀 TIMU CSS v3.1 — Production Safe & Futuristic
+   Stabil di iOS Safari, Android, dan Desktop
+=================================== */
+
+/* ===================================
    🌐 GLOBAL RESET & THEME
 =================================== */
 * {
@@ -12,6 +17,7 @@ html, body {
   background-color: #f9f9f9;
   color: #333;
   height: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 :root {
@@ -22,7 +28,7 @@ html, body {
 }
 
 /* ===================================
-   🏠 LANDING PAGE (FUTURISTIC STYLE)
+   🏠 LANDING PAGE (Futuristic)
 =================================== */
 body.landing-page {
   background: radial-gradient(circle at top right, #300000 0%, #0a0a0a 80%);
@@ -31,23 +37,21 @@ body.landing-page {
   position: relative;
 }
 
-/* Animasi grid dan partikel latar belakang */
+/* Background Grid Animation */
 .bg-animation {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background: repeating-linear-gradient(
     45deg,
-    rgba(255, 255, 255, 0.05) 0,
-    rgba(255, 255, 255, 0.05) 1px,
+    rgba(255,255,255,0.05) 0,
+    rgba(255,255,255,0.05) 1px,
     transparent 2px,
     transparent 4px
   );
   animation: moveGrid 20s linear infinite;
-  z-index: 0;
   opacity: 0.25;
+  z-index: 0;
 }
 
 @keyframes moveGrid {
@@ -55,20 +59,20 @@ body.landing-page {
   to { transform: translateY(100px); }
 }
 
-/* Partikel bintang lembut di latar */
+/* Floating Particles */
 body.landing-page::before {
   content: "";
   position: absolute;
   top: 0; left: 0;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.6), transparent),
-              radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.5), transparent),
-              radial-gradient(2px 2px at 40% 80%, rgba(255,255,255,0.7), transparent),
-              radial-gradient(1.5px 1.5px at 60% 20%, rgba(255,255,255,0.4), transparent);
+  width: 200%; height: 200%;
+  background:
+    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(2px 2px at 40% 80%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1.5px 1.5px at 60% 20%, rgba(255,255,255,0.4), transparent);
   animation: starDrift 60s linear infinite;
-  z-index: 0;
   opacity: 0.5;
+  z-index: 0;
 }
 
 @keyframes starDrift {
@@ -76,7 +80,7 @@ body.landing-page::before {
   to { transform: translate(-100px, 100px); }
 }
 
-/* Container dengan efek kaca */
+/* Glassmorphic Container */
 .landing-page .container {
   display: flex;
   flex-direction: column;
@@ -87,10 +91,10 @@ body.landing-page::before {
   text-align: center;
   position: relative;
   z-index: 2;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(20px);
   border-radius: 20px;
-  box-shadow: 0 0 30px rgba(128, 0, 0, 0.4);
+  box-shadow: 0 0 30px rgba(128,0,0,0.4);
   border: 1px solid rgba(255,255,255,0.1);
   animation: fadeIn 1.5s ease;
 }
@@ -112,47 +116,12 @@ body.landing-page::before {
   50% { transform: translateY(-8px); }
 }
 
-/* Glitch Text Effect */
 .landing-page .title {
   font-size: 2.8rem;
   color: #fff;
   text-shadow: 0 0 10px var(--maroon), 0 0 20px var(--maroon-dark);
   position: relative;
   overflow: hidden;
-}
-
-.landing-page .title::before,
-.landing-page .title::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  width: 100%;
-  overflow: hidden;
-  clip: rect(0, 900px, 0, 0);
-}
-
-.landing-page .title::before {
-  color: #ff1a1a;
-  animation: glitchTop 2s infinite linear alternate-reverse;
-}
-
-.landing-page .title::after {
-  color: #00ffff;
-  animation: glitchBottom 2s infinite linear alternate-reverse;
-}
-
-@keyframes glitchTop {
-  0% { clip: rect(0, 9999px, 0, 0); }
-  10% { clip: rect(10px, 9999px, 40px, 0); transform: translate(-2px, -2px); }
-  20% { clip: rect(85px, 9999px, 140px, 0); transform: translate(2px, 2px); }
-  100% { clip: rect(0, 9999px, 0, 0); }
-}
-
-@keyframes glitchBottom {
-  0% { clip: rect(0, 9999px, 0, 0); }
-  10% { clip: rect(55px, 9999px, 90px, 0); transform: translate(2px, 2px); }
-  20% { clip: rect(10px, 9999px, 50px, 0); transform: translate(-2px, -2px); }
-  100% { clip: rect(0, 9999px, 0, 0); }
 }
 
 .landing-page .subtitle {
@@ -163,7 +132,7 @@ body.landing-page::before {
   letter-spacing: 0.5px;
 }
 
-/* Tombol Neon Maroon */
+/* Buttons */
 .button-group a {
   display: inline-block;
   padding: 0.75rem 1.8rem;
@@ -174,63 +143,51 @@ body.landing-page::before {
   text-transform: uppercase;
   letter-spacing: 0.8px;
   transition: all 0.4s ease;
-  position: relative;
-  overflow: hidden;
   border: 2px solid var(--maroon);
+  color: #fff;
 }
 
 .btn-primary {
   background: transparent;
-  color: #fff;
   box-shadow: 0 0 15px var(--maroon);
 }
 
-.btn-primary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, var(--maroon), #b30000);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-.btn-primary:hover::before {
-  opacity: 1;
+.btn-primary:hover {
+  background: var(--maroon);
+  box-shadow: 0 0 25px rgba(255,60,60,0.7);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: rgba(255,255,255,0.1);
   border: 1px solid #999;
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255,255,255,0.3);
 }
 
-/* Footer */
 .footer {
   margin-top: 3rem;
   font-size: 0.9rem;
   color: #ccc;
   opacity: 0.8;
-  letter-spacing: 0.5px;
 }
 
 /* ===================================
-   💬 CHATROOM
+   💬 CHATROOM (Futuristic + Safe)
 =================================== */
 body.chatgpt-style {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background-color: #f7f7f8;
+  height: 100%;
+  background: radial-gradient(circle at top left, #1a0000, #000);
+  color: #fff;
+  overflow: hidden;
 }
 
 /* Header */
 .chat-header {
-  background: var(--maroon);
+  background: rgba(128,0,0,0.9);
   color: #fff;
   padding: 1rem 1.5rem;
   display: flex;
@@ -242,6 +199,7 @@ body.chatgpt-style {
   gap: 10px;
   position: relative;
   min-height: 100px;
+  box-shadow: 0 0 20px rgba(128,0,0,0.4);
 }
 
 .chat-header-icon {
@@ -252,15 +210,13 @@ body.chatgpt-style {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
 }
 
 .chat-header-icon img {
-  width: 100px;
-  height: 100px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
-  border-radius: 8px;
-  display: block;
+  filter: drop-shadow(0 0 10px #b30000);
 }
 
 .chat-header-title {
@@ -269,19 +225,17 @@ body.chatgpt-style {
   top: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  z-index: 4;
   pointer-events: none;
 }
 
 .chat-header-title strong {
   font-size: 1.3rem;
   display: block;
-  line-height: 1;
 }
 
 .chat-header-title span {
   font-weight: 400;
-  opacity: 0.85;
+  opacity: 0.9;
   font-size: 0.95rem;
   display: block;
   margin-top: 4px;
@@ -292,6 +246,7 @@ body.chatgpt-style {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
 }
 
 /* Chat Box */
@@ -303,46 +258,62 @@ body.chatgpt-style {
   flex-direction: column;
   gap: 1rem;
   scroll-behavior: smooth;
+  background: radial-gradient(circle at 20% 20%, #190000 0%, #0a0a0a 100%);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
+.chat-box::after {
+  content: "";
+  display: block;
+  height: 90px;
+}
+
+/* Messages */
 .message {
   max-width: 80%;
   padding: 0.9rem 1.2rem;
-  border-radius: 12px;
-  line-height: 1.5;
+  border-radius: 14px;
+  line-height: 1.6;
   font-size: 0.95rem;
   white-space: pre-wrap;
-  background: transparent;
+  word-break: break-word;
+  animation: fadeInMsg 0.25s ease-in;
+}
+
+@keyframes fadeInMsg {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .message.user {
   align-self: flex-end;
-  background: var(--maroon);
+  background: linear-gradient(135deg, var(--maroon), #b30000);
   color: #fff;
+  box-shadow: 0 0 15px rgba(128,0,0,0.5);
   border-bottom-right-radius: 4px;
 }
 
 .message.bot {
   align-self: flex-start;
-  background: #ffffff;
-  color: #222;
+  background: rgba(255,255,255,0.08);
+  color: #f5f5f5;
   border-left: 4px solid var(--maroon);
   border-bottom-left-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 10px rgba(128,0,0,0.3);
 }
 
 /* Typing Indicator */
 .typing-indicator {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  padding-left: 1.5rem;
-  height: 24px;
   gap: 4px;
+  padding-left: 1rem;
+  height: 24px;
 }
 
 .typing-indicator span {
-  display: inline-block;
   width: 8px;
   height: 8px;
   background-color: var(--maroon);
@@ -360,33 +331,40 @@ body.chatgpt-style {
 
 /* Input Area */
 .chat-input-area {
-  background: #fff;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #ddd;
+  background: rgba(0,0,0,0.9);
+  padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(255,255,255,0.15);
   position: sticky;
   bottom: 0;
-  z-index: 10;
+  z-index: 20;
+  backdrop-filter: blur(12px);
 }
 
 .input-container {
   display: flex;
   align-items: center;
-  background: #f3f3f3;
-  border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 25px;
   padding: 0.5rem 0.75rem;
+  box-shadow: 0 0 10px rgba(128,0,0,0.3);
 }
 
 .chat-input {
   flex: 1;
   border: none;
   background: transparent;
+  color: #fff;
   outline: none;
-  font-size: 1rem;
+  font-size: 16px;
   padding: 0.4rem;
 }
 
+.chat-input::placeholder {
+  color: #ccc;
+}
+
 .send-btn {
-  background: var(--maroon);
+  background: radial-gradient(circle, #b30000, #5c0000);
   border: none;
   color: #fff;
   border-radius: 50%;
@@ -396,11 +374,14 @@ body.chatgpt-style {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s;
+  box-shadow: 0 0 15px rgba(255,60,60,0.7);
+  transition: all 0.25s ease;
 }
 
-.send-btn:hover { background: var(--maroon-dark); }
-.send-btn svg { width: 20px; height: 20px; }
+.send-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255,70,70,0.8);
+}
 
 /* ===================================
    🔐 LOGIN PAGE
@@ -411,7 +392,7 @@ body.chatgpt-style {
   padding: 2rem;
   background: var(--light-bg);
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(128, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(128,0,0,0.1);
   text-align: center;
 }
 
@@ -461,7 +442,7 @@ body.chatgpt-style {
   padding: 2rem;
   background: var(--light-bg);
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(128, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(128,0,0,0.1);
 }
 
 .stats-page h2 {
