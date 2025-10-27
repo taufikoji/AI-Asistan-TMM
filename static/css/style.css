@@ -12,6 +12,8 @@ html, body {
   background-color: #f9f9f9;
   color: #333;
   height: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 :root {
@@ -31,7 +33,6 @@ body.landing-page {
   position: relative;
 }
 
-/* Animasi grid & partikel */
 .bg-animation {
   position: absolute;
   top: 0;
@@ -55,7 +56,6 @@ body.landing-page {
   to { transform: translateY(100px); }
 }
 
-/* Partikel lembut */
 body.landing-page::before {
   content: "";
   position: absolute;
@@ -81,7 +81,7 @@ body.landing-page::before {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100dvh;
   padding: 2rem;
   text-align: center;
   position: relative;
@@ -100,7 +100,7 @@ body.landing-page::before {
 }
 
 .landing-page .logo img {
-  width: 150px;
+  width: clamp(100px, 25vw, 150px);
   margin-bottom: 1.5rem;
   filter: drop-shadow(0 0 15px rgba(128, 0, 0, 0.8)) brightness(1.1);
   animation: floatLogo 4s ease-in-out infinite;
@@ -113,56 +113,28 @@ body.landing-page::before {
 
 /* Glitch Text */
 .landing-page .title {
-  font-size: 2.8rem;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
   color: #fff;
   text-shadow: 0 0 10px var(--maroon), 0 0 20px var(--maroon-dark);
   position: relative;
   overflow: hidden;
 }
 
-.landing-page .title::before,
-.landing-page .title::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  width: 100%;
-  overflow: hidden;
-  clip: rect(0, 900px, 0, 0);
-}
-
-.landing-page .title::before {
-  color: #ff1a1a;
-  animation: glitchTop 2s infinite linear alternate-reverse;
-}
-
-.landing-page .title::after {
-  color: #00ffff;
-  animation: glitchBottom 2s infinite linear alternate-reverse;
-}
-
-@keyframes glitchTop {
-  0% { clip: rect(0, 9999px, 0, 0); }
-  10% { clip: rect(10px, 9999px, 40px, 0); transform: translate(-2px, -2px); }
-  20% { clip: rect(85px, 9999px, 140px, 0); transform: translate(2px, 2px); }
-  100% { clip: rect(0, 9999px, 0, 0); }
-}
-
-@keyframes glitchBottom {
-  0% { clip: rect(0, 9999px, 0, 0); }
-  10% { clip: rect(55px, 9999px, 90px, 0); transform: translate(2px, 2px); }
-  20% { clip: rect(10px, 9999px, 50px, 0); transform: translate(-2px, -2px); }
-  100% { clip: rect(0, 9999px, 0, 0); }
+@media (max-width: 500px) {
+  .landing-page .title::before,
+  .landing-page .title::after {
+    display: none; /* Matikan glitch di layar kecil */
+  }
 }
 
 .landing-page .subtitle {
   margin: 0.5rem 0 2.5rem;
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
   color: #ddd;
   opacity: 0.9;
   letter-spacing: 0.5px;
 }
 
-/* Tombol Neon */
 .button-group a {
   display: inline-block;
   padding: 0.75rem 1.8rem;
@@ -176,6 +148,7 @@ body.landing-page::before {
   position: relative;
   overflow: hidden;
   border: 2px solid var(--maroon);
+  font-size: clamp(0.9rem, 2.2vw, 1rem);
 }
 
 .btn-primary {
@@ -184,34 +157,15 @@ body.landing-page::before {
   box-shadow: 0 0 15px var(--maroon);
 }
 
-.btn-primary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, var(--maroon), #b30000);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-.btn-primary:hover::before {
-  opacity: 1;
-}
-
 .btn-secondary {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
   border: 1px solid #999;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Footer */
 .footer {
   margin-top: 3rem;
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
   color: #ccc;
   opacity: 0.8;
   letter-spacing: 0.5px;
@@ -223,106 +177,49 @@ body.landing-page::before {
 body.chatgpt-style {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   background: radial-gradient(circle at top left, #190000, #000);
   color: #fff;
   overflow: hidden;
   position: relative;
 }
 
-body.chatgpt-style::before {
-  content: "";
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: 0;
-  left: 0;
-  background: radial-gradient(2px 2px at 10% 30%, rgba(255,255,255,0.3), transparent),
-              radial-gradient(1.5px 1.5px at 70% 80%, rgba(255,255,255,0.25), transparent),
-              radial-gradient(1px 1px at 50% 50%, rgba(255,255,255,0.2), transparent);
-  animation: starDrift 100s linear infinite;
-  z-index: 0;
-  opacity: 0.3;
-}
-
-/* Header */
 .chat-header {
   background: rgba(128, 0, 0, 0.85);
-  color: #fff;
-  padding: 1rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
   border-bottom: 2px solid var(--maroon-dark);
-  position: relative;
-  z-index: 2;
   box-shadow: 0 0 20px rgba(128, 0, 0, 0.3);
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
 }
 
 .chat-header-icon img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
+  width: clamp(60px, 20vw, 90px);
+  height: auto;
   filter: drop-shadow(0 0 10px var(--maroon));
 }
 
-.chat-header-title {
-  flex: 1;
-  text-align: center;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
-/* Chat Box */
 .chat-box {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
+  padding: clamp(1rem, 3vw, 2rem);
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  position: relative;
-  z-index: 1;
   scroll-behavior: smooth;
 }
 
-/* Pesan */
 .message {
-  max-width: 75%;
-  padding: 1rem 1.4rem;
+  max-width: 80%;
+  padding: clamp(0.7rem, 2vw, 1rem) clamp(1rem, 2.5vw, 1.4rem);
   border-radius: 12px;
   line-height: 1.5;
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
   white-space: pre-wrap;
-  animation: fadeInUp 0.4s ease;
   position: relative;
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Garis cahaya animasi pada pesan bot */
-.message.bot::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 3px;
-  background: linear-gradient(90deg, var(--maroon), #ff4d4d, var(--maroon));
-  border-radius: 2px;
-  animation: aiLine 2.5s ease-out forwards;
-}
-
-@keyframes aiLine {
-  0% { width: 0%; opacity: 0.8; }
-  50% { width: 100%; opacity: 1; }
-  100% { width: 0%; left: 100%; opacity: 0; }
-}
-
-/* Gaya pesan */
 .message.user {
   align-self: flex-end;
   background: linear-gradient(135deg, var(--maroon), #b30000);
@@ -338,43 +235,49 @@ body.chatgpt-style::before {
   box-shadow: 0 0 10px rgba(128, 0, 0, 0.4);
 }
 
-/* Input Area */
+/* Garis AI di pesan bot */
+.message.bot::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--maroon), #ff4d4d, var(--maroon));
+  animation: aiLine 2.5s ease-out forwards;
+  border-radius: 2px;
+}
+
+@keyframes aiLine {
+  0% { width: 0%; opacity: 0.8; }
+  50% { width: 100%; opacity: 1; }
+  100% { width: 0%; left: 100%; opacity: 0; }
+}
+
+/* Input */
 .chat-input-area {
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 0.8rem 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   position: sticky;
   bottom: 0;
-  z-index: 3;
-  backdrop-filter: blur(10px);
 }
 
 .input-container {
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 30px;
+  border-radius: 25px;
   padding: 0.5rem 0.75rem;
-  box-shadow: 0 0 10px rgba(128, 0, 0, 0.3);
 }
 
 .chat-input {
   flex: 1;
   border: none;
   background: transparent;
-  outline: none;
-  font-size: 1rem;
   color: #fff;
-}
-
-.chat-input::placeholder {
-  color: #aaa;
-  animation: blinkPlaceholder 6s infinite;
-}
-
-@keyframes blinkPlaceholder {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
 }
 
 .send-btn {
@@ -382,52 +285,48 @@ body.chatgpt-style::before {
   border: none;
   color: #fff;
   border-radius: 50%;
-  width: 42px;
-  height: 42px;
+  width: clamp(36px, 9vw, 44px);
+  height: clamp(36px, 9vw, 44px);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s;
   box-shadow: 0 0 10px rgba(128, 0, 0, 0.8);
 }
 
-.send-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
-}
-
 /* ===================================
-   🔐 LOGIN, 📊 ADMIN, ❌ 404
-=================================== */
-.login-page .login-container {
-  max-width: 400px;
-  margin: 10vh auto;
-  padding: 2rem;
-  background: var(--light-bg);
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(128, 0, 0, 0.1);
-  text-align: center;
-}
-
-.login-container h2 { color: var(--maroon); margin-bottom: 1rem; }
-
-.stats-page {
-  max-width: 800px;
-  margin: 4rem auto;
-  padding: 2rem;
-  background: var(--light-bg);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(128, 0, 0, 0.1);
-}
-
-.stats-page h2 { color: var(--maroon); margin-bottom: 1.5rem; }
-
-/* ===================================
-   📱 RESPONSIVE
+   RESPONSIVE FIXES
 =================================== */
 @media (max-width: 768px) {
-  .chat-box { padding: 1rem; }
-  .message { font-size: 0.9rem; }
-  .landing-page .title { font-size: 2rem; }
+  body.landing-page .container {
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1.5rem;
+  }
+
+  .chat-box {
+    padding: 1rem;
+  }
+
+  .chat-input-area {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  body.landing-page {
+    background: #200000;
+  }
+
+  .landing-page .container {
+    backdrop-filter: blur(10px);
+  }
+
+  .chat-header {
+    font-size: 1rem;
+  }
 }
