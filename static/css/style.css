@@ -1,322 +1,351 @@
 /* ===================================
-   🌐 GLOBAL RESET & THEME (stabil + aksesibel)
+   🌐 GLOBAL RESET & THEME
 =================================== */
-* { margin:0; padding:0; box-sizing:border-box; }
-html,body{
-  height:100%;
-  font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;
-  background:#f9f9f9; color:#333;
-  -webkit-text-size-adjust:100%;
-  text-size-adjust:100%;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-:root{
-  --maroon:#800000;
-  --maroon-dark:#5c0000;
-  --light-bg:#ffffff;
-  --accent:#f0f0f0;
-  --panel-bg:rgba(255,255,255,0.06);
-  --panel-border:rgba(255,255,255,0.12);
-}
-img{max-width:100%; height:auto; display:block;}
-a{color:inherit}
 
-/* Utility untuk viewport modern + fallback */
-@supports(height:100svh){
-  .use-vh{min-height:100svh;}
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f9f9f9;
+  color: #333;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
-.use-vh{min-height:100vh;}
 
-/* Motion-aware: matikan animasi berat bila diminta */
-@media (prefers-reduced-motion:reduce){
-  *{animation:none!important; transition:none!important; scroll-behavior:auto!important;}
+:root {
+  --maroon: #800000;
+  --maroon-dark: #5c0000;
+  --light-bg: #ffffff;
+  --accent: #f0f0f0;
+  --panel-bg: rgba(255, 255, 255, 0.06);
+  --panel-border: rgba(255, 255, 255, 0.12);
 }
 
 /* ===================================
-   🏠 LANDING PAGE (FUTURISTIC — stabil & ringan)
+   🏠 LANDING PAGE (FUTURISTIC)
 =================================== */
-body.landing-page{
-  background:radial-gradient(1000px 600px at 85% 10%, #300000 0%, #0a0a0a 70%);
-  color:#fff; overflow:hidden; position:relative;
-}
-.landing-page .container{
-  /* tinggi aman di semua device */
-  min-height:100vh; min-height:100dvh; min-height:100svh;
-  padding:clamp(1.25rem,2vw,2rem);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  text-align:center; gap:0.75rem; position:relative; isolation:isolate;
-  border-radius:20px; max-width:1100px; margin-inline:auto;
-  background:var(--panel-bg); border:1px solid var(--panel-border);
-  box-shadow:0 0 30px rgba(128,0,0,0.35);
-}
-@supports(backdrop-filter:blur(20px)){
-  .landing-page .container{ backdrop-filter:blur(18px); }
+body.landing-page {
+  background: radial-gradient(circle at top right, #300000 0%, #0a0a0a 80%);
+  color: #fff;
+  overflow: hidden;
+  position: relative;
 }
 
-/* Latar animasi (tidak blok interaksi) */
-.bg-animation{
-  position:absolute; inset:0; z-index:-1; pointer-events:none;
+.bg-animation {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.05) 0 1px,
+    transparent 1px 4px
+  );
+  animation: bgShift 20s linear infinite;
+  opacity: 0.25;
+}
+@keyframes bgShift {
+  from { transform: translateY(0); }
+  to { transform: translateY(120px); }
+}
+
+body.landing-page::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
   background:
-    repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 4px);
-  animation:bgShift 24s linear infinite;
-  opacity:.22;
+    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(2px 2px at 40% 80%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1.5px 1.5px at 60% 20%, rgba(255,255,255,0.4), transparent);
+  animation: starsDrift 60s linear infinite;
+  opacity: 0.45;
 }
-@keyframes bgShift{ from{transform:translateY(0)} to{transform:translateY(120px)} }
-
-/* Partikel bintang lembut */
-body.landing-page::before{
-  content:""; position:absolute; inset:-10% -10% 0 -10%; z-index:-2; pointer-events:none;
-  background:
-    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.55), transparent),
-    radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,.45), transparent),
-    radial-gradient(2px 2px at 40% 80%, rgba(255,255,255,.65), transparent),
-    radial-gradient(1.5px 1.5px at 60% 20%, rgba(255,255,255,.35), transparent);
-  animation:starsDrift 60s linear infinite; opacity:.45;
-}
-@keyframes starsDrift{ from{transform:translate(0,0)} to{transform:translate(-120px,120px)} }
-
-/* Logo aman dan glow halus */
-.landing-page .logo img{
-  width:clamp(96px,18vw,150px); margin-bottom:0.75rem;
-  filter:drop-shadow(0 0 12px rgba(128,0,0,.75)) brightness(1.06);
-  animation:logoFloat 6s ease-in-out infinite;
-}
-@keyframes logoFloat{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-
-/* Judul dengan glitch ramah mobile */
-.landing-page .title{
-  font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; letter-spacing:.3px;
-  text-shadow:0 0 10px var(--maroon), 0 0 18px rgba(128,0,0,.4);
-  position:relative; line-height:1.1;
-}
-.landing-page .title span{color:#fff}
-.landing-page .title.glitch-text{ /* aktif jika HTML memberi class & data-text */
-  --glitch-red:#ff4040; --glitch-cyan:#00ffff;
-}
-.landing-page .title.glitch-text::before,
-.landing-page .title.glitch-text::after{
-  content:attr(data-text); position:absolute; inset:0; overflow:hidden; pointer-events:none;
-}
-.landing-page .title.glitch-text::before{
-  color:var(--glitch-red); mix-blend-mode:screen; clip-path:inset(0 0 55% 0);
-  animation:glTop 2.4s infinite linear alternate-reverse;
-}
-.landing-page .title.glitch-text::after{
-  color:var(--glitch-cyan); mix-blend-mode:screen; clip-path:inset(45% 0 0 0);
-  animation:glBot 2.2s infinite linear alternate-reverse;
-}
-@keyframes glTop{
-  0%{transform:translate(-2px,-1px)} 50%{transform:translate(1px,1px)} 100%{transform:translate(0,0)}
-}
-@keyframes glBot{
-  0%{transform:translate(2px,1px)} 50%{transform:translate(-1px,-1px)} 100%{transform:translate(0,0)}
-}
-@media (max-width:520px){
-  .landing-page .title.glitch-text::before,
-  .landing-page .title.glitch-text::after{ display:none; } /* ringan di HP kecil */
+@keyframes starsDrift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-120px, 120px); }
 }
 
-.landing-page .subtitle{
-  font-size:clamp(1rem,2.4vw,1.2rem); color:#e7e7e7; opacity:.92;
-  margin:.25rem 0 1.5rem; letter-spacing:.4px;
+.landing-page .container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100svh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+  position: relative;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(128, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+  isolation: isolate;
 }
 
-/* Tombol neon maroon (aksesibel) */
-.button-group{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
-.button-group a{
-  display:inline-block; padding:.8rem 1.6rem; border-radius:10px; font-weight:700;
-  text-decoration:none; letter-spacing:.8px; text-transform:uppercase;
-  border:2px solid var(--maroon); position:relative; overflow:hidden;
-  transition:transform .2s ease, box-shadow .3s ease, background .3s ease, color .3s ease;
-  will-change:transform;
-  font-size:clamp(.95rem,2.2vw,1rem);
+.landing-page .logo img {
+  width: clamp(100px, 25vw, 150px);
+  margin-bottom: 1.2rem;
+  filter: drop-shadow(0 0 15px rgba(128, 0, 0, 0.8));
+  animation: floatLogo 5s ease-in-out infinite;
 }
-.btn-primary{
-  background:rgba(128,0,0,.2); color:#fff;
-  box-shadow:0 0 14px rgba(128,0,0,.6);
-}
-.btn-primary:hover{ transform:translateY(-2px); box-shadow:0 0 22px rgba(255,60,60,.7); }
-.btn-secondary{ background:rgba(255,255,255,.12); color:#fff; border-color:#bdbdbd; }
-.btn-secondary:hover{ background:rgba(255,255,255,.2); }
-
-/* Footer */
-.footer{ margin-top:2rem; font-size:.92rem; color:#d0d0d0; opacity:.85; }
-
-/* ===================================
-   💬 CHATROOM (TIMU Command Interface)
-=================================== */
-body.chatgpt-style{
-  background:radial-gradient(900px 600px at 10% 0%, #190000 0%, #000 70%);
-  color:#fff; position:relative; overflow:hidden;
-  min-height:100vh; min-height:100dvh; min-height:100svh;
+@keyframes floatLogo {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
-/* Header bersih & glow */
-.chat-header{
-  background:rgba(128,0,0,.88); color:#fff;
-  padding:clamp(.8rem,2vw,1rem) clamp(1rem,3vw,1.5rem);
-  text-align:center; font-weight:700; letter-spacing:.3px;
-  border-bottom:2px solid var(--maroon-dark);
-  box-shadow:0 0 20px rgba(128,0,0,.35);
-  position:sticky; top:0; z-index:10;
-  backdrop-filter:saturate(1.1);
-}
-.chat-header-icon img{
-  width:clamp(56px,12vw,88px); margin-inline:auto; filter:drop-shadow(0 0 10px var(--maroon));
-}
-.chat-header-title{ font-size:clamp(1rem,2.6vw,1.2rem); }
-
-/* Area chat: gulir halus, tanpa “bounce” */
-.chat-box{
-  flex:1; display:flex; flex-direction:column; gap:.9rem;
-  padding:clamp(1rem,3vw,2rem);
-  overflow-y:auto; scroll-behavior:smooth;
-  overscroll-behavior:contain; /* cegah parent scroll */
-  -webkit-overflow-scrolling:touch;
+.landing-page .title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--maroon), 0 0 20px rgba(128, 0, 0, 0.4);
 }
 
-/* Bubble message stabil, aman kata panjang */
-.message{
-  max-width:min(780px, 86%); align-self:flex-start;
-  padding:clamp(.75rem,2vw,1rem) clamp(1rem,2.5vw,1.25rem);
-  border-radius:14px; line-height:1.55; font-size:clamp(.92rem,2.4vw,1rem);
-  white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word;
-  position:relative;
-}
-.message.user{
-  align-self:flex-end;
-  background:linear-gradient(135deg, var(--maroon), #b30000);
-  color:#fff; box-shadow:0 0 12px rgba(128,0,0,.55);
-}
-.message.bot{
-  background:rgba(255,255,255,.08); color:#f6f6f6;
-  border-left:3px solid var(--maroon);
-  box-shadow:0 0 10px rgba(128,0,0,.35);
-}
-@supports(backdrop-filter:blur(10px)){
-  .message.bot{ backdrop-filter:blur(8px); }
+.landing-page .subtitle {
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  color: #ddd;
+  opacity: 0.9;
 }
 
-/* AI response loading line — aman performa */
-.message.bot::before{
-  content:""; position:absolute; top:0; left:0; height:3px; width:0%;
-  background:linear-gradient(90deg, var(--maroon), #ff4d4d, var(--maroon));
-  border-radius:2px; opacity:.95; will-change:width, transform, opacity;
-  animation:aiLine 2100ms ease-out forwards;
-}
-@keyframes aiLine{
-  0%{width:0%; opacity:.9}
-  55%{width:100%; opacity:1}
-  100%{width:0%; left:100%; opacity:0}
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
-/* Typing indicator (subtle) */
-.typing-indicator{ display:flex; gap:4px; align-items:center; height:22px; padding-left:.5rem; }
-.typing-indicator span{
-  width:8px; height:8px; border-radius:50%; background:#ffd6d6;
-  animation:typing 1s infinite ease-in-out;
-}
-.typing-indicator span:nth-child(2){ animation-delay:.2s }
-.typing-indicator span:nth-child(3){ animation-delay:.4s }
-@keyframes typing{
-  0%,80%,100%{ transform:scale(.6); opacity:.45 }
-  40%{ transform:scale(1); opacity:1 }
+.button-group a {
+  display: inline-block;
+  padding: 0.75rem 1.6rem;
+  border-radius: 8px;
+  border: 2px solid var(--maroon);
+  font-weight: 700;
+  text-decoration: none;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: all 0.3s ease;
 }
 
-/* Input area: no auto-zoom iOS (>=16px) */
-.chat-input-area{
-  background:rgba(0,0,0,.78);
-  padding:clamp(.7rem,2.2vw,1rem) clamp(.9rem,3vw,1.25rem);
-  border-top:1px solid rgba(255,255,255,.12);
-  position:sticky; bottom:0; z-index:10;
-  backdrop-filter:blur(10px) saturate(1.1);
+.btn-primary {
+  background: rgba(128, 0, 0, 0.25);
+  box-shadow: 0 0 15px rgba(128, 0, 0, 0.6);
 }
-.input-container{
-  display:flex; align-items:center; gap:.6rem;
-  background:rgba(255,255,255,.10);
-  border-radius:26px; padding:.55rem .75rem;
-  box-shadow:0 0 10px rgba(128,0,0,.28);
+.btn-primary:hover {
+  background: var(--maroon);
+  box-shadow: 0 0 25px rgba(255, 60, 60, 0.7);
 }
-.chat-input{
-  flex:1; border:none; outline:none; background:transparent; color:#fff;
-  font-size:16px; /* >=16px: cegah auto-zoom iOS */
-  line-height:1.4; padding:.2rem .1rem;
-}
-.chat-input::placeholder{ color:#bababa; opacity:.95; }
-.send-btn{
-  background:radial-gradient(circle, #b30000, #5c0000);
-  color:#fff; border:none; border-radius:50%;
-  width:clamp(38px,8.2vw,44px); height:clamp(38px,8.2vw,44px);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 0 12px rgba(255,40,40,.7);
-  transition:transform .15s ease, box-shadow .2s ease;
-}
-.send-btn:hover{ transform:translateY(-1px) scale(1.04); box-shadow:0 0 18px rgba(255,70,70,.85); }
-.send-btn:active{ transform:scale(.98); }
 
-/* Scrollbar halus (webkit only) */
-.chat-box::-webkit-scrollbar{ width:10px }
-.chat-box::-webkit-scrollbar-thumb{ background:linear-gradient(var(--maroon), #b30000); border-radius:8px }
-.chat-box::-webkit-scrollbar-track{ background:rgba(255,255,255,.06) }
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
 
-/* ===================================
-   🔐 LOGIN PAGE (tetap sederhana)
-=================================== */
-.login-page .login-container{
-  max-width:420px; margin:8vh auto; padding:2rem;
-  background:var(--light-bg); border-radius:10px;
-  box-shadow:0 0 10px rgba(128,0,0,.10); text-align:center;
-}
-.login-container h2{ color:var(--maroon); margin-bottom:1rem; }
-.login-container input{
-  width:100%; padding:.8rem; margin:1rem 0; font-size:16px; /* >=16px anti-zoom */
-  border:1px solid #ddd; border-radius:8px;
-}
-.login-container button{
-  background:var(--maroon); color:#fff; border:none; padding:.75rem 1.5rem;
-  font-size:1rem; cursor:pointer; border-radius:8px; transition:background .25s ease;
-}
-.login-container button:hover{ background:var(--maroon-dark); }
-.login-container .alert{ color:#c10000; margin:.5rem 0; }
-.back-link{ display:inline-block; margin-top:.75rem; color:var(--maroon); text-decoration:none; }
-
-/* ===================================
-   📊 ADMIN STATS PAGE
-=================================== */
-.stats-page{
-  max-width:900px; margin:4rem auto; padding:2rem;
-  background:var(--light-bg); border-radius:12px;
-  box-shadow:0 0 10px rgba(128,0,0,.10);
-}
-.stats-page h2{ color:var(--maroon); margin-bottom:1.25rem; }
-.stats-page ul{ list-style:none; }
-.stats-page li{
-  margin-bottom:1rem; background:#f5f5f5; padding:1rem;
-  border-left:4px solid var(--maroon); border-radius:8px;
+.footer {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #ccc;
 }
 
 /* ===================================
-   ❌ 404 PAGE
+   💬 CHATROOM (FUTURISTIC)
 =================================== */
-body.error-page{
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  min-height:100vh; min-height:100dvh; min-height:100svh;
-  background:#fff0f0; color:var(--maroon); text-align:center; gap:.5rem;
+body.chatgpt-style {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100svh;
+  background: radial-gradient(circle at top left, #190000, #000);
+  color: #fff;
+  overflow: hidden;
+  position: relative;
 }
-.error-page h1{ font-size:clamp(3.2rem,10vw,6rem); }
-.error-page p{ font-size:clamp(1rem,3vw,1.5rem); }
+
+/* Header */
+.chat-header {
+  background: rgba(128, 0, 0, 0.9);
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  border-bottom: 2px solid var(--maroon-dark);
+  box-shadow: 0 0 20px rgba(128, 0, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.chat-header-icon img {
+  width: clamp(60px, 20vw, 90px);
+  margin-inline: auto;
+  filter: drop-shadow(0 0 10px var(--maroon));
+}
+
+/* Chat Wrapper */
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Chat Box */
+.chat-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 2rem);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Messages */
+.message {
+  max-width: 85%;
+  padding: clamp(0.8rem, 2vw, 1rem) clamp(1rem, 3vw, 1.4rem);
+  border-radius: 14px;
+  line-height: 1.5;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--maroon), #b30000);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(128, 0, 0, 0.6);
+}
+
+.message.bot {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--maroon);
+  box-shadow: 0 0 10px rgba(128, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.message.bot::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--maroon), #ff4d4d, var(--maroon));
+  border-radius: 2px;
+  animation: aiLine 2.2s ease-out forwards;
+}
+@keyframes aiLine {
+  0% { width: 0%; opacity: 0.8; }
+  50% { width: 100%; opacity: 1; }
+  100% { width: 0%; left: 100%; opacity: 0; }
+}
+
+/* Input Area — FIX iOS Safari Safe Area */
+.chat-input-area {
+  background: rgba(0, 0, 0, 0.85);
+  padding: 0.8rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  padding: 0.55rem 0.75rem;
+  box-shadow: 0 0 10px rgba(128, 0, 0, 0.3);
+}
+
+.chat-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  font-size: 16px; /* Fix iOS zoom */
+}
+
+.chat-input::placeholder {
+  color: #bbb;
+}
+
+.send-btn {
+  background: radial-gradient(circle, #b30000, #5c0000);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: clamp(36px, 9vw, 44px);
+  height: clamp(36px, 9vw, 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(255, 40, 40, 0.7);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.send-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 20px rgba(255, 70, 70, 0.8);
+}
+
+/* Safari/iOS keyboard fix */
+@supports (-webkit-touch-callout: none) {
+  .chat-input-area {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .chat-box {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  }
+}
 
 /* ===================================
-   📱 RESPONSIVE TUNING
+   RESPONSIVE
 =================================== */
-@media (max-width:768px){
-  .landing-page .container{ border-radius:14px; box-shadow:none; }
-  .button-group{ gap:.6rem }
-  .message{ max-width:92%; }
-  .chat-box{ padding:1rem; }
-  .chat-input-area{ padding:.6rem .8rem; }
+@media (max-width: 768px) {
+  .landing-page .container {
+    border-radius: 10px;
+    box-shadow: none;
+  }
+  .chat-box {
+    padding: 1rem;
+  }
+  .message {
+    max-width: 90%;
+  }
 }
-@media (max-width:480px){
-  body.landing-page{ background:#200000; }
-  .landing-page .container{ backdrop-filter:blur(10px); }
-  .chat-header{ font-size:1rem; }
+
+@media (max-width: 480px) {
+  body.landing-page {
+    background: #200000;
+  }
+  .chat-header {
+    font-size: 1rem;
+  }
 }
