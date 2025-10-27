@@ -1,26 +1,48 @@
 /* ===================================
-   🌐 GLOBAL RESET & THEME
+   🚀 TIMU CSS v2.1 (Production Build)
+   Stable • Cross-Device • Graceful Fallback
 =================================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+
+/* ===================================
+   🧠 PERFORMANCE GUARD & FALLBACK
+=================================== */
+@supports not (will-change: transform) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  body {
+    background: #400000 !important;
+  }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Global Reset */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
   height: 100%;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI', system-ui, sans-serif;
   background: #f9f9f9;
   color: #333;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
+img { max-width: 100%; display: block; }
+a { text-decoration: none; color: inherit; }
 
 :root {
   --maroon: #800000;
   --maroon-dark: #5c0000;
   --light-bg: #ffffff;
-  --accent: #f0f0f0;
   --panel-bg: rgba(255, 255, 255, 0.06);
   --panel-border: rgba(255, 255, 255, 0.12);
 }
@@ -33,6 +55,7 @@ body.landing-page {
   color: #fff;
   overflow: hidden;
   position: relative;
+  -webkit-font-smoothing: antialiased;
 }
 
 .bg-animation {
@@ -40,15 +63,11 @@ body.landing-page {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.05) 0 1px,
-    transparent 1px 4px
-  );
-  animation: bgShift 20s linear infinite;
-  opacity: 0.25;
+  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 4px);
+  animation: gridShift 24s linear infinite;
+  opacity: 0.22;
 }
-@keyframes bgShift {
+@keyframes gridShift {
   from { transform: translateY(0); }
   to { transform: translateY(120px); }
 }
@@ -57,14 +76,14 @@ body.landing-page::before {
   content: "";
   position: absolute;
   inset: -10%;
-  z-index: 0;
   background:
     radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.6), transparent),
     radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.5), transparent),
     radial-gradient(2px 2px at 40% 80%, rgba(255,255,255,0.7), transparent),
     radial-gradient(1.5px 1.5px at 60% 20%, rgba(255,255,255,0.4), transparent);
   animation: starsDrift 60s linear infinite;
-  opacity: 0.45;
+  opacity: 0.4;
+  z-index: 0;
 }
 @keyframes starsDrift {
   from { transform: translate(0, 0); }
@@ -72,28 +91,30 @@ body.landing-page::before {
 }
 
 .landing-page .container {
-  min-height: 100vh;
-  min-height: 100dvh;
-  min-height: 100svh;
-  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   gap: 1rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 2rem;
   position: relative;
+  z-index: 1;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
   border-radius: 20px;
-  box-shadow: 0 0 30px rgba(128, 0, 0, 0.35);
-  backdrop-filter: blur(18px);
-  isolation: isolate;
+  box-shadow: 0 0 30px rgba(128, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+}
+@supports not (backdrop-filter: blur(10px)) {
+  .landing-page .container { background: rgba(50, 0, 0, 0.9); }
 }
 
 .landing-page .logo img {
   width: clamp(100px, 25vw, 150px);
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
   filter: drop-shadow(0 0 15px rgba(128, 0, 0, 0.8));
   animation: floatLogo 5s ease-in-out infinite;
 }
@@ -104,22 +125,22 @@ body.landing-page::before {
 
 .landing-page .title {
   font-size: clamp(1.8rem, 4vw, 2.8rem);
+  text-shadow: 0 0 10px var(--maroon), 0 0 20px var(--maroon-dark);
   font-weight: 700;
-  text-shadow: 0 0 10px var(--maroon), 0 0 20px rgba(128, 0, 0, 0.4);
 }
 
 .landing-page .subtitle {
-  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
   color: #ddd;
   opacity: 0.9;
 }
 
 .button-group {
+  margin-top: 1.5rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.75rem;
-  margin-top: 1.5rem;
 }
 
 .button-group a {
@@ -128,13 +149,11 @@ body.landing-page::before {
   border-radius: 8px;
   border: 2px solid var(--maroon);
   font-weight: 700;
-  text-decoration: none;
+  letter-spacing: 0.8px;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
   transition: all 0.3s ease;
 }
-
 .btn-primary {
   background: rgba(128, 0, 0, 0.25);
   box-shadow: 0 0 15px rgba(128, 0, 0, 0.6);
@@ -143,7 +162,6 @@ body.landing-page::before {
   background: var(--maroon);
   box-shadow: 0 0 25px rgba(255, 60, 60, 0.7);
 }
-
 .btn-secondary {
   background: rgba(255, 255, 255, 0.1);
 }
@@ -151,14 +169,8 @@ body.landing-page::before {
   background: rgba(255, 255, 255, 0.3);
 }
 
-.footer {
-  margin-top: 2rem;
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
 /* ===================================
-   💬 CHATROOM (FUTURISTIC)
+   💬 CHATROOM
 =================================== */
 body.chatgpt-style {
   display: flex;
@@ -169,16 +181,14 @@ body.chatgpt-style {
   background: radial-gradient(circle at top left, #190000, #000);
   color: #fff;
   overflow: hidden;
-  position: relative;
 }
 
-/* Header */
 .chat-header {
   background: rgba(128, 0, 0, 0.9);
-  padding: 1rem;
+  color: #fff;
   text-align: center;
+  padding: 1rem;
   font-weight: 600;
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
   border-bottom: 2px solid var(--maroon-dark);
   box-shadow: 0 0 20px rgba(128, 0, 0, 0.3);
   position: sticky;
@@ -192,28 +202,25 @@ body.chatgpt-style {
   filter: drop-shadow(0 0 10px var(--maroon));
 }
 
-/* Chat Wrapper */
 .chat-wrapper {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  flex: 1;
   min-height: 0;
 }
 
-/* Chat Box */
 .chat-box {
   flex: 1;
+  overflow-y: auto;
+  padding: clamp(1rem, 3vw, 2rem);
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: clamp(1rem, 3vw, 2rem);
-  overflow-y: auto;
   scroll-behavior: smooth;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Messages */
 .message {
   max-width: 85%;
   padding: clamp(0.8rem, 2vw, 1rem) clamp(1rem, 3vw, 1.4rem);
@@ -249,7 +256,7 @@ body.chatgpt-style {
   height: 3px;
   background: linear-gradient(90deg, var(--maroon), #ff4d4d, var(--maroon));
   border-radius: 2px;
-  animation: aiLine 2.2s ease-out forwards;
+  animation: aiLine 2s ease-out forwards;
 }
 @keyframes aiLine {
   0% { width: 0%; opacity: 0.8; }
@@ -257,7 +264,9 @@ body.chatgpt-style {
   100% { width: 0%; left: 100%; opacity: 0; }
 }
 
-/* Input Area — FIX iOS Safari Safe Area */
+/* ===================================
+   ✏️ INPUT (Safe-area Fix)
+=================================== */
 .chat-input-area {
   background: rgba(0, 0, 0, 0.85);
   padding: 0.8rem 1rem;
@@ -285,12 +294,10 @@ body.chatgpt-style {
   outline: none;
   background: transparent;
   color: #fff;
-  font-size: 16px; /* Fix iOS zoom */
+  font-size: 16px;
 }
 
-.chat-input::placeholder {
-  color: #bbb;
-}
+.chat-input::placeholder { color: #bbb; }
 
 .send-btn {
   background: radial-gradient(circle, #b30000, #5c0000);
@@ -306,13 +313,12 @@ body.chatgpt-style {
   box-shadow: 0 0 12px rgba(255, 40, 40, 0.7);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .send-btn:hover {
   transform: scale(1.08);
   box-shadow: 0 0 20px rgba(255, 70, 70, 0.8);
 }
 
-/* Safari/iOS keyboard fix */
+/* Safari Keyboard Fix */
 @supports (-webkit-touch-callout: none) {
   .chat-input-area {
     position: fixed;
@@ -326,26 +332,18 @@ body.chatgpt-style {
 }
 
 /* ===================================
-   RESPONSIVE
+   📱 RESPONSIVE
 =================================== */
 @media (max-width: 768px) {
   .landing-page .container {
     border-radius: 10px;
     box-shadow: none;
   }
-  .chat-box {
-    padding: 1rem;
-  }
-  .message {
-    max-width: 90%;
-  }
+  .chat-box { padding: 1rem; }
+  .message { max-width: 90%; }
 }
 
 @media (max-width: 480px) {
-  body.landing-page {
-    background: #200000;
-  }
-  .chat-header {
-    font-size: 1rem;
-  }
+  body.landing-page { background: #200000; }
+  .chat-header { font-size: 1rem; }
 }
