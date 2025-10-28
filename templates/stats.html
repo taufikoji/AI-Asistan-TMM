@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Statistik TIMU</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="stats-page">
+  <h2>📊 Statistik Percakapan</h2>
+  <p>Total chat tersimpan: {{ stats.total_chats }}</p>
+
+  <h3>5 Percakapan Terbaru</h3>
+  <ul>
+    {% for item in stats.latest %}
+    <li><b>{{ item.user }}</b><br>{{ item.ai }}</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{{ url_for('logout') }}">Keluar</a>
+</body>
+</html>
