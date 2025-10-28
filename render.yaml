@@ -1,1 +1,33 @@
+services:
+  - type: web
+    name: timu-ai
+    runtime: python
+    region: singapore
+    plan: free
+    autoDeploy: true
 
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT app:app
+
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: PORT
+        value: 10000
+      - key: ALLOWED_ORIGINS
+        value: https://trisaktimultimedia.ac.id,https://www.trisaktimultimedia.ac.id
+      - key: ALLOW_TESTING
+        value: 0
+
+    healthCheckPath: /chat
+
+    scaling:
+      minInstances: 1
+      maxInstances: 1
