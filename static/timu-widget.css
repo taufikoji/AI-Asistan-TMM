@@ -1,0 +1,144 @@
+.timu-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Tombol Chat */
+.timu-fab {
+  background: radial-gradient(circle, #800000, #4a0000);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(128,0,0,0.6);
+  transition: all 0.3s ease;
+}
+.timu-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px rgba(255,60,60,0.8);
+}
+
+/* Window Chat */
+.timu-window {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 350px;
+  height: 450px;
+  background: rgba(10,0,0,0.95);
+  border: 2px solid #800000;
+  border-radius: 15px;
+  box-shadow: 0 0 40px rgba(128,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(30px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s ease;
+  backdrop-filter: blur(10px);
+}
+.timu-window.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Header */
+.timu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #800000, #5c0000);
+  padding: 0.8rem 1rem;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2px 10px rgba(128,0,0,0.4);
+}
+.timu-header img {
+  width: 28px; height: 28px;
+  border-radius: 50%; margin-right: 6px;
+}
+.timu-header span {
+  flex: 1; font-size: 0.9rem; letter-spacing: 0.5px;
+}
+.timu-close {
+  background: transparent; border: none; color: #fff;
+  font-size: 1.2rem; cursor: pointer; transition: transform 0.2s;
+}
+.timu-close:hover { transform: scale(1.2); }
+
+/* Body */
+.timu-body {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  scroll-behavior: smooth;
+}
+.timu-body .message {
+  max-width: 80%;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.timu-body .message.user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #800000, #b30000);
+  color: #fff;
+}
+.timu-body .message.bot {
+  align-self: flex-start;
+  background: rgba(255,255,255,0.08);
+  color: #f5f5f5;
+  border-left: 3px solid #800000;
+  backdrop-filter: blur(6px);
+}
+
+/* Input */
+.timu-input {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 0.6rem;
+}
+.timu-input input {
+  flex: 1; border: none; background: transparent; color: #fff;
+  outline: none; font-size: 0.9rem;
+}
+.timu-input input::placeholder { color: #bbb; }
+.timu-input button {
+  background: radial-gradient(circle, #b30000, #5c0000);
+  border: none; color: #fff; border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer;
+  box-shadow: 0 0 10px rgba(128,0,0,0.6);
+  transition: all 0.25s ease;
+}
+.timu-input button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 18px rgba(255,70,70,0.7);
+}
+
+/* Responsif */
+@media (max-width: 600px) {
+  .timu-window {
+    width: 90%;
+    right: 5%;
+    bottom: 90px;
+    height: 70vh;
+  }
+  .timu-fab {
+    width: 55px;
+    height: 55px;
+  }
+}
