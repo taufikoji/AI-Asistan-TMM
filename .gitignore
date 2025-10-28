@@ -1,5 +1,69 @@
+# ========================================
+# 🚫 ENVIRONMENT & CREDENTIALS
+# ========================================
 .env
+*.env
+.env.*
+
+# ========================================
+# 🧠 PYTHON CACHE & BUILD FILES
+# ========================================
 __pycache__/
 *.pyc
-# .gitignore
+*.pyo
+*.pyd
+*.pdb
+*.log
+*.sqlite
+*.db
+
+# ========================================
+# 🗂️ DEVELOPMENT / TEMPORARY FILES
+# ========================================
+.DS_Store
+.vscode/
+.idea/
+*.bak
+*.tmp
+
+# ========================================
+# 🧩 AI & RAG DATA (Non-public data)
+# ========================================
 rag/data/*.json
+rag/data/*.txt
+rag/cache/
+rag/models/
+rag/uploads/
+
+# ========================================
+# 🧾 CHAT / USER LOGS
+# ========================================
+chat_history.json
+app.log
+
+# ========================================
+# 🧰 PACKAGE MANAGER / DEPLOYMENT CACHE
+# ========================================
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+pip-wheel-metadata/
+__pyinstaller_cache__/
+
+# ========================================
+# 🚀 HOSTING & DEPLOYMENT
+# ========================================
+# Jangan kirim config lokal atau file rahasia Render
+render.yaml
+# Kalau kamu ingin Render auto-build dari repo, hapus baris di atas
+
+# ========================================
+# ✅ FILE YANG TETAP HARUS MASUK
+# ========================================
+!requirements.txt
+!app.py
+!templates/
+!static/
+!trisakti_info.json
