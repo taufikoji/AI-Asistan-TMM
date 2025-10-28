@@ -1,18 +1,40 @@
-Flask
-requests
-python-dotenv
-flask-cors
-#google-generativeai
+# ===========================
+# 🌐 Flask Core
+# ===========================
+Flask==3.0.3
+flask-cors==4.0.0
+python-dotenv==1.0.1
+Werkzeug==3.0.4
+gunicorn==23.0.0
+
+# ===========================
+# 🤖 Google Gemini SDK
+# ===========================
 google-genai==0.3.0
 google-api-core==2.19.2
+
+# ===========================
+# 🧠 NLP & Text Processing
+# ===========================
 langdetect==1.0.9
-pyspellchecker==0.7.0
-python-dateutil
-gunicorn
 textblob==0.17.1
-language-tool-python
-#idnspell==1.1.0
-symspellpy==6.7.6
-beautifulsoup4
-#sentence-transformers
-#faiss-cpu
+language-tool-python==2.7.0
+symspellpy==6.7.7
+pyspellchecker==0.7.0
+python-dateutil==2.9.0.post0
+beautifulsoup4==4.12.3
+requests==2.32.3
+
+# ===========================
+# 🧩 Security & Sanitization
+# ===========================
+Flask-Limiter==3.5.0
+bleach==6.1.0
+
+# ===========================
+# (Opsional) Debug & Monitoring
+# ===========================
+# sentry-sdk==2.18.0
+# idnspell==1.1.0
+# sentence-transformers==2.7.0
+# faiss-cpu==1.8.0
