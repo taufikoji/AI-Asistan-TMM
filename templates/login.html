@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Admin – TIMU</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="login-page">
   <div class="login-container">
-    <h2>🔒 Masuk Admin</h2>
+    <h2>Login Admin</h2>
     {% if error %}
       <div class="alert">{{ error }}</div>
     {% endif %}
     <form method="POST">
-      <input type="password" name="password" placeholder="Masukkan password admin..." required />
+      <input type="password" name="password" placeholder="Masukkan Password" required>
       <button type="submit">Masuk</button>
     </form>
-    <a href="{{ url_for('landing') }}" class="back-link">⬅️ Kembali ke beranda</a>
+    <a href="{{ url_for('landing') }}" class="back-link">⬅️ Kembali ke Halaman Utama</a>
   </div>
 </body>
 </html>
