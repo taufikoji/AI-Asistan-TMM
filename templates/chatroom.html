@@ -2,43 +2,36 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TIMU Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>TIMU AI Chatroom</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="chatgpt-style">
 
   <header class="chat-header">
-    <!-- Ikon di kiri -->
     <div class="chat-header-icon">
       <img src="{{ url_for('static', filename='img/timu.png') }}" alt="TIMU Icon">
     </div>
-
-    <!-- Judul/header di tengah (CSS akan menengahkan) -->
     <div class="chat-header-title">
       <strong>TIMU AI</strong>
-      <span> Asisten Trisakti School Of Multimedia</span>
+      <span>Asisten Trisakti School Of Multimedia</span>
     </div>
   </header>
 
   <div class="chat-wrapper">
-    <!-- Area chat -->
     <main id="chat-box" class="chat-box" aria-live="polite"></main>
 
-    <!-- Typing indicator (JS lama dapat mengontrol display) -->
     <div class="typing-indicator" id="typing-indicator" style="display: none;">
       <span></span><span></span><span></span>
     </div>
 
-    <!-- Input area (form id tetap: chat-form) -->
-    <form id="chat-form" class="chat-input-area" action="#" method="post">
+    <form id="chat-form" class="chat-input-area" autocomplete="off">
       <div class="input-container">
         <input
           type="text"
           id="user-input"
           class="chat-input"
           placeholder="Ketik pesan di sini..."
-          autocomplete="off"
           required
         />
         <button type="submit" class="send-btn" aria-label="Kirim">
