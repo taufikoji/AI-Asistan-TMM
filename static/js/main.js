@@ -4,13 +4,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatBox = document.getElementById("chat-box");
   const typing = document.getElementById("typing-indicator");
 
-  // Sambutan awal
+  // 🔹 Scroll helper — menjaga posisi chat selalu di bawah
+  function scrollToBottom() {
+    requestAnimationFrame(() => {
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+    });
+  }
+
+  // 🔹 Fungsi render pesan user
+  function renderMessage(role, text) {
+    const div = document.createElement("div");
+    div.classList.add("message", role);
+    div.innerHTML = text;
+    chatBox.appendChild(div);
+    scrollToBottom();
+  }
+
+  // 🔹 Fungsi render pesan bot (dengan efek ketik)
+  function renderBotMessage(htmlText, withTyping = true) {
+    const container = document.createElement("div");
+    container.classList.add("message", "bot");
+    chatBox.appendChild(container);
+
+    if (!withTyping) {
+      container.innerHTML = htmlText;
+      scrollToBottom();
+      return;
+    }
+
+    let temp = "";
+    let index = 0;
+
+    function typeChar() {
+      if (index < htmlText.length) {
+        temp += htmlText[index++];
+        container.textContent = temp;
+        scrollToBottom();
+        setTimeout(typeChar, 12); // kecepatan ketik natural
+      } else {
+        const parser = new DOMParser();
+        const frag = parser.parseFromString(temp, "text/html").body;
+        container.innerHTML = "";
+        while (frag.firstChild) {
+          container.appendChild(frag.firstChild);
+        }
+        scrollToBottom();
+      }
+    }
+
+    typeChar();
+  }
+
+  // 🔹 Sambutan awal hanya saat halaman dimuat
   renderBotMessage(
-    "Selamat datang di <b>Trisakti School of Multimedia (TIMU AI)</b>!<br>Ada yang bisa saya bantu hari ini?",
+    "👋 Halo! Saya <b>TIMU</b>, asisten AI Trisakti School of Multimedia.<br>Ada yang bisa saya bantu hari ini?",
     false
   );
 
-  // Kirim pesan user
+  // 🔹 Menangani pengiriman pesan user
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const message = input.value.trim();
@@ -19,12 +70,13 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMessage("user", message);
     input.value = "";
     typing.style.display = "flex";
+    scrollToBottom();
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message })
       });
 
       const data = await res.json();
@@ -37,56 +89,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       typing.style.display = "none";
-      renderMessage("bot", "⚠️ Terjadi kesalahan jaringan.");
+      renderMessage("bot", "⚠️ Koneksi bermasalah. Coba lagi nanti.");
     }
   });
 
-  // Render pesan user
-  function renderMessage(role, text) {
-    const div = document.createElement("div");
-    div.classList.add("message", role);
-    div.innerHTML = text;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
+  // 🔹 Responsif untuk iOS Safari: hindari auto zoom & bug keyboard
+  input.setAttribute("inputmode", "text");
+  input.setAttribute("enterkeyhint", "send");
 
-  // Render pesan bot (dengan efek ketik)
-  function renderBotMessage(htmlText, withTyping = true) {
-    const container = document.createElement("div");
-    container.classList.add("message", "bot");
-    chatBox.appendChild(container);
-
-    if (!withTyping) {
-      container.innerHTML = htmlText;
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return;
-    }
-
-    let temp = "";
-    let index = 0;
-
-    function typeChar() {
-      if (index < htmlText.length) {
-        temp += htmlText[index++];
-        container.textContent = temp;
-        chatBox.scrollTop = chatBox.scrollHeight;
-        setTimeout(typeChar, 10);
-      } else {
-        const parser = new DOMParser();
-        const frag = parser.parseFromString(temp, "text/html").body;
-        container.innerHTML = "";
-        while (frag.firstChild) container.appendChild(frag.firstChild);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }
-    }
-
-    typeChar();
-  }
-
-  // Fix iPhone keyboard behavior (scroll up when typing)
-  input.addEventListener("focus", () => {
-    setTimeout(() => {
-      document.activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 300);
+  // 🔹 Pastikan keyboard tidak menutup input di iPhone
+  window.visualViewport?.addEventListener("resize", () => {
+    document.body.style.height = window.visualViewport.height + "px";
   });
 });
