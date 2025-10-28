@@ -1,6 +1,7 @@
 /* ===================================
-   🚀 TIMU CSS v3.1 — Production Safe & Futuristic
-   Stabil di iOS Safari, Android, dan Desktop
+   🚀 TIMU CSS v3.5 — Production Complete
+   Kompatibel: Landing, Chatroom, Login, Admin, 404
+   Stabil di iOS Safari, Android Chrome, dan Desktop
 =================================== */
 
 /* ===================================
@@ -37,7 +38,7 @@ body.landing-page {
   position: relative;
 }
 
-/* Background Grid Animation */
+/* Background Animation */
 .bg-animation {
   position: absolute;
   top: 0; left: 0;
@@ -59,7 +60,7 @@ body.landing-page {
   to { transform: translateY(100px); }
 }
 
-/* Floating Particles */
+/* Floating Light Particles */
 body.landing-page::before {
   content: "";
   position: absolute;
@@ -80,7 +81,7 @@ body.landing-page::before {
   to { transform: translate(-100px, 100px); }
 }
 
-/* Glassmorphic Container */
+/* Glass Container */
 .landing-page .container {
   display: flex;
   flex-direction: column;
@@ -120,8 +121,6 @@ body.landing-page::before {
   font-size: 2.8rem;
   color: #fff;
   text-shadow: 0 0 10px var(--maroon), 0 0 20px var(--maroon-dark);
-  position: relative;
-  overflow: hidden;
 }
 
 .landing-page .subtitle {
@@ -166,15 +165,8 @@ body.landing-page::before {
   background: rgba(255,255,255,0.3);
 }
 
-.footer {
-  margin-top: 3rem;
-  font-size: 0.9rem;
-  color: #ccc;
-  opacity: 0.8;
-}
-
 /* ===================================
-   💬 CHATROOM (Futuristic + Safe)
+   💬 CHATROOM
 =================================== */
 body.chatgpt-style {
   display: flex;
@@ -185,7 +177,6 @@ body.chatgpt-style {
   overflow: hidden;
 }
 
-/* Header */
 .chat-header {
   background: rgba(128,0,0,0.9);
   color: #fff;
@@ -198,7 +189,7 @@ body.chatgpt-style {
   border-bottom: 3px solid var(--maroon-dark);
   gap: 10px;
   position: relative;
-  min-height: 100px;
+  min-height: 90px;
   box-shadow: 0 0 20px rgba(128,0,0,0.4);
 }
 
@@ -207,14 +198,11 @@ body.chatgpt-style {
   left: 1.25rem;
   top: 50%;
   transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .chat-header-icon img {
-  width: 90px;
-  height: 90px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
   filter: drop-shadow(0 0 10px #b30000);
 }
@@ -225,23 +213,20 @@ body.chatgpt-style {
   top: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  pointer-events: none;
 }
 
 .chat-header-title strong {
   font-size: 1.3rem;
-  display: block;
 }
 
 .chat-header-title span {
   font-weight: 400;
   opacity: 0.9;
   font-size: 0.95rem;
-  display: block;
   margin-top: 4px;
 }
 
-/* Chat Wrapper */
+/* Chat Box */
 .chat-wrapper {
   display: flex;
   flex-direction: column;
@@ -249,7 +234,6 @@ body.chatgpt-style {
   overflow: hidden;
 }
 
-/* Chat Box */
 .chat-box {
   flex: 1;
   overflow-y: auto;
@@ -257,9 +241,8 @@ body.chatgpt-style {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  scroll-behavior: smooth;
   background: radial-gradient(circle at 20% 20%, #190000 0%, #0a0a0a 100%);
-  overscroll-behavior: contain;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -269,14 +252,12 @@ body.chatgpt-style {
   height: 90px;
 }
 
-/* Messages */
 .message {
   max-width: 80%;
   padding: 0.9rem 1.2rem;
   border-radius: 14px;
   line-height: 1.6;
   font-size: 0.95rem;
-  white-space: pre-wrap;
   word-break: break-word;
   animation: fadeInMsg 0.25s ease-in;
 }
@@ -290,24 +271,63 @@ body.chatgpt-style {
   align-self: flex-end;
   background: linear-gradient(135deg, var(--maroon), #b30000);
   color: #fff;
-  box-shadow: 0 0 15px rgba(128,0,0,0.5);
   border-bottom-right-radius: 4px;
 }
 
 .message.bot {
   align-self: flex-start;
   background: rgba(255,255,255,0.08);
-  color: #f5f5f5;
   border-left: 4px solid var(--maroon);
   border-bottom-left-radius: 4px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 10px rgba(128,0,0,0.3);
+}
+
+/* Input Area */
+.chat-input-area {
+  background: rgba(0,0,0,0.9);
+  padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(255,255,255,0.15);
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 25px;
+  padding: 0.5rem 0.75rem;
+}
+
+.chat-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #fff;
+  outline: none;
+  font-size: 16px;
+}
+
+.chat-input::placeholder {
+  color: #ccc;
+}
+
+.send-btn {
+  background: radial-gradient(circle, #b30000, #5c0000);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 /* Typing Indicator */
 .typing-indicator {
   display: flex;
-  align-items: center;
   gap: 4px;
   padding-left: 1rem;
   height: 24px;
@@ -329,62 +349,8 @@ body.chatgpt-style {
   40% { transform: scale(1); opacity: 1; }
 }
 
-/* Input Area */
-.chat-input-area {
-  background: rgba(0,0,0,0.9);
-  padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid rgba(255,255,255,0.15);
-  position: sticky;
-  bottom: 0;
-  z-index: 20;
-  backdrop-filter: blur(12px);
-}
-
-.input-container {
-  display: flex;
-  align-items: center;
-  background: rgba(255,255,255,0.1);
-  border-radius: 25px;
-  padding: 0.5rem 0.75rem;
-  box-shadow: 0 0 10px rgba(128,0,0,0.3);
-}
-
-.chat-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: #fff;
-  outline: none;
-  font-size: 16px;
-  padding: 0.4rem;
-}
-
-.chat-input::placeholder {
-  color: #ccc;
-}
-
-.send-btn {
-  background: radial-gradient(circle, #b30000, #5c0000);
-  border: none;
-  color: #fff;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(255,60,60,0.7);
-  transition: all 0.25s ease;
-}
-
-.send-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255,70,70,0.8);
-}
-
 /* ===================================
-   🔐 LOGIN PAGE
+   🔐 LOGIN
 =================================== */
 .login-page .login-container {
   max-width: 400px;
@@ -392,14 +358,11 @@ body.chatgpt-style {
   padding: 2rem;
   background: var(--light-bg);
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(128,0,0,0.1);
   text-align: center;
+  box-shadow: 0 0 10px rgba(128,0,0,0.2);
 }
 
-.login-container h2 {
-  color: var(--maroon);
-  margin-bottom: 1rem;
-}
+.login-container h2 { color: var(--maroon); margin-bottom: 1rem; }
 
 .login-container input {
   width: 100%;
@@ -414,33 +377,23 @@ body.chatgpt-style {
   border: none;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
-  cursor: pointer;
   border-radius: 5px;
+  cursor: pointer;
   transition: background 0.3s;
 }
 
 .login-container button:hover { background: var(--maroon-dark); }
 
-.login-container .alert {
-  color: red;
-  margin-bottom: 1rem;
-}
-
-.back-link {
-  display: inline-block;
-  margin-top: 1rem;
-  color: var(--maroon);
-  text-decoration: none;
-}
+.login-container .alert { color: red; margin-bottom: 1rem; }
 
 /* ===================================
-   📊 ADMIN STATS PAGE
+   📊 ADMIN STATS
 =================================== */
 .stats-page {
   max-width: 800px;
   margin: 4rem auto;
   padding: 2rem;
-  background: var(--light-bg);
+  background: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(128,0,0,0.1);
 }
@@ -451,16 +404,15 @@ body.chatgpt-style {
 }
 
 .stats-page ul { list-style: none; }
-
 .stats-page li {
-  margin-bottom: 1rem;
   background: #f5f5f5;
+  margin-bottom: 1rem;
   padding: 1rem;
   border-left: 4px solid var(--maroon);
 }
 
 /* ===================================
-   ❌ 404 PAGE
+   ❌ 404
 =================================== */
 body.error-page {
   display: flex;
@@ -472,65 +424,20 @@ body.error-page {
   color: var(--maroon);
 }
 
-.error-page h1 {
-  font-size: 6rem;
-  margin-bottom: 1rem;
-}
-
-.error-page p {
-  font-size: 1.5rem;
-}
+.error-page h1 { font-size: 6rem; }
+.error-page p { font-size: 1.5rem; }
 
 /* ===================================
-   📱 RESPONSIVE DESIGN
+   📱 RESPONSIVE
 =================================== */
-@media (max-width: 1024px) {
-  .chat-header-icon img {
-    width: 90px;
-    height: 90px;
-  }
-  .chat-header { min-height: 90px; }
-}
-
 @media (max-width: 768px) {
-  .chat-header {
-    padding: 0.8rem 1rem;
-    font-size: 1rem;
-    min-height: 80px;
-  }
-
-  .chat-header-icon img {
-    width: 64px;
-    height: 64px;
-  }
-
-  .chat-box {
-    padding: 1rem;
-  }
-
-  .message {
-    max-width: 90%;
-    font-size: 0.9rem;
-  }
-
-  .send-btn {
-    width: 34px;
-    height: 34px;
-  }
-
-  .chat-input {
-    font-size: 0.95rem;
-  }
-
-  .chat-header-title strong {
-    font-size: 1.05rem;
-  }
-
-  .chat-header-title span {
-    font-size: 0.85rem;
-  }
-
-  .landing-page .title {
-    font-size: 2rem;
-  }
+  .chat-header { min-height: 80px; }
+  .chat-header-icon img { width: 64px; height: 64px; }
+  .chat-header-title strong { font-size: 1.1rem; }
+  .chat-header-title span { font-size: 0.85rem; }
+  .chat-box { padding: 1rem; }
+  .message { max-width: 90%; font-size: 0.9rem; }
+  .send-btn { width: 34px; height: 34px; }
+  .chat-input { font-size: 0.95rem; }
+  .landing-page .title { font-size: 2rem; }
 }
