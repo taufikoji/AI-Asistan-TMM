@@ -18,6 +18,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import bleach
+from difflib import SequenceMatcher
 
 # -------------------- Logging --------------------
 logging.basicConfig(
@@ -43,7 +44,7 @@ ALLOWED_ORIGINS = [
         "https://ai-asistan-tmm.onrender.com,https://trisaktimultimedia.ac.id,https://www.trisaktimultimedia.ac.id"
     ).split(",") if o.strip()
 ]
-# Auto-allow domain Render yang aktif
+# Auto-allow domain Render aktif
 _render_url = os.getenv("RENDER_EXTERNAL_URL")
 if _render_url and _render_url not in ALLOWED_ORIGINS:
     ALLOWED_ORIGINS.append(_render_url)
@@ -117,9 +118,8 @@ def correct_typo(text: str) -> str:
 
 # -------------------- Utilities --------------------
 def detect_language(text: str) -> str:
-    """Default INDONESIA. Hanya ganti jika input cukup panjang & deteksi yakin."""
+    """Default INDONESIA. Ganti hanya jika input cukup panjang dan deteksi berhasil."""
     try:
-        # input sangat pendek sering bikin false-positive; pakai ID sebagai default
         if len(text.strip().split()) < 3:
             return "id"
         return detect(text) or "id"
@@ -173,7 +173,7 @@ def get_category(msg):
                 return cat
     return "general"
 
-# Cache sederhana untuk status pendaftaran (hemat hit)
+# Cache status pendaftaran (hemat hit)
 _last_reg = {"t": None, "v": "Belum ada informasi pendaftaran."}
 def get_current_registration_status():
     try:
@@ -253,6 +253,76 @@ def find_program_by_alias(query):
                     return clone
     return None
 
+# -------------------- AI Answer Cache --------------------
+CACHE_PATH = os.path.join(os.path.dirname(__file__), "cache_ai.json")
+CACHE_MAX_ENTRIES = 1000
+SIM_THRESHOLD_HIT = 0.82   # kemiripan minimal untuk pakai cache
+SIM_THRESHOLD_DEDUP = 0.95 # kemiripan untuk anggap duplikat saat simpan
+
+def _load_cache():
+    try:
+        if os.path.exists(CACHE_PATH):
+            with open(CACHE_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    return data
+        return []
+    except Exception as e:
+        logger.warning("Gagal membaca cache_ai.json: %s", e)
+        return []
+
+def _save_cache(entries):
+    try:
+        # keep last CACHE_MAX_ENTRIES
+        entries = entries[-CACHE_MAX_ENTRIES:]
+        with open(CACHE_PATH, "w", encoding="utf-8") as f:
+            json.dump(entries, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.warning("Gagal menyimpan cache_ai.json: %s", e)
+
+def _norm_q(q: str) -> str:
+    q = (q or "").lower().strip()
+    q = re.sub(r"[^\w\s]", " ", q)
+    q = re.sub(r"\s+", " ", q)
+    return q
+
+def _similar(a: str, b: str) -> float:
+    return SequenceMatcher(None, _norm_q(a), _norm_q(b)).ratio()
+
+def cache_get_answer(user_msg: str):
+    items = _load_cache()
+    best = None
+    best_score = 0.0
+    for it in items:
+        q = it.get("question", "")
+        score = _similar(q, user_msg)
+        if score > best_score:
+            best_score = score
+            best = it
+    if best and best_score >= SIM_THRESHOLD_HIT:
+        logger.info("💾 Cache HIT (score=%.2f) untuk pertanyaan: %s", best_score, user_msg[:80])
+        return best.get("answer")
+    return None
+
+def cache_put_answer(user_msg: str, answer: str):
+    if not user_msg or not answer:
+        return
+    items = _load_cache()
+    # dedup by high similarity
+    for it in items:
+        if _similar(it.get("question", ""), user_msg) >= SIM_THRESHOLD_DEDUP:
+            # update dengan jawaban terbaru
+            it["answer"] = answer
+            it["ts"] = datetime.now().isoformat()
+            _save_cache(items)
+            return
+    items.append({
+        "question": _norm_q(user_msg),
+        "answer": answer,
+        "ts": datetime.now().isoformat()
+    })
+    _save_cache(items)
+
 # -------------------- Origin/Referer check --------------------
 def _is_allowed_origin(req) -> bool:
     origin = req.headers.get("Origin") or ""
@@ -277,11 +347,9 @@ def landing():
     session.clear()
     return render_template("landing.html")
 
-# Halaman chatroom
 @app.route("/chat")
 @limiter.limit("30/minute")
 def chatroom():
-    # jangan clear session di sini biar history tidak hilang saat refresh
     return render_template("chatroom.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -327,21 +395,19 @@ def clear_session():
     session.pop("conversation", None)
     return jsonify({"ok": True})
 
-# Endpoint lama — tetap hidup
 @app.route("/api/chat", methods=["POST"])
 @limiter.limit("60/minute")
 def api_chat():
     _precheck_request()
     return _chat_handler()
 
-# Endpoint untuk widget WordPress: POST /chat (AJAX)
 @app.route("/chat", methods=["POST"])
 @limiter.limit("60/minute")
 def chat_from_widget():
     _precheck_request()
     return _chat_handler()
 
-# -------- Core handler: shared by /api/chat dan POST /chat --------
+# -------- Core handler --------
 def _chat_handler():
     payload = request.get_json(silent=True) or {}
     message = (payload.get("message") or "").strip()
@@ -350,7 +416,7 @@ def _chat_handler():
     if len(message) > 1000:
         return jsonify({"error": "Pesan terlalu panjang (max 1000 karakter)."}), 413
 
-    lang = detect_language(message)  # sekarang default ID
+    lang = detect_language(message)  # default ID
     corrected = correct_typo(message)
 
     session.setdefault("conversation", [])
@@ -360,7 +426,7 @@ def _chat_handler():
     category = get_category(corrected)
     reg_status = get_current_registration_status()
 
-    # Quick replies manusiawi untuk pesan pendek
+    # Quick replies tanpa AI
     quick_replies = {
         "ga": "Oke 😊",
         "nggak": "Siap, nggak masalah kok 😄",
@@ -380,7 +446,7 @@ def _chat_handler():
         resp.headers["Cache-Control"] = "no-store"
         return resp
 
-    # Kategori khusus
+    # Kategori data lokal
     if category == "brosur":
         brosur_url = url_for("download_brosur", _external=True)
         reply = f"📄 Brosur resmi TMM siap diunduh:<br><a href='{brosur_url}' target='_blank' rel='noopener'>⬇️ Unduh Brosur</a>"
@@ -406,7 +472,7 @@ def _chat_handler():
         resp.headers["Cache-Control"] = "no-store"
         return resp
 
-    # Cek program studi
+    # Cek program studi (lokal)
     program = find_program_by_alias(corrected)
     if program:
         specs_list = _normalize_specs(program.get("specializations"))
@@ -428,7 +494,17 @@ def _chat_handler():
         resp.headers["Cache-Control"] = "no-store"
         return resp
 
-    # Chat AI umum (persona manusiawi & multilingual TERKONTROL)
+    # 🔎 Coba ambil dari CACHE sebelum panggil AI
+    cached = cache_get_answer(corrected)
+    if cached:
+        reply = sanitize_html(cached)
+        session["conversation"].append({"role": "bot", "content": reply})
+        save_chat(corrected, reply)
+        resp = jsonify({"reply": reply, "source": "cache"})
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+
+    # 🧠 AI (persona manusiawi & multilingual TERKONTROL)
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
         "Kamu adalah TIMU, asisten dari Trisakti School of Multimedia (TMM). "
@@ -453,10 +529,17 @@ def _chat_handler():
             contents=system_prompt + "\n\n" + user_prompt
         )
         reply_text = clean_response((response.text or "").strip())
-        reply_text = format_links(reply_text)
-
-        # Fallback hanya jika benar-benar kosong
-        if not reply_text.strip():
+        # Fallback ke cache jika AI balas kosong
+        if not reply_text:
+            cached2 = cache_get_answer(corrected)
+            if cached2:
+                reply = sanitize_html(format_links(cached2))
+                session["conversation"].append({"role": "bot", "content": reply})
+                save_chat(corrected, reply)
+                resp = jsonify({"reply": reply, "source": "cache"})
+                resp.headers["Cache-Control"] = "no-store"
+                return resp
+            # terakhir: kontak
             kontak = TRISAKTI.get("institution", {}).get("contact", {})
             wa = kontak.get("whatsapp")
             ig = kontak.get("instagram")
@@ -469,15 +552,33 @@ def _chat_handler():
                 f"📸 Instagram: {ig_link}"
             )
 
+        reply_text = format_links(reply_text)
         reply_text = sanitize_html(reply_text)
+
+        # 💾 Simpan ke cache (hemat token di masa depan)
+        try:
+            cache_put_answer(corrected, reply_text)
+        except Exception as e:
+            logger.warning("Cache put error: %s", e)
+
         session["conversation"].append({"role": "bot", "content": reply_text})
         save_chat(corrected, reply_text)
-        resp = jsonify({"reply": reply_text})
+        resp = jsonify({"reply": reply_text, "source": "ai"})
         resp.headers["Cache-Control"] = "no-store"
         return resp
 
     except google_exceptions.GoogleAPIError as e:
         logger.error("Gemini API Error: %s", e)
+        # ❗ Saat AI error, coba cache dulu
+        cached3 = cache_get_answer(corrected)
+        if cached3:
+            reply = sanitize_html(format_links(cached3))
+            session["conversation"].append({"role": "bot", "content": reply})
+            save_chat(corrected, reply)
+            resp = jsonify({"reply": reply, "source": "cache"})
+            resp.headers["Cache-Control"] = "no-store"
+            return resp
+        # terakhir: kontak
         kontak = TRISAKTI.get("institution", {}).get("contact", {})
         wa = kontak.get("whatsapp", "")
         ig = kontak.get("instagram", "")
@@ -487,7 +588,7 @@ def _chat_handler():
             f"📸 Instagram: <a href='https://www.instagram.com/{ig}' target='_blank' rel='noopener'>@{ig}</a>"
         )
         reply_text = sanitize_html(reply_text)
-        resp = jsonify({"reply": reply_text})
+        resp = jsonify({"reply": reply_text, "source": "fallback"})
         resp.headers["Cache-Control"] = "no-store"
         return resp, 500
     except Exception as e:
