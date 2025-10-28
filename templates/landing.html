@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TIMU – Asisten AI TMM</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="landing-page">
-  <div class="container center-content">
+  <div class="bg-animation"></div>
+
+  <div class="container">
     <div class="logo">
-      <img src="{{ url_for('static', filename='img/timu.png') }}" alt="Logo TMM" />
+      <img src="{{ url_for('static', filename='img/timu.png') }}" alt="Logo TIMU">
     </div>
     <h1 class="title">Selamat Datang di TIMU</h1>
     <p class="subtitle">Asisten AI dari Trisakti School of Multimedia</p>
+
     <div class="button-group">
       <a href="{{ url_for('chatroom') }}" class="btn btn-primary">💬 Mulai Chat</a>
       <a href="{{ url_for('login') }}" class="btn btn-secondary">🔒 Masuk Admin</a>
     </div>
+
+    <div class="footer">© 2025 Trisakti School of Multimedia</div>
   </div>
 </body>
 </html>
