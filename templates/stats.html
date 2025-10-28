@@ -1,21 +1,48 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Statistik TIMU</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin - TIMU</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="stats-page">
-  <h2>📊 Statistik Percakapan</h2>
-  <p>Total chat tersimpan: {{ stats.total_chats }}</p>
 
-  <h3>5 Percakapan Terbaru</h3>
-  <ul>
-    {% for item in stats.latest %}
-    <li><b>{{ item.user }}</b><br>{{ item.ai }}</li>
-    {% endfor %}
-  </ul>
+  <header style="text-align:center; margin-bottom: 2rem;">
+    <img src="{{ url_for('static', filename='img/timu.png') }}" alt="TIMU Logo" style="width: 80px;">
+    <h2 style="color: var(--maroon); margin-top: 0.5rem;">Dashboard Admin TIMU</h2>
+    <p style="font-size: 0.95rem; color: #666;">Trisakti School of Multimedia</p>
+  </header>
 
-  <a href="{{ url_for('logout') }}">Keluar</a>
+  <section style="background: #fff; border-radius: 10px; padding: 1.5rem; box-shadow: 0 0 15px rgba(128,0,0,0.15);">
+    <h3 style="color: var(--maroon-dark);">📈 Statistik Chat</h3>
+    <p><b>Total Percakapan:</b> {{ stats.total_chats }}</p>
+  </section>
+
+  <section style="margin-top: 2rem;">
+    <h3 style="color: var(--maroon-dark); margin-bottom: 1rem;">🕐 Riwayat Chat Terakhir</h3>
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      {% for h in stats.latest %}
+        <div style="
+          background: #fff;
+          border-left: 5px solid var(--maroon);
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(128,0,0,0.05);
+        ">
+          <p style="margin-bottom: 0.3rem; font-size: 0.9rem; color: #777;">{{ h.timestamp.split('T')[0] }}</p>
+          <p><b>👤 User:</b> {{ h.user }}</p>
+          <p><b>🤖 TIMU:</b> {{ h.ai }}</p>
+        </div>
+      {% else %}
+        <p style="color: #888;">Belum ada percakapan yang terekam.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <footer style="margin-top: 3rem; text-align: center;">
+    <a href="{{ url_for('logout') }}" class="btn-secondary" style="padding: 0.5rem 1.2rem;">Keluar</a>
+  </footer>
+
 </body>
 </html>
