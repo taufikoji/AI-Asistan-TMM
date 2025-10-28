@@ -37,10 +37,12 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 FLASK_SECRET = os.getenv("FLASK_SECRET_KEY", "timu-secret-key")
 
 # Whitelist origin (untuk WordPress / domain resmi)
-ALLOWED_ORIGINS = [o.strip() for o in os.getenv(
-    "ALLOWED_ORIGINS",
-    "https://trisaktimultimedia.ac.id,https://www.trisaktimultimedia.ac.id"
-).split(",") if o.strip()]
+ALLOWED_ORIGINS = [
+    o.strip() for o in os.getenv(
+        "ALLOWED_ORIGINS",
+        "https://ai-asistan-tmm.onrender.com,https://trisaktimultimedia.ac.id,https://www.trisaktimultimedia.ac.id"
+    ).split(",") if o.strip()
+]
 
 # -------------------- Flask init --------------------
 app = Flask(__name__, static_folder="static", template_folder="templates")
