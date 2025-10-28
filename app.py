@@ -36,13 +36,17 @@ if not GEMINI_API_KEY:
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 FLASK_SECRET = os.getenv("FLASK_SECRET_KEY", "timu-secret-key")
 
-# Whitelist origin (untuk WordPress / domain resmi)
+# Whitelist origin (WordPress + Render)
 ALLOWED_ORIGINS = [
     o.strip() for o in os.getenv(
         "ALLOWED_ORIGINS",
         "https://ai-asistan-tmm.onrender.com,https://trisaktimultimedia.ac.id,https://www.trisaktimultimedia.ac.id"
     ).split(",") if o.strip()
 ]
+# Auto-allow domain Render yang aktif
+_render_url = os.getenv("RENDER_EXTERNAL_URL")
+if _render_url and _render_url not in ALLOWED_ORIGINS:
+    ALLOWED_ORIGINS.append(_render_url)
 
 # -------------------- Flask init --------------------
 app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -76,7 +80,7 @@ JSON_PATH = os.path.join(os.path.dirname(__file__), "trisakti_info.json")
 try:
     with open(JSON_PATH, "r", encoding="utf-8") as jf:
         TRISAKTI = json.load(jf)
-    # pastikan Instagram username saja
+    # normalisasi instagram -> username saja
     ig = TRISAKTI.get("institution", {}).get("contact", {}).get("instagram", "")
     if ig:
         ig = ig.split("/")[-1].strip("@")
@@ -112,9 +116,13 @@ def correct_typo(text: str) -> str:
     return " ".join(corrected)
 
 # -------------------- Utilities --------------------
-def detect_language(text):
+def detect_language(text: str) -> str:
+    """Default INDONESIA. Hanya ganti jika input cukup panjang & deteksi yakin."""
     try:
-        return detect(text) if len(text.strip().split()) > 1 else "id"
+        # input sangat pendek sering bikin false-positive; pakai ID sebagai default
+        if len(text.strip().split()) < 3:
+            return "id"
+        return detect(text) or "id"
     except Exception:
         return "id"
 
@@ -217,17 +225,17 @@ def find_program_by_alias(query):
     q = (query or "").lower()
 
     for prog in TRISAKTI.get("academic_programs", []):
-        # 1) Cocokkan name langsung
+        # 1) Nama prodi
         name = (prog.get("name") or "").lower()
         if name and (name in q or q in name):
             return prog
 
-        # 2) Cocokkan alias
+        # 2) Alias
         for a in (prog.get("aliases") or []):
             if a and (a.lower() in q or q in a.lower()):
                 return prog
 
-        # 3) Cocokkan judul spesialisasi
+        # 3) Judul spesialisasi
         specs = prog.get("specializations", [])
         if isinstance(specs, list):
             for s in specs:
@@ -269,7 +277,7 @@ def landing():
     session.clear()
     return render_template("landing.html")
 
-# kamu pakai /chat untuk halaman chatroom — tetap dipertahankan
+# Halaman chatroom
 @app.route("/chat")
 @limiter.limit("30/minute")
 def chatroom():
@@ -319,14 +327,14 @@ def clear_session():
     session.pop("conversation", None)
     return jsonify({"ok": True})
 
-# Endpoint lama kamu — tetap hidup
+# Endpoint lama — tetap hidup
 @app.route("/api/chat", methods=["POST"])
 @limiter.limit("60/minute")
 def api_chat():
     _precheck_request()
     return _chat_handler()
 
-# Endpoint baru untuk widget WordPress: POST /chat
+# Endpoint untuk widget WordPress: POST /chat (AJAX)
 @app.route("/chat", methods=["POST"])
 @limiter.limit("60/minute")
 def chat_from_widget():
@@ -342,7 +350,7 @@ def _chat_handler():
     if len(message) > 1000:
         return jsonify({"error": "Pesan terlalu panjang (max 1000 karakter)."}), 413
 
-    lang = detect_language(message)
+    lang = detect_language(message)  # sekarang default ID
     corrected = correct_typo(message)
 
     session.setdefault("conversation", [])
@@ -361,7 +369,7 @@ def _chat_handler():
         "ok": "Oke 👍",
         "oke": "Siap~ 🚀",
         "wkwk": "Hehe 😆",
-        "hmm": "Hmm, gimana kalau kamu jelasin dikit lagi?"
+        "hmm": "Hmm, bisa dijelasin sedikit lagi?"
     }
     msg_lower = corrected.lower().strip()
     if msg_lower in quick_replies:
@@ -420,12 +428,14 @@ def _chat_handler():
         resp.headers["Cache-Control"] = "no-store"
         return resp
 
-    # Chat AI umum (persona manusiawi & multilingual ringan)
+    # Chat AI umum (persona manusiawi & multilingual TERKONTROL)
     short_history = session.get("conversation", [])[-6:]
     system_prompt = (
-        "Kamu adalah TIMU, asisten dari Trisakti School of Multimedia (TMM) yang berbicara seperti manusia muda: "
-        "sopan, hangat, dan natural. Bisa berbahasa Indonesia, Inggris, Jawa, atau Sunda; ikuti bahasa pengguna. "
-        "Jangan menggunakan frasa 'saya asisten AI'. Gunakan data berikut bila relevan:\n\n"
+        "Kamu adalah TIMU, asisten dari Trisakti School of Multimedia (TMM). "
+        "Gaya bicara: manusiawi, hangat, ringkas, tidak kaku. "
+        "Gunakan BAHASA INDONESIA sebagai default. "
+        "Gunakan bahasa lain (Inggris/Jawa/Sunda) HANYA jika pengguna menulis dalam bahasa tersebut. "
+        "Jangan menyebut 'saya asisten AI'. Gunakan data berikut bila relevan:\n\n"
         f"{json.dumps(TRISAKTI, ensure_ascii=False)}\n\n"
         f"Status Pendaftaran:\n{reg_status}\n\n"
         f"Riwayat Singkat:\n{json.dumps(short_history, ensure_ascii=False)}"
@@ -433,8 +443,8 @@ def _chat_handler():
     user_prompt = (
         f"Tanggal: {TRISAKTI.get('current_context', {}).get('date')} | "
         f"Jam: {TRISAKTI.get('current_context', {}).get('time')}\n"
-        f"Pertanyaan: {corrected}\nBahasa: {lang.upper()}\n"
-        "Balas singkat, jelas, manusiawi, dan mudah dipahami."
+        f"Pertanyaan: {corrected}\nBahasa terdeteksi: {lang.upper()}\n"
+        "Balas singkat, jelas, dan natural."
     )
 
     try:
@@ -445,15 +455,15 @@ def _chat_handler():
         reply_text = clean_response((response.text or "").strip())
         reply_text = format_links(reply_text)
 
-        # Fallback jika AI tidak tahu jawaban
-        if not reply_text or re.search(r"\b(maaf|tidak tahu|belum)\b", reply_text, flags=re.I):
+        # Fallback hanya jika benar-benar kosong
+        if not reply_text.strip():
             kontak = TRISAKTI.get("institution", {}).get("contact", {})
             wa = kontak.get("whatsapp")
             ig = kontak.get("instagram")
             wa_link = f"<a href='https://wa.me/{wa.replace('+','')}' target='_blank' rel='noopener'>{wa}</a>" if wa else "Belum tersedia"
             ig_link = f"<a href='https://www.instagram.com/{ig}' target='_blank' rel='noopener'>@{ig}</a>" if ig else "Belum tersedia"
             reply_text = (
-                "Maaf, aku belum punya info lengkap buat itu 😅<br>"
+                "Aku belum punya info lengkap untuk itu 😅<br>"
                 "Hubungi petugas kami ya:<br>"
                 f"📱 WhatsApp: {wa_link}<br>"
                 f"📸 Instagram: {ig_link}"
