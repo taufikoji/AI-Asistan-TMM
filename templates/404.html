@@ -1,18 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>404 - Halaman Tidak Ditemukan</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halaman Tidak Ditemukan – TIMU</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-  <main class="notfound-container">
-    <div class="notfound-box">
-      <h1>😕 404</h1>
-      <p>Halaman yang Anda cari tidak ditemukan.</p>
-      <a href="{{ url_for('landing') }}" class="btn">🔙 Kembali ke Beranda</a>
-    </div>
-  </main>
+<body class="error-page">
+  <h1>404</h1>
+  <p>Halaman yang kamu cari tidak ditemukan.</p>
+  <a href="{{ url_for('landing') }}" class="btn btn-primary">⬅️ Kembali ke Beranda</a>
 </body>
 </html>
