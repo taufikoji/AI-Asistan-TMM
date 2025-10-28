@@ -1,40 +1,33 @@
-# ===========================
-# 🌐 Flask Core
-# ===========================
-Flask==3.0.3
-flask-cors==4.0.0
-python-dotenv==1.0.1
-Werkzeug==3.0.4
-gunicorn==23.0.0
+# ==========================================
+# TIMU – Production Secure Requirements
+# ==========================================
 
-# ===========================
-# 🤖 Google Gemini SDK
-# ===========================
+# 🔧 Flask Core
+Flask==3.0.3
+Werkzeug==3.0.4
+flask-cors==4.0.0
+Flask-Limiter==3.5.0
+
+# 🧠 AI & Gemini
 google-genai==0.3.0
 google-api-core==2.19.2
 
-# ===========================
-# 🧠 NLP & Text Processing
-# ===========================
+# 🧰 Utility
+python-dotenv==1.0.1
+python-dateutil==2.9.0.post0
 langdetect==1.0.9
-textblob==0.17.1
-language-tool-python==2.7.0
 symspellpy==6.7.7
 pyspellchecker==0.7.0
-python-dateutil==2.9.0.post0
+textblob==0.17.1
+language-tool-python==2.7.0
 beautifulsoup4==4.12.3
 requests==2.32.3
-
-# ===========================
-# 🧩 Security & Sanitization
-# ===========================
-Flask-Limiter==3.5.0
 bleach==6.1.0
 
-# ===========================
-# (Opsional) Debug & Monitoring
-# ===========================
-# sentry-sdk==2.18.0
+# 🏃 Deployment
+gunicorn==23.0.0
+
+# 🧪 Optional (boleh dihapus jika tidak digunakan)
 # idnspell==1.1.0
-# sentence-transformers==2.7.0
-# faiss-cpu==1.8.0
+# sentence-transformers
+# faiss-cpu
