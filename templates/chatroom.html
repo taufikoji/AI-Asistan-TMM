@@ -2,12 +2,13 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <title>TIMU AI Chatroom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>TIMU AI Chat</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="chatgpt-style">
 
+  <!-- HEADER -->
   <header class="chat-header">
     <div class="chat-header-icon">
       <img src="{{ url_for('static', filename='img/timu.png') }}" alt="TIMU Icon">
@@ -18,14 +19,17 @@
     </div>
   </header>
 
+  <!-- CHAT WRAPPER -->
   <div class="chat-wrapper">
     <main id="chat-box" class="chat-box" aria-live="polite"></main>
 
+    <!-- Typing Indicator -->
     <div class="typing-indicator" id="typing-indicator" style="display: none;">
       <span></span><span></span><span></span>
     </div>
 
-    <form id="chat-form" class="chat-input-area" autocomplete="off">
+    <!-- INPUT AREA -->
+    <form id="chat-form" class="chat-input-area" action="#" method="post" autocomplete="off">
       <div class="input-container">
         <input
           type="text"
