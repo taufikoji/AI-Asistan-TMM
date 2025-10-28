@@ -4,26 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatBox = document.getElementById("chat-box");
   const typing = document.getElementById("typing-indicator");
 
-  // ✅ Tambahan aman: sambutan awal muncul langsung tanpa mengubah alur lain
+  // Sambutan awal
   renderBotMessage(
-    "Selamat datang di <b>Trisakti School of Multimedia (TIMU AI)</b>!<br> Ada yang bisa saya bantu hari ini?",
+    "Selamat datang di <b>Trisakti School of Multimedia (TIMU AI)</b>!<br>Ada yang bisa saya bantu hari ini?",
     false
   );
-
-  // Muat riwayat obrolan sebelumnya
-  fetch("/api/chat?init=true")
-    .then(res => res.json())
-    .then(data => {
-      if (data.conversation) {
-        data.conversation.forEach(msg => {
-          if (msg.role === "bot") {
-            renderBotMessage(msg.content, false);
-          } else {
-            renderMessage(msg.role, msg.content);
-          }
-        });
-      }
-    });
 
   // Kirim pesan user
   form.addEventListener("submit", async (e) => {
@@ -39,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message }),
       });
 
       const data = await res.json();
@@ -56,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Render pesan user/bot biasa
+  // Render pesan user
   function renderMessage(role, text) {
     const div = document.createElement("div");
     div.classList.add("message", role);
@@ -65,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // Render bot message dengan efek ketik & HTML bisa diklik
+  // Render pesan bot (dengan efek ketik)
   function renderBotMessage(htmlText, withTyping = true) {
     const container = document.createElement("div");
     container.classList.add("message", "bot");
@@ -87,17 +72,21 @@ document.addEventListener("DOMContentLoaded", () => {
         chatBox.scrollTop = chatBox.scrollHeight;
         setTimeout(typeChar, 10);
       } else {
-        // Ketikan selesai, ubah ke bentuk HTML DOM
         const parser = new DOMParser();
         const frag = parser.parseFromString(temp, "text/html").body;
-        container.innerHTML = ""; // Kosongkan sementara
-        while (frag.firstChild) {
-          container.appendChild(frag.firstChild);
-        }
+        container.innerHTML = "";
+        while (frag.firstChild) container.appendChild(frag.firstChild);
         chatBox.scrollTop = chatBox.scrollHeight;
       }
     }
 
     typeChar();
   }
+
+  // Fix iPhone keyboard behavior (scroll up when typing)
+  input.addEventListener("focus", () => {
+    setTimeout(() => {
+      document.activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+  });
 });
