@@ -5,7 +5,7 @@
     "alias": ["TMM", "STMK Trisakti", "Trisakti Multimedia"],
     "type": "Perguruan Tinggi Swasta di bidang Media Komunikasi, Kreatif, dan Teknologi",
     "foundation_year": 1985,
-    "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATGT) oleh Cosmos Sutiyono, B.Sc., dengan dukungan Rektor Universitas Trisakti, Prof. Dr. Ir. P. Haryasudirdja. Tahun 2008 berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti (STMK Trisakti) melalui SK Kemendikbud. Tahun 2018, STMK Trisakti resmi melakukan rebranding menjadi Trisakti School of Multimedia (TMM), dengan fokus pada pendidikan di bidang industri kreatif"
+    "history": "Didirikan pada tahun 1985 sebagai Akademi Teknologi Grafika Trisakti (ATGT) oleh Cosmos Sutiyono, B.Sc., dengan dukungan Rektor Universitas Trisakti, Prof. Dr. Ir. P. Haryasudirdja. Tahun 2008 berubah menjadi Sekolah Tinggi Media Komunikasi Trisakti (STMK Trisakti) melalui SK Kemendikbud. Tahun 2018, STMK Trisakti resmi melakukan rebranding menjadi Trisakti School of Multimedia (TMM), dengan fokus pada pendidikan di bidang industri kreatif.",
     "vision": "Menjadi perguruan tinggi media komunikasi yang berkualitas global dan pusat pengembangan kreativitas, budaya, dan teknologi.",
     "mission": [
       "Menyebarluaskan ilmu pengetahuan, teknologi, dan seni di bidang media komunikasi.",
@@ -77,10 +77,9 @@
       "evening_class_note": "Tersedia kelas malam khusus untuk jalur Alih Jenjang (AJ).",
       "aliases": ["DKV", "Desain Komunikasi Visual", "Desain Visual", "Periklanan", "Animasi", "Broadcasting"]
     },
-
     {
-      "name": "Sarjana Terapan Desain dan Teknologi Kemasan (D4)",
-      "short": "D4 Kemasan",
+      "name": "Sarjana Terapan Teknologi Grafika (D4)",
+      "short": "D4 Design & Packaging Production",
       "description": "Menggabungkan desain grafis dengan teknologi kemasan modern, fokus pada solusi kreatif, fungsional, dan ramah lingkungan.",
       "specializations": ["Packaging Design & Production"],
       "career_prospects": ["Packaging Designer", "Branding Consultant", "Packaging Production Supervisor"],
@@ -89,7 +88,6 @@
       "curriculum": "Mata kuliah meliputi desain kemasan, teknologi produksi, dan manajemen branding.",
       "aliases": ["TG", "Desain Kemasan", "Teknologi Kemasan", "D4 Kemasan", "Packaging"]
     }
-
   ],
 
   "accreditation": {
@@ -126,69 +124,15 @@
       "Portofolio & Sertifikat prestasi (jika ada)"
     ],
     "paths": [
-      {
-        "name": "NR - Non Reguler",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
-        
-        ]
-      },
-      {
-        "name": "REG - Reguler",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
-        
-        ]
-      },
-      {
-        "name": "AJ - Alih Jenjang",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
-         
-        ]
-      }
-    ],
-"name": "KJM - Kerjasama Sekolah",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
-         
-        ]
-      }
-    ],
-"name": "BRK - Beasiswa BRK Syariah",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
-         
-        ]
-      }
-    ],
-"name": "UTBK - Ex-UTBK",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
-         
-        ]
-      }
-    ],
-"name": "AKKGI - Kerjasama AKKGI",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
-         
-        ]
-      }
-    ],
-"name": "KJM - Kolaborasi Industri",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
-         
-        ]
-      }
-    ],
-"name": "EB - Early Bird",
-        "waves": [
-          {"wave": "Gelombang 1", "period": "2025-10-01 - 2025-12-31"},
-         
-        ]
-      }
+      {"name": "NR - Non Reguler", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "REG - Reguler", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "AJ - Alih Jenjang", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "KJM - Kerjasama Sekolah", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "BRK - Beasiswa BRK Syariah", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "UTBK - Ex-UTBK", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "AKKGI - Kerjasama AKKGI", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "KI - Kolaborasi Industri", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "EB - Early Bird", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2025-12-31"}]}
     ],
     "process": "Pendaftaran online melalui situs resmi: isi formulir, unggah dokumen, dan ikuti seleksi (jika ada). Offline di alamat kampus."
   },
@@ -256,7 +200,7 @@
   ],
 
   "keywords": {
-    "brosur": ["brosur","leaflet", "download brosur", "minta brosur", "brosur kampus"],
+    "brosur": ["brosur", "leaflet", "download brosur", "minta brosur", "brosur kampus"],
     "alamat": ["alamat kampus", "lokasi kampus", "dimana kampus"],
     "prodi": ["jurusan", "program studi", "s1", "d4", "animasi", "iklan", "kemasan", "broadcasting"],
     "beasiswa": ["beasiswa", "kip", "bantuan biaya", "scholarship"],
@@ -290,27 +234,4 @@
   "kip_schedule": {
     "events": [
       {"name": "Pendaftaran Akun Siswa KIP-Kuliah", "start": "2025-02-04", "end": "2025-10-31"},
-      {"name": "Seleksi Nasional Berdasarkan Prestasi (SNBP)", "start": "2025-02-04", "end": "2025-02-18"},
-      {"name": "UTBK-SNBT", "start": "2025-03-11", "end": "2025-03-27"},
-      {"name": "Seleksi Mandiri PTN", "start": "2025-06-04", "end": "2025-09-30"},
-      {"name": "Seleksi Mandiri PTS", "start": "2025-06-04", "end": "2025-10-31"}
-    ],
-    "note": "Jadwal dapat berubah sewaktu-waktu",
-    "registration_start": "2025-05-01",
-    "registration_end": "2025-10-31",
-    "announcement": "2025-11-15"
-  },
-
-  "kip_contact": {
-    "organization": "Pusat Pembiayaan dan Asesmen Pendidikan Tinggi",
-    "address": "Gedung D, Jl. Jenderal Sudirman, Senayan, Jakarta Pusat 10270",
-    "email": "kip@kemdikbud.go.id",
-    "hotline": "+6221-572-0406",
-    "copyright": "©️ 2025 Kartu Indonesia Pintar Kuliah"
-  },
-
-  "misc": {
-    "brochure_path": "/static/brosur_tmm.pdf",
-    "notes": "Simpan brosur_tmm.pdf di folder static agar endpoint /download-brosur dapat mengunduhnya."
-  }
-}
+      {"name": "Seleksi Nasional Berdasarkan Prestasi
