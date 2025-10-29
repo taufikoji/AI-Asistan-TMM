@@ -112,28 +112,73 @@
     "Kantin Mahasiswa"
   ],
 
-  "registration": {
-    "link": "https://trisaktimultimedia.ecampuz.com/eadmisi/",
-    "cost": "Gratis",
-    "requirements": [
-      "Fotokopi ijazah SMA/SMK sederajat yang dilegalisir",
-      "Transkrip nilai SMA/SMK sederajat",
-      "Pas foto ukuran 3x4 (2 lembar)",
-      "Fotokopi KTP, Akte Lahir dan Kartu Keluarga",
-      "Portofolio & Sertifikat prestasi (jika ada)"
-    ],
-    "paths": [
-      {"name": "NR - Non Reguler", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "REG - Reguler", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "AJ - Alih Jenjang", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "KJM - Kerjasama Sekolah", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "BRK - Beasiswa BRK Syariah", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "UTBK - Ex-UTBK", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "AKKGI - Kerjasama AKKGI", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "KJM - Kolaborasi Industri", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "EB - Early Bird", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2025-12-31"}]}
-    ],
-    "process": "Pendaftaran online melalui situs resmi: isi formulir, unggah dokumen, dan ikuti seleksi (jika ada). Offline di alamat kampus."
+ "registration": {
+  "link": "https://trisaktimultimedia.ecampuz.com/eadmisi/",
+  "cost": "Gratis",
+  "requirements": [
+    "Fotokopi ijazah SMA/SMK sederajat yang dilegalisir",
+    "Transkrip nilai SMA/SMK sederajat",
+    "Pas foto ukuran 3x4 (2 lembar)",
+    "Fotokopi KTP, Akte Lahir dan Kartu Keluarga",
+    "Portofolio & Sertifikat prestasi (jika ada)"
+  ],
+  "paths": [
+    {
+      "name": "NR - Non Reguler",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2026-02-28"}
+      ]
+    },
+    {
+      "name": "REG - Reguler",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2026-02-28"}
+      ]
+    },
+    {
+      "name": "AJ - Alih Jenjang",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2026-02-28"}
+      ]
+    },
+    {
+      "name": "KJM - Kerjasama Sekolah",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2026-02-28"}
+      ]
+    },
+    {
+      "name": "BRK - Beasiswa BRK Syariah",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2026-02-28"}
+      ]
+    },
+    {
+      "name": "UTBK - Ex-UTBK",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2026-02-28"}
+      ]
+    },
+    {
+      "name": "AKKGI - Kerjasama AKKGI",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2026-02-28"}
+      ]
+    },
+    {
+      "name": "KI - Kolaborasi Industri",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2026-02-28"}
+      ]
+    },
+    {
+      "name": "EB - Early Bird",
+      "waves": [
+        {"wave": "Gelombang 1", "start": "2025-10-01", "end": "2025-12-31"}
+      ]
+    }
+  ],
+  "process": "Pendaftaran online melalui situs resmi: isi formulir, unggah dokumen, dan ikuti seleksi (jika ada). Offline di alamat kampus."
   },
 
   "payment": {
