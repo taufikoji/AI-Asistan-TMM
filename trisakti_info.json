@@ -122,29 +122,71 @@
       "Fotokopi ijazah SMA/SMK sederajat yang dilegalisir",
       "Transkrip nilai SMA/SMK sederajat",
       "Pas foto ukuran 3x4 (2 lembar)",
-      "Fotokopi KTP dan Kartu Keluarga",
-      "Sertifikat prestasi (jika ada)"
+      "Fotokopi KTP, Akte Lahir dan Kartu Keluarga",
+      "Portofolio & Sertifikat prestasi (jika ada)"
     ],
     "paths": [
       {
         "name": "NR - Non Reguler",
         "waves": [
-          {"wave": "Gelombang 2", "period": "2025-04-01 - 2025-06-30"},
-          {"wave": "Gelombang 3", "period": "2025-07-01 - 2025-07-31"}
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
+        
         ]
       },
       {
         "name": "REG - Reguler",
         "waves": [
-          {"wave": "Gelombang 2", "period": "2025-04-01 - 2025-06-30"},
-          {"wave": "Gelombang 3", "period": "2025-07-01 - 2025-07-31"}
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
+        
         ]
       },
       {
         "name": "AJ - Alih Jenjang",
         "waves": [
-          {"wave": "Gelombang 2", "period": "2025-04-01 - 2025-06-30"},
-          {"wave": "Gelombang 3", "period": "2025-07-01 - 2025-07-31"}
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
+         
+        ]
+      }
+    ],
+"name": "KJM - Kerjasama Sekolah",
+        "waves": [
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
+         
+        ]
+      }
+    ],
+"name": "BRK - Beasiswa BRK Syariah",
+        "waves": [
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
+         
+        ]
+      }
+    ],
+"name": "UTBK - Ex-UTBK",
+        "waves": [
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
+         
+        ]
+      }
+    ],
+"name": "AKKGI - Kerjasama AKKGI",
+        "waves": [
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
+         
+        ]
+      }
+    ],
+"name": "KJM - Kolaborasi Industri",
+        "waves": [
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-31"},
+         
+        ]
+      }
+    ],
+"name": "EB - Early Bird",
+        "waves": [
+          {"wave": "Gelombang 1", "period": "2025-10-01 - 2025-12-31"},
+         
         ]
       }
     ],
@@ -264,7 +306,7 @@
     "address": "Gedung D, Jl. Jenderal Sudirman, Senayan, Jakarta Pusat 10270",
     "email": "kip@kemdikbud.go.id",
     "hotline": "+6221-572-0406",
-    "copyright": "© 2025 Kartu Indonesia Pintar Kuliah"
+    "copyright": "©️ 2025 Kartu Indonesia Pintar Kuliah"
   },
 
   "misc": {
