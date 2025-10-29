@@ -89,8 +89,7 @@
       "aliases": ["TG", "Desain Kemasan", "Teknologi Kemasan", "D4 Kemasan", "Packaging"]
     }
   ],
-
-  "accreditation": {
+    "accreditation": {
     "overall": "BAIK (BAN-PT)",
     "programs": {
       "DKV": "BAIK",
@@ -131,7 +130,7 @@
       {"name": "BRK - Beasiswa BRK Syariah", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
       {"name": "UTBK - Ex-UTBK", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
       {"name": "AKKGI - Kerjasama AKKGI", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
-      {"name": "KI - Kolaborasi Industri", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
+      {"name": "KJM - Kolaborasi Industri", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2026-02-28"}]},
       {"name": "EB - Early Bird", "waves": [{"wave": "Gelombang 1", "period": "2025-10-01 - 2025-12-31"}]}
     ],
     "process": "Pendaftaran online melalui situs resmi: isi formulir, unggah dokumen, dan ikuti seleksi (jika ada). Offline di alamat kampus."
@@ -161,31 +160,52 @@
     {
       "name": "Beasiswa KIP Kuliah",
       "description": "Beasiswa pemerintah untuk mahasiswa berprestasi dari keluarga kurang mampu.",
-      "requirements": ["Fotokopi KTP dan KK", "Surat keterangan tidak mampu dari kelurahan", "Transkrip nilai SMA/SMK", "Pendaftaran via https://kip-kuliah.kemdikbud.go.id"],
+      "requirements": [
+        "Fotokopi KTP dan KK",
+        "Surat keterangan tidak mampu dari kelurahan",
+        "Transkrip nilai SMA/SMK",
+        "Pendaftaran via https://kip-kuliah.kemdikbud.go.id"
+      ],
       "process": "Pendaftaran online, seleksi berdasarkan nilai dan dokumen, batas 2025-10-31."
     },
     {
       "name": "Yayasan Beasiswa Trisakti",
       "description": "Beasiswa internal untuk mahasiswa berprestasi akademik.",
-      "requirements": ["IPK minimal 3.0", "Surat rekomendasi dari dosen", "Esai motivasi (maks. 500 kata)"],
+      "requirements": [
+        "IPK minimal 3.0",
+        "Surat rekomendasi dari dosen",
+        "Esai motivasi (maks. 500 kata)"
+      ],
       "process": "Pengajuan via bagian akademik, seleksi wawancara, kuota bervariasi."
     },
     {
       "name": "Beasiswa Bulan Pendidikan",
       "description": "Beasiswa tahunan untuk prestasi non-akademik (olahraga, seni, dll.).",
-      "requirements": ["Sertifikat prestasi", "Surat rekomendasi dari pelatih", "Transkrip nilai semester terakhir"],
+      "requirements": [
+        "Sertifikat prestasi",
+        "Surat rekomendasi dari pelatih",
+        "Transkrip nilai semester terakhir"
+      ],
       "process": "Pengajuan via email info@trisaktimultimedia.ac.id, pengumuman Juli."
     },
     {
       "name": "Beasiswa EX-UTBK",
       "description": "Beasiswa untuk mahasiswa baru dengan nilai UTBK tinggi.",
-      "requirements": ["Nilai UTBK minimal 600", "Fotokopi sertifikat UTBK", "Surat pernyataan bermaterai"],
+      "requirements": [
+        "Nilai UTBK minimal 600",
+        "Fotokopi sertifikat UTBK",
+        "Surat pernyataan bermaterai"
+      ],
       "process": "Otomatis saat pendaftaran jika memenuhi syarat."
     },
     {
       "name": "Beasiswa Kerja Sama Sekolah",
       "description": "Beasiswa untuk lulusan sekolah mitra Trisakti.",
-      "requirements": ["Surat rekomendasi sekolah", "Transkrip nilai SMA/SMK", "Fotokopi ijazah"],
+      "requirements": [
+        "Surat rekomendasi sekolah",
+        "Transkrip nilai SMA/SMK",
+        "Fotokopi ijazah"
+      ],
       "process": "Koordinasi dengan sekolah mitra, pengajuan via kantor admisi."
     }
   ],
@@ -211,8 +231,16 @@
   },
 
   "academic_calendar": {
-    "semester_1_2025": {"start": "2025-08-15", "end": "2025-12-20", "holidays": ["2025-12-25 - Natal"]},
-    "semester_2_2025": {"start": "2026-01-12", "end": "2026-05-30", "holidays": ["2026-02-01 - Imlek", "2026-05-01 - Hari Buruh"]}
+    "semester_1_2025": {
+      "start": "2025-08-15",
+      "end": "2025-12-20",
+      "holidays": ["2025-12-25 - Natal"]
+    },
+    "semester_2_2025": {
+      "start": "2026-01-12",
+      "end": "2026-05-30",
+      "holidays": ["2026-02-01 - Imlek", "2026-05-01 - Hari Buruh"]
+    }
   },
 
   "events": [
@@ -234,4 +262,27 @@
   "kip_schedule": {
     "events": [
       {"name": "Pendaftaran Akun Siswa KIP-Kuliah", "start": "2025-02-04", "end": "2025-10-31"},
-      {"name": "Seleksi Nasional Berdasarkan Prestasi
+      {"name": "Seleksi Nasional Berdasarkan Prestasi (SNBP)", "start": "2025-02-04", "end": "2025-02-18"},
+      {"name": "UTBK-SNBT", "start": "2025-03-11", "end": "2025-03-27"},
+      {"name": "Seleksi Mandiri PTN", "start": "2025-06-04", "end": "2025-09-30"},
+      {"name": "Seleksi Mandiri PTS", "start": "2025-06-04", "end": "2025-10-31"}
+    ],
+    "note": "Jadwal dapat berubah sewaktu-waktu",
+    "registration_start": "2025-05-01",
+    "registration_end": "2025-10-31",
+    "announcement": "2025-11-15"
+  },
+
+  "kip_contact": {
+    "organization": "Pusat Pembiayaan dan Asesmen Pendidikan Tinggi",
+    "address": "Gedung D, Jl. Jenderal Sudirman, Senayan, Jakarta Pusat 10270",
+    "email": "kip@kemdikbud.go.id",
+    "hotline": "+6221-572-0406",
+    "copyright": "©️ 2025 Kartu Indonesia Pintar Kuliah"
+  },
+
+  "misc": {
+    "brochure_path": "/static/brosur_tmm.pdf",
+    "notes": "Simpan brosur_tmm.pdf di folder static agar endpoint /download-brosur dapat mengunduhnya."
+  }
+}
