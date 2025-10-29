@@ -328,32 +328,60 @@ def get_category(msg):
     return "general"
 
 _last_reg = {"t": None, "v": "Belum ada informasi pendaftaran."}
+
 def get_current_registration_status():
+    """
+    Menghasilkan status pendaftaran dengan dukungan:
+    - Format baru: wave { "start": "YYYY-MM-DD", "end": "YYYY-MM-DD" }
+    - Fallback format lama: wave { "period": "YYYY-MM-DD - YYYY-MM-DD" }
+    Meng-cache hasil 10 menit untuk efisiensi.
+    """
     try:
         if _last_reg["t"] and (datetime.now() - _last_reg["t"]).seconds < 600:
             return _last_reg["v"]
+
         today = datetime.now().date()
         out = []
+
         for p in TRISAKTI.get("registration", {}).get("paths", []):
             for w in p.get("waves", []):
-                period = w.get("period", "")
-                if " - " not in period:
+                start, end = None, None
+
+                # Format baru (start/end)
+                if w.get("start") and w.get("end"):
+                    try:
+                        start = parse_date(w["start"], dayfirst=True).date()
+                        end = parse_date(w["end"], dayfirst=True).date()
+                    except Exception:
+                        start = end = None
+
+                # Fallback format lama (period)
+                if (start is None or end is None) and isinstance(w.get("period"), str) and " - " in w["period"]:
+                    try:
+                        start_str, end_str = [s.strip() for s in w["period"].split(" - ")]
+                        start = parse_date(start_str, dayfirst=True).date()
+                        end = parse_date(end_str, dayfirst=True).date()
+                    except Exception:
+                        start = end = None
+
+                if not (start and end):
+                    # Skip wave yang tidak bisa diparse, jangan blokir lainnya
                     continue
-                start_str, end_str = [s.strip() for s in period.split(" - ")]
-                try:
-                    start = parse_date(start_str, dayfirst=True).date()
-                    end = parse_date(end_str, dayfirst=True).date()
-                except Exception:
-                    continue
+
                 wave_name = w.get("wave", "Gelombang")
+                path_name = p.get("name") or ""
                 if today < start:
-                    out.append(f"{wave_name} ({p.get('name')}) akan dibuka {start.strftime('%d %B %Y')}.")
+                    out.append(f"{wave_name} ({path_name}) akan dibuka {start.strftime('%d %B %Y')}.")
                 elif start <= today <= end:
-                    out.append(f"{wave_name} ({p.get('name')}) sedang berlangsung hingga {end.strftime('%d %B %Y')}.")
+                    out.append(f"{wave_name} ({path_name}) sedang berlangsung hingga {end.strftime('%d %B %Y')}.")
                 else:
-                    out.append(f"{wave_name} ({p.get('name')}) sudah ditutup {end.strftime('%d %B %Y')}.")
-        val = "\n".join(out) if out else "Belum ada informasi pendaftaran."
+                    out.append(f"{wave_name} ({path_name}) sudah ditutup {end.strftime('%d %B %Y')}.")
+
+        val = "\n".join(out)
+        if not val.strip():
+            val = "Belum ada informasi pendaftaran."
         _last_reg["t"], _last_reg["v"] = datetime.now(), val
+        logger.info("📅 Registration status generated:\n%s", val)
         return val
     except Exception as e:
         logger.warning("Gagal menentukan status pendaftaran: %s", e)
@@ -564,13 +592,20 @@ def _chat_handler():
         return resp
 
     if category in ("pendaftaran", "registration"):
+        # Kumpulkan link per-path bila ada, jika tidak pakai link global
         links = []
         for p in TRISAKTI.get("registration", {}).get("paths", []):
             l = p.get("link")
             if l and l not in links:
                 links.append(l)
-        links_html = "<br>".join([f"<a href='{l}' target='_blank' rel='noopener'>{l}</a>" for l in links]) if links else TRISAKTI.get("registration", {}).get("link", "")
-        reply = f"📝 Link pendaftaran resmi:<br>{links_html}<br><br>{reg_status}"
+        if links:
+            links_html = "<br>".join([f"<a href='{l}' target='_blank' rel='noopener'>{l}</a>" for l in links])
+        else:
+            global_link = TRISAKTI.get("registration", {}).get("link", "")
+            links_html = f"<a href='{global_link}' target='_blank' rel='noopener'>{global_link}</a>" if global_link else "Belum tersedia"
+
+        status_html = get_current_registration_status().replace("\n", "<br>")
+        reply = f"📝 <b>Link pendaftaran resmi:</b><br>{links_html}<br><br>{status_html}"
         reply = sanitize_html(reply)
         _append_session("bot", reply)
         save_chat_db(corrected, reply, source="local")
